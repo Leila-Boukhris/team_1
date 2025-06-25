@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurants - FoodDelivery App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.13/babel.min.js"></script>
+    <style>
+        :root {
+            --main-bg: #121212;
+            --card-bg: #1e1e1e;
+            --hover-bg: #2a2a2a;
+            --accent-red: #ff4757;
+            --accent-green: #2ed573;
+            --text-primary: #f5f5f5;
+            --text-secondary: #aaaaaa;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--main-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(90deg, var(--accent-red), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: var(--shadow);
+        }
+        
+        .user-panel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+        
+        .welcome-section {
+            margin: 30px 0;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.8s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .welcome-section h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-section p {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+        
+        .filter-section {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .filter-section h2 {
+            margin-bottom: 15px;
+            color: var(--accent-green);
+        }
+        
+        .filter-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-form select,
+        .filter-form input {
+            padding: 8px;
+            border: 1px solid #2a2a2a;
+            border-radius: 4px;
+            background-color: var(--main-bg);
+            color: var(--text-primary);
+        }
+        
+        .restaurants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .restaurant-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+        
+        .restaurant-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .restaurant-image {
+            height: 200px;
+            width: 100%;
+            object-fit: cover;
+        }
+        
+        .restaurant-info {
+            padding: 15px;
+        }
+        
+        .restaurant-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .restaurant-details {
+            margin: 10px 0;
+            color: var(--text-secondary);
+        }
+        
+        .restaurant-address {
+            margin: 5px 0;
+        }
+        
+        .restaurant-phone {
+            color: var(--accent-green);
+            text-decoration: none;
+        }
+        
+        .restaurant-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+
+{% block content %}
+    <div class="container">
+        <h1>Restaurants</h1>
+        
+        <div class="filter-section">
+            <h2>Filtrer</h2>
+            <form method="GET">
+                <select name="city" onchange="this.form.submit()">
+                    <option value="">Toutes les villes</option>
+                    {% for city in cities %}
+                    <option value="{{ city.id }}" {% if city.id == request.GET.city %}selected{% endif %}>
+                        {{ city.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                
+                <select name="status" onchange="this.form.submit()">
+                    <option value="">Tous les statuts</option>
+                    <option value="open" {% if request.GET.status == 'open' %}selected{% endif %}>
+                        Ouverts
+                    </option>
+                    <option value="closed" {% if request.GET.status == 'closed' %}selected{% endif %}>
+                        Fermés
+                    </option>
+                </select>
+                
+                <input type="text" name="search" placeholder="Rechercher par nom..." 
+                       value="{{ request.GET.search }}" 
+                       oninput="this.form.submit()">
+            </form>
+        </div>
+
+        <div class="restaurants-grid">
+            {% for restaurant in restaurants %}
+            <div class="restaurant-card">
+                <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}" class="restaurant-image">
+                <div class="restaurant-info">
+                    <h3 class="restaurant-name">{{ restaurant.name }}</h3>
+                    <p class="restaurant-address">{{ restaurant.address }}</p>
+                    <p class="restaurant-details">Ville: {{ restaurant.city.name }}</p>
+                    <p class="restaurant-details">Téléphone: <a href="tel:{{ restaurant.phone }}" class="restaurant-phone">{{ restaurant.phone }}</a></p>
+                    <div class="restaurant-status {{ restaurant.is_open|yesno:'open,closed' }}">
+                        {{ restaurant.is_open|yesno:'Ouvert,Fermé' }}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>Aucun restaurant trouvé</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .filter-section {
+        margin-bottom: 30px;
+    }
+
+    .filter-section form {
+        display: flex;
+        gap: 15px;
+    }
+
+    .filter-section select,
+    .filter-section input {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .restaurants-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .restaurant-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+    }
+
+    .restaurant-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .restaurant-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .restaurant-info {
+        padding: 15px;
+    }
+
+    .restaurant-name {
+        margin: 0 0 10px 0;
+        color: var(--accent-green);
+    }
+
+    .restaurant-address,
+    .restaurant-details {
+        margin: 5px 0;
+        color: var(--text-secondary);
+    }
+
+    .restaurant-phone {
+        color: var(--accent-green);
+        text-decoration: none;
+    }
+
+    .restaurant-status {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        margin-top: 10px;
+    }
+
+    .open {
+        background-color: var(--accent-green);
+        color: white;
+    }
+
+    .closed {
+        background-color: var(--accent-red);
+        color: white;
+    }
+</style>
+{% endblock %}

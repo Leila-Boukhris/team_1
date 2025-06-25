@@ -1,0 +1,401 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}{{ topic.title }} | Forum FoodFlex{% endblock %}
+{% block page_title %}{{ topic.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .topic-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .topic-header {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .topic-title {
+        font-size: 24px;
+        margin-bottom: 15px;
+        color: var(--text-color);
+    }
+    
+    .topic-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-size: 14px;
+        color: var(--text-light);
+    }
+    
+    .topic-meta-left {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .topic-meta-right {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .topic-meta i {
+        margin-right: 5px;
+    }
+    
+    .topic-category {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        background-color: rgba(78, 205, 196, 0.1);
+        color: #4ecdc4;
+        margin-right: 8px;
+    }
+    
+    .topic-content {
+        margin-top: 20px;
+        line-height: 1.6;
+        color: var(--text-color);
+    }
+    
+    .message-list {
+        margin-bottom: 30px;
+    }
+    
+    .message {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+    }
+    
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 20px;
+        background-color: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .message-author {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    
+    .message-author-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .message-author-name {
+        font-weight: 600;
+        color: var(--text-color);
+    }
+    
+    .message-date {
+        font-size: 12px;
+        color: var(--text-light);
+    }
+    
+    .message-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .message-action-btn {
+        font-size: 13px;
+        color: var(--text-light);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .message-action-btn:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: var(--text-color);
+    }
+    
+    .message-body {
+        padding: 20px;
+        line-height: 1.6;
+        color: var(--text-color);
+    }
+    
+    .message-solution {
+        border-left: 4px solid #2ed573;
+    }
+    
+    .solution-badge {
+        background-color: rgba(46, 213, 115, 0.1);
+        color: #2ed573;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    
+    .reply-form {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .reply-form h3 {
+        margin-bottom: 20px;
+        font-size: 18px;
+    }
+    
+    .reply-form textarea {
+        width: 100%;
+        min-height: 150px;
+        padding: 15px;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+        margin-bottom: 20px;
+        font-family: inherit;
+        resize: vertical;
+    }
+    
+    .reply-form-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .topic-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 25px;
+    }
+    
+    .back-to-forum {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-light);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .back-to-forum:hover {
+        color: var(--primary-color);
+    }
+    
+    .first-message {
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 30px 0;
+    }
+    
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .page-link:hover, .page-link.active {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .page-ellipsis {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        color: var(--text-light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+    <div class="breadcrumb">
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <a href="{% url 'forum_topics_list' %}">Forum</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span>{{ topic.title|truncatechars:30 }}</span>
+    </div>
+    
+    <div class="topic-container">
+        <div class="topic-actions">
+            <a href="{% url 'forum_topics_list' %}" class="back-to-forum">
+                <i class="fas fa-arrow-left"></i> Retour au forum
+            </a>
+        </div>
+        
+        <div class="topic-header">
+            <h1 class="topic-title">{{ topic.title }}</h1>
+            <div class="topic-meta">
+                <div class="topic-meta-left">
+                    <span><i class="fas fa-user"></i> {{ topic.author.username }}</span>
+                    <span><i class="fas fa-clock"></i> {{ topic.created_at|date:"d/m/Y à H:i" }}</span>
+                    <span class="topic-category">
+                        {% if topic.category == 'general' %}<i class="fas fa-globe"></i>
+                        {% elif topic.category == 'recipes' %}<i class="fas fa-utensils"></i>
+                        {% elif topic.category == 'restaurants' %}<i class="fas fa-store"></i>
+                        {% elif topic.category == 'travel' %}<i class="fas fa-plane"></i>
+                        {% elif topic.category == 'events' %}<i class="fas fa-calendar-alt"></i>
+                        {% endif %}
+                        {{ topic.get_category_display }}
+                    </span>
+                </div>
+                <div class="topic-meta-right">
+                    <span><i class="fas fa-comments"></i> {{ messages|length }} réponses</span>
+                    <span><i class="fas fa-eye"></i> {{ topic.views_count }} vues</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="message-list">
+            {% for message in messages %}
+            <div class="message {% if forloop.first %}first-message{% endif %} {% if message.is_solution %}message-solution{% endif %}">
+                <div class="message-header">
+                    <div class="message-author">
+                        <div class="message-avatar">
+                            {% if message.author.profile.profile_image %}
+                                <img src="{{ message.author.profile.profile_image.url }}" alt="{{ message.author.username }}" width="40" height="40" style="border-radius: 50%; object-fit: cover;">
+                            {% else %}
+                                {{ message.author.username|slice:":1"|upper }}
+                            {% endif %}
+                        </div>
+                        <div class="message-author-info">
+                            <span class="message-author-name">{{ message.author.username }}</span>
+                            <span class="message-date">{{ message.created_at|date:"d/m/Y à H:i" }}</span>
+                        </div>
+                        {% if message.is_solution %}
+                            <span class="solution-badge"><i class="fas fa-check-circle"></i> Solution</span>
+                        {% endif %}
+                    </div>
+                    <div class="message-actions">
+                        {% if user == message.author or user.is_staff %}
+                            <a href="{% url 'forum_edit_message' message.id %}" class="message-action-btn">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                            <a href="{% url 'forum_delete_message' message.id %}" class="message-action-btn">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </a>
+                        {% endif %}
+                        <button class="message-action-btn">
+                            <i class="fas fa-reply"></i> Citer
+                        </button>
+                    </div>
+                </div>
+                <div class="message-body">
+                    {{ message.content|linebreaks }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if user.is_authenticated %}
+        <div class="reply-form">
+            <h3>Répondre à ce sujet</h3>
+            <form method="post" action="{% url 'forum_reply' topic.id %}">
+                {% csrf_token %}
+                {{ form.content }}
+                <div class="reply-form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Envoyer ma réponse
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            Vous devez être <a href="{% url 'login' %}">connecté</a> pour répondre à ce sujet.
+        </div>
+        {% endif %}
+        
+        <!-- Pagination - à implémenter si nécessaire -->
+        {% if messages.has_other_pages %}
+        <div class="pagination">
+            {% if messages.has_previous %}
+                <a href="?page={{ messages.previous_page_number }}" class="page-link"><i class="fas fa-chevron-left"></i></a>
+            {% endif %}
+            
+            {% for num in messages.paginator.page_range %}
+                {% if messages.number == num %}
+                    <a href="?page={{ num }}" class="page-link active">{{ num }}</a>
+                {% elif num > messages.number|add:'-3' and num < messages.number|add:'3' %}
+                    <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if messages.has_next %}
+                <a href="?page={{ messages.next_page_number }}" class="page-link"><i class="fas fa-chevron-right"></i></a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion du bouton "Citer"
+        const quoteButtons = document.querySelectorAll('.message-action-btn i.fa-reply');
+        const replyTextarea = document.querySelector('.reply-form textarea');
+        
+        quoteButtons.forEach(button => {
+            button.parentElement.addEventListener('click', function() {
+                const messageBody = this.closest('.message').querySelector('.message-body').textContent.trim();
+                const author = this.closest('.message').querySelector('.message-author-name').textContent.trim();
+                
+                const quote = `> **${author}** a écrit :\n> ${messageBody.replace(/\n/g, '\n> ')}\n\n`;
+                
+                if (replyTextarea) {
+                    replyTextarea.value += quote;
+                    replyTextarea.focus();
+                    
+                    // Scroll to form
+                    document.querySelector('.reply-form').scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

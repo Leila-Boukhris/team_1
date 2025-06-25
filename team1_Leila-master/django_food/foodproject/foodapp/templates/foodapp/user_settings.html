@@ -1,0 +1,583 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Paramètres | FoodFlex{% endblock %}
+{% block page_title %}Paramètres de votre compte{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        margin-top: 20px;
+    }
+    
+    .settings-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+        padding: 30px;
+        flex: 1 1 500px;
+    }
+    
+    .settings-card h3 {
+        font-size: 20px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .settings-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .form-control {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        padding: 12px 15px;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+    }
+    
+    .theme-options {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+    }
+    
+    .theme-option {
+        position: relative;
+        width: 120px;
+        height: 80px;
+        border-radius: 10px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    
+    .theme-option:hover {
+        transform: scale(1.05);
+    }
+    
+    .theme-option.dark {
+        background: linear-gradient(to bottom, #1a1a2e, #16213e);
+    }
+    
+    .theme-option.light {
+        background: linear-gradient(to bottom, #ffffff, #f8f8f8);
+        border: 1px solid #ddd;
+    }
+    
+    .theme-option.system {
+        background: linear-gradient(135deg, #1a1a2e 50%, #ffffff 50%);
+    }
+    
+    .theme-option input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        z-index: 2;
+    }
+    
+    .theme-option-label {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 5px;
+        font-size: 12px;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+    }
+    
+    .theme-option.light .theme-option-label {
+        color: #333;
+        background: rgba(255, 255, 255, 0.7);
+    }
+    
+    .theme-option-selected {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+    }
+    
+    .theme-option input:checked + .theme-option-selected {
+        display: flex;
+    }
+    
+    .toggle-switch {
+        display: flex;
+        align-items: center;
+    }
+    
+    .toggle-switch label {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+        margin: 0;
+        margin-right: 10px;
+    }
+    
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.1);
+        transition: .4s;
+        border-radius: 34px;
+    }
+    
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .toggle-slider {
+        background-color: var(--primary-color);
+    }
+    
+    input:focus + .toggle-slider {
+        box-shadow: 0 0 1px var(--primary-color);
+    }
+    
+    input:checked + .toggle-slider:before {
+        transform: translateX(30px);
+    }
+    
+    .submit-button {
+        background: var(--gradient);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+        align-self: flex-start;
+    }
+    
+    .submit-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .alert-success {
+        background-color: #4CAF50;
+    }
+    
+    .alert-error {
+        background-color: #f44336;
+    }
+    
+    .alert i {
+        font-size: 20px;
+    }
+    
+    /* Styles spécifiques à chaque langue */
+    .language-options {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    
+    .language-option {
+        flex: 0 1 100px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .language-option:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .language-option input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+    }
+    
+    .language-option img {
+        width: 30px;
+        height: 20px;
+        object-fit: cover;
+        margin-bottom: 5px;
+        border-radius: 3px;
+    }
+    
+    .language-option span {
+        display: block;
+        font-size: 12px;
+    }
+    
+    .language-option-selected {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        display: none;
+    }
+    
+    .language-option input:checked + .language-option-selected {
+        display: block;
+    }
+    
+    .language-option input:checked ~ div {
+        color: var(--primary-color);
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <i class="{% if message.tags == 'success' %}fas fa-check-circle{% else %}fas fa-exclamation-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="settings-card">
+        <h3>Paramètres généraux</h3>
+        <form class="settings-form" method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Thème de l'application</label>
+                <div class="theme-options">
+                    <div class="theme-option dark">
+                        <input type="radio" name="theme" value="dark" {% if preferences.theme == 'dark' %}checked{% endif %}>
+                        <span class="theme-option-selected"><i class="fas fa-check"></i></span>
+                        <div class="theme-option-label">Sombre</div>
+                    </div>
+                    <div class="theme-option light">
+                        <input type="radio" name="theme" value="light" {% if preferences.theme == 'light' %}checked{% endif %}>
+                        <span class="theme-option-selected"><i class="fas fa-check"></i></span>
+                        <div class="theme-option-label">Clair</div>
+                    </div>
+                    <div class="theme-option system">
+                        <input type="radio" name="theme" value="system" {% if preferences.theme == 'system' %}checked{% endif %}>
+                        <span class="theme-option-selected"><i class="fas fa-check"></i></span>
+                        <div class="theme-option-label">Système</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Langue</label>
+                <div class="language-options">
+                    <div class="language-option">
+                        <input type="radio" name="language" value="fr" {% if preferences.language == 'fr' %}checked{% endif %}>
+                        <span class="language-option-selected"></span>
+                        <img src="https://flagcdn.com/w40/fr.png" alt="Français">
+                        <span>Français</span>
+                    </div>
+                    <div class="language-option">
+                        <input type="radio" name="language" value="en" {% if preferences.language == 'en' %}checked{% endif %}>
+                        <span class="language-option-selected"></span>
+                        <img src="https://flagcdn.com/w40/gb.png" alt="English">
+                        <span>English</span>
+                    </div>
+                    <div class="language-option">
+                        <input type="radio" name="language" value="ar" {% if preferences.language == 'ar' %}checked{% endif %}>
+                        <span class="language-option-selected"></span>
+                        <img src="https://flagcdn.com/w40/ma.png" alt="العربية">
+                        <span>العربية</span>
+                    </div>
+                    <div class="language-option">
+                        <input type="radio" name="language" value="es" {% if preferences.language == 'es' %}checked{% endif %}>
+                        <span class="language-option-selected"></span>
+                        <img src="https://flagcdn.com/w40/es.png" alt="Español">
+                        <span>Español</span>
+                    </div>
+                    <div class="language-option">
+                        <input type="radio" name="language" value="de" {% if preferences.language == 'de' %}checked{% endif %}>
+                        <span class="language-option-selected"></span>
+                        <img src="https://flagcdn.com/w40/de.png" alt="Deutsch">
+                        <span>Deutsch</span>
+                    </div>
+                    <div class="language-option">
+                        <input type="radio" name="language" value="it" {% if preferences.language == 'it' %}checked{% endif %}>
+                        <span class="language-option-selected"></span>
+                        <img src="https://flagcdn.com/w40/it.png" alt="Italiano">
+                        <span>Italiano</span>
+                    </div>
+                    <div class="language-option">
+                        <input type="radio" name="language" value="pt" {% if preferences.language == 'pt' %}checked{% endif %}>
+                        <span class="language-option-selected"></span>
+                        <img src="https://flagcdn.com/w40/pt.png" alt="Português">
+                        <span>Português</span>
+                    </div>
+                    <div class="language-option">
+                        <input type="radio" name="language" value="zh" {% if preferences.language == 'zh' %}checked{% endif %}>
+                        <span class="language-option-selected"></span>
+                        <img src="https://flagcdn.com/w40/cn.png" alt="中文">
+                        <span>中文</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="toggle-switch">
+                    <label>
+                        <input type="checkbox" name="notifications_enabled" {% if preferences.notifications_enabled %}checked{% endif %}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>Activer les notifications</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="toggle-switch">
+                    <label>
+                        <input type="checkbox" name="email_notifications" {% if preferences.email_notifications %}checked{% endif %}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>Notifications par email</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="toggle-switch">
+                    <label>
+                        <input type="checkbox" name="show_recommendations" {% if preferences.show_recommendations %}checked{% endif %}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>Afficher les recommandations personnalisées</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Format de date préféré</label>
+                <select name="date_format" class="form-control">
+                    <option value="DD/MM/YYYY" {% if preferences.date_format == 'DD/MM/YYYY' %}selected{% endif %}>JJ/MM/AAAA (25/12/2023)</option>
+                    <option value="MM/DD/YYYY" {% if preferences.date_format == 'MM/DD/YYYY' %}selected{% endif %}>MM/JJ/AAAA (12/25/2023)</option>
+                    <option value="YYYY-MM-DD" {% if preferences.date_format == 'YYYY-MM-DD' %}selected{% endif %}>AAAA-MM-JJ (2023-12-25)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Devise préférée</label>
+                <select name="currency" class="form-control">
+                    <option value="EUR" {% if preferences.currency == 'EUR' %}selected{% endif %}>Euro (€)</option>
+                    <option value="USD" {% if preferences.currency == 'USD' %}selected{% endif %}>Dollar américain ($)</option>
+                    <option value="MAD" {% if preferences.currency == 'MAD' %}selected{% endif %}>Dirham marocain (د.م.)</option>
+                    <option value="GBP" {% if preferences.currency == 'GBP' %}selected{% endif %}>Livre sterling (£)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Préférences alimentaires</label>
+                <div style="margin-top: 10px;">
+                    <div class="toggle-switch" style="margin-bottom: 10px;">
+                        <label>
+                            <input type="checkbox" name="is_vegetarian" {% if profile.is_vegetarian %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span>Je suis végétarien</span>
+                    </div>
+                    <div class="toggle-switch" style="margin-bottom: 10px;">
+                        <label>
+                            <input type="checkbox" name="is_vegan" {% if profile.is_vegan %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span>Je suis végétalien</span>
+                    </div>
+                    <div class="toggle-switch">
+                        <label>
+                            <input type="checkbox" name="has_allergies" {% if preferences.has_allergies %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span>J'ai des allergies alimentaires</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-button">Enregistrer les modifications</button>
+        </form>
+    </div>
+    
+    <div class="settings-card">
+        <h3>Confidentialité et sécurité</h3>
+        
+        <div class="form-group">
+            <p>Ces paramètres vous permettent de contrôler vos données et la sécurité de votre compte.</p>
+            <ul style="padding-left: 20px; margin-top: 15px; color: var(--text-secondary);">
+                <li style="margin-bottom: 10px;">
+                    <a href="#" style="color: var(--primary-color); text-decoration: none;">Exporter mes données</a> - Téléchargez toutes vos données personnelles
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <a href="#" style="color: var(--primary-color); text-decoration: none;">Changer mon mot de passe</a> - Mettez à jour vos informations de connexion
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <a href="#" style="color: var(--danger-color); text-decoration: none;">Supprimer mon compte</a> - Supprime définitivement votre compte et vos données
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animer les thèmes au changement
+        const themeOptions = document.querySelectorAll('.theme-option input');
+        themeOptions.forEach(option => {
+            option.addEventListener('change', function() {
+                if (this.checked) {
+                    const parent = this.closest('.theme-option');
+                    parent.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        parent.style.transform = 'scale(1)';
+                    }, 200);
+                    
+                    // Appliquer le thème immédiatement
+                    const selectedTheme = this.value;
+                    applyTheme(selectedTheme);
+                    
+                    // Sauvegarder le thème dans le localStorage
+                    localStorage.setItem('foodflexTheme', selectedTheme);
+                }
+            });
+        });
+        
+        // Animer le toggle switch
+        const toggleSwitches = document.querySelectorAll('.toggle-switch input');
+        toggleSwitches.forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const slider = this.nextElementSibling;
+                slider.style.transition = 'background-color 0.4s';
+                
+                if (this.checked) {
+                    slider.style.backgroundColor = 'var(--primary-color)';
+                } else {
+                    slider.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }
+            });
+        });
+        
+        // Appliquer le thème actuel au chargement de la page
+        const currentTheme = localStorage.getItem('foodflexTheme') || '{{ preferences.theme }}';
+        applyTheme(currentTheme);
+        
+        // Fonction pour appliquer le thème
+        function applyTheme(theme) {
+            const rootElement = document.documentElement;
+            
+            // Retirer toutes les classes de thème existantes
+            rootElement.classList.remove('theme-dark', 'theme-light', 'theme-system');
+            
+            // Appliquer le thème sélectionné
+            switch(theme) {
+                case 'dark':
+                    rootElement.classList.add('theme-dark');
+                    rootElement.style.setProperty('--card-bg', '#1e2130');
+                    rootElement.style.setProperty('--bg-primary', '#13151f');
+                    rootElement.style.setProperty('--text-primary', '#ffffff');
+                    rootElement.style.setProperty('--text-secondary', '#a0a0a0');
+                    break;
+                case 'light':
+                    rootElement.classList.add('theme-light');
+                    rootElement.style.setProperty('--card-bg', '#ffffff');
+                    rootElement.style.setProperty('--bg-primary', '#f5f5f5');
+                    rootElement.style.setProperty('--text-primary', '#333333');
+                    rootElement.style.setProperty('--text-secondary', '#666666');
+                    break;
+                case 'system':
+                    // Détecter le thème du système
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        rootElement.classList.add('theme-dark');
+                        rootElement.style.setProperty('--card-bg', '#1e2130');
+                        rootElement.style.setProperty('--bg-primary', '#13151f');
+                        rootElement.style.setProperty('--text-primary', '#ffffff');
+                        rootElement.style.setProperty('--text-secondary', '#a0a0a0');
+                    } else {
+                        rootElement.classList.add('theme-light');
+                        rootElement.style.setProperty('--card-bg', '#ffffff');
+                        rootElement.style.setProperty('--bg-primary', '#f5f5f5');
+                        rootElement.style.setProperty('--text-primary', '#333333');
+                        rootElement.style.setProperty('--text-secondary', '#666666');
+                    }
+                    break;
+            }
+        }
+    });
+</script>
+{% endblock %} 

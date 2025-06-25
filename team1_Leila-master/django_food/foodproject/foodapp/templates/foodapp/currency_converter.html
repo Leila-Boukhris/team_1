@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertisseur de Monnaie</title>
+    <link rel="stylesheet" href="{% static 'foodapp/css/style.css' %}">
+</head>
+<body>
+    {% include 'foodapp/includes/_nav_buttons.html' with show_back=True %}
+
+    <div class="container">
+        <div class="converter-section">
+            <div class="converter-header">
+                <h1>💱 Convertisseur en Dirham</h1>
+                <p class="converter-subtitle">Convertissez facilement vos devises en Dirham Marocain (MAD)</p>
+            </div>
+
+            <div class="rates-card">
+                <h2>Taux de change actuels</h2>
+                <div class="rates-grid">
+                    {% for currency, rate in rates.items %}
+                        <div class="rate-item">
+                            <div class="currency-icon">
+                                {% if currency == 'USD' %}💵
+                                {% elif currency == 'EUR' %}💶
+                                {% elif currency == 'GBP' %}💷
+                                {% endif %}
+                            </div>
+                            <div class="rate-details">
+                                <span class="currency-code">{{ currency }}</span>
+                                <span class="rate-value">1 {{ currency }} = {{ rate }} MAD</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <form method="get" class="converter-form">
+                <div class="form-grid">
+                    <div class="amount-field">
+                        <label for="{{ form.amount.id_for_label }}">Montant</label>
+                        {{ form.amount }}
+                    </div>
+                    
+                    <div class="currency-field">
+                        <label for="{{ form.from_currency.id_for_label }}">Devise source</label>
+                        {{ form.from_currency }}
+                    </div>
+                    
+                    <div class="arrow-icon">➡️</div>
+                    
+                    <div class="currency-field fixed-currency">
+                        <label>Vers</label>
+                        <div class="mad-display">🇲🇦 MAD (Dirham Marocain)</div>
+                    </div>
+                </div>
+
+                <button type="submit" class="convert-button">
+                    <span class="button-icon">🔄</span>
+                    Convertir
+                </button>
+            </form>
+
+            {% if result %}
+                <div class="result-card">
+                    <div class="result-header">Résultat</div>
+                    <div class="result-amount">
+                        <span class="original">{{ form.cleaned_data.amount }} {{ form.cleaned_data.from_currency }}</span>
+                        <span class="equals">=</span>
+                        <span class="converted">{{ result|floatformat:2 }} MAD</span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

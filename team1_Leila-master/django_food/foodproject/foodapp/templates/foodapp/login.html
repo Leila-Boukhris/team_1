@@ -1,0 +1,561 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Connexion | FoodFlex{% endblock %}
+{% block page_title %}Connexion{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        max-width: 420px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .login-form-wrapper {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin-top: 30px;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .form-header h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .form-header p {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.25);
+    }
+    
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 25px;
+    }
+    
+    .form-check input {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .form-check label {
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+    }
+    
+    .btn-login {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        background-color: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-login:hover {
+        background-color: var(--primary-color-hover);
+        transform: translateY(-2px);
+    }
+    
+    .form-footer {
+        text-align: center;
+        margin-top: 25px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .form-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .form-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    .error-message {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .error-message i {
+        font-size: 18px;
+    }
+    
+    .error-message.success {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+    }
+    
+    .social-login {
+        margin-top: 30px;
+        text-align: center;
+    }
+    
+    .social-login-divider {
+        display: flex;
+        align-items: center;
+        margin: 20px 0;
+    }
+    
+    .social-login-divider::before,
+    .social-login-divider::after {
+        content: "";
+        flex: 1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .social-login-divider span {
+        padding: 0 10px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 14px;
+    }
+    
+    .social-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .social-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .social-button:hover {
+        transform: translateY(-3px);
+    }
+    
+    .social-button.google:hover {
+        background-color: rgba(219, 68, 55, 0.2);
+        color: #DB4437;
+    }
+    
+    .social-button.facebook:hover {
+        background-color: rgba(66, 103, 178, 0.2);
+        color: #4267B2;
+    }
+    
+    .social-button.twitter:hover {
+        background-color: rgba(29, 161, 242, 0.2);
+        color: #1DA1F2;
+    }
+    
+    .form-animation {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* 3D Effect Elements */
+    .login-scene {
+        position: relative;
+        height: 150px;
+        margin-bottom: 30px;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+    
+    /* Restaurant indicator */
+    .account-type-indicator {
+        display: flex;
+        margin-bottom: 20px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .account-type-option {
+        flex: 1;
+        padding: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .account-type-option.active {
+        background-color: rgba(255, 107, 107, 0.2);
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .account-type-option:hover:not(.active) {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+    <div class="breadcrumb">
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span>Connexion</span>
+    </div>
+    
+    <div class="login-container">
+        <div class="login-scene" id="login-scene">
+            <!-- Three.js scene will be rendered here -->
+        </div>
+        
+        <div class="login-form-wrapper form-animation">
+            <div class="form-header">
+                <h2>Bienvenue sur FoodFlex</h2>
+                <p>Entrez vos identifiants pour vous connecter</p>
+            </div>
+            
+            {% if error %}
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ error }}
+                </div>
+            {% endif %}
+            
+            <form id="login-form" method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="username" class="form-label">Nom d'utilisateur</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Entrez votre nom d'utilisateur" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Mot de passe</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Entrez votre mot de passe" required>
+                </div>
+                
+                <div class="form-check">
+                    <input type="checkbox" id="remember" name="remember" class="form-check-input">
+                    <label for="remember" class="form-check-label">Se souvenir de moi</label>
+                </div>
+                
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+                
+                <div class="form-footer">
+                    Vous n'avez pas de compte? <a href="{% url 'signup' %}">S'inscrire</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animation 3D avec Three.js
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 150, 0.1, 1000);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(document.getElementById('login-scene').offsetWidth, 150);
+        renderer.setClearColor(0x000000, 0);
+        document.getElementById('login-scene').appendChild(renderer.domElement);
+        
+        // Système de particules
+        const particlesCount = 100;
+        const particles = new THREE.Group();
+        scene.add(particles);
+        
+        // Création des particules avec des formes et couleurs variées
+        for (let i = 0; i < particlesCount; i++) {
+            // Choix aléatoire entre différentes formes
+            let geometry;
+            const shapeType = Math.floor(Math.random() * 5);
+            
+            if (shapeType === 0) {
+                // Sphère
+                geometry = new THREE.SphereGeometry(0.1 + Math.random() * 0.1, 8, 8);
+            } else if (shapeType === 1) {
+                // Cube
+                geometry = new THREE.BoxGeometry(0.1 + Math.random() * 0.1, 0.1 + Math.random() * 0.1, 0.1 + Math.random() * 0.1);
+            } else if (shapeType === 2) {
+                // Tétraèdre (forme pyramidale)
+                geometry = new THREE.TetrahedronGeometry(0.1 + Math.random() * 0.1);
+            } else if (shapeType === 3) {
+                // Octaèdre (forme diamant)
+                geometry = new THREE.OctahedronGeometry(0.1 + Math.random() * 0.1);
+            } else {
+                // Tore (forme anneau)
+                geometry = new THREE.TorusGeometry(0.1, 0.03, 8, 10);
+            }
+            
+            // Couleurs marocaines et thème de l'application
+            const colors = [
+                0xff6b6b, // Rouge primaire
+                0x4ecdc4, // Turquoise
+                0xf7fff7, // Blanc cassé
+                0xffab4c, // Orange
+                0xff9a5c, // Terracotta
+                0x2a9d8f  // Vert céramique
+            ];
+            
+            const material = new THREE.MeshBasicMaterial({ 
+                color: colors[Math.floor(Math.random() * colors.length)],
+                transparent: true,
+                opacity: 0.3 + Math.random() * 0.7
+            });
+            
+            const particle = new THREE.Mesh(geometry, material);
+            
+            // Position aléatoire dans l'espace
+            particle.position.x = Math.random() * 10 - 5;
+            particle.position.y = Math.random() * 4 - 2;
+            particle.position.z = Math.random() * 3 - 6;
+            
+            // Propriétés pour l'animation
+            particle.userData = {
+                speedX: Math.random() * 0.01 - 0.005,
+                speedY: Math.random() * 0.01 - 0.005,
+                speedZ: Math.random() * 0.005,
+                rotationX: Math.random() * 0.02 - 0.01,
+                rotationY: Math.random() * 0.02 - 0.01,
+                rotationZ: Math.random() * 0.02 - 0.01,
+            };
+            
+            particles.add(particle);
+        }
+        
+        // Création d'éléments 3D représentant la nourriture marocaine
+        const geometry1 = new THREE.SphereGeometry(1, 32, 32);
+        const material1 = new THREE.MeshBasicMaterial({ color: 0xff6b6b }); // Couleur de la marque
+        const sphere1 = new THREE.Mesh(geometry1, material1);
+        sphere1.position.set(-3, 0, 0);
+        scene.add(sphere1);
+        
+        const geometry2 = new THREE.TorusGeometry(1, 0.3, 16, 100);
+        const material2 = new THREE.MeshBasicMaterial({ color: 0x4ecdc4 });
+        const torus = new THREE.Mesh(geometry2, material2);
+        torus.position.set(3, 0, 0);
+        scene.add(torus);
+        
+        const geometry3 = new THREE.ConeGeometry(0.8, 2, 32);
+        const material3 = new THREE.MeshBasicMaterial({ color: 0xf7fff7 });
+        const cone = new THREE.Mesh(geometry3, material3);
+        cone.position.set(0, 1, 0);
+        scene.add(cone);
+        
+        camera.position.z = 7;
+        
+        // Animation des éléments
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Animation des particules
+            particles.children.forEach(particle => {
+                // Déplacement des particules
+                particle.position.x += particle.userData.speedX;
+                particle.position.y += particle.userData.speedY;
+                particle.position.z += particle.userData.speedZ;
+                
+                // Rotation des particules
+                particle.rotation.x += particle.userData.rotationX;
+                particle.rotation.y += particle.userData.rotationY;
+                particle.rotation.z += particle.userData.rotationZ;
+                
+                // Effet de respiration (échelle qui pulse)
+                const time = Date.now() * 0.001;
+                const pulseFactor = 0.05 * Math.sin(time * 2 + particle.position.x + particle.position.y);
+                particle.scale.set(
+                    1 + pulseFactor,
+                    1 + pulseFactor,
+                    1 + pulseFactor
+                );
+                
+                // Rebonds sur les bords
+                if (particle.position.x < -6 || particle.position.x > 6) {
+                    particle.userData.speedX *= -1;
+                }
+                if (particle.position.y < -3 || particle.position.y > 3) {
+                    particle.userData.speedY *= -1;
+                }
+                if (particle.position.z < -10 || particle.position.z > 2) {
+                    particle.userData.speedZ *= -1;
+                }
+            });
+            
+            sphere1.rotation.x += 0.01;
+            sphere1.rotation.y += 0.01;
+            
+            torus.rotation.x += 0.01;
+            torus.rotation.y += 0.01;
+            
+            cone.rotation.y += 0.01;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        // Ajustement de la taille du renderer lors du redimensionnement de la fenêtre
+        window.addEventListener('resize', function() {
+            renderer.setSize(document.getElementById('login-scene').offsetWidth, 150);
+            camera.aspect = document.getElementById('login-scene').offsetWidth / 150;
+            camera.updateProjectionMatrix();
+        });
+        
+        // Gestion du formulaire avec fetch API
+        const loginForm = document.getElementById('login-form');
+        
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            
+            // Validation côté client
+            if (!username || !password) {
+                showError("Veuillez remplir tous les champs");
+                return;
+            }
+            
+            // Animation de chargement avec GSAP
+            const button = document.querySelector('.btn-login');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Connexion en cours...';
+            button.disabled = true;
+            
+            // Requête API fetch
+            fetch('{% url "login" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                    remember: remember
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.errors ? data.errors.general : "Erreur d'authentification");
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Animation de succès
+                    button.innerHTML = '<i class="fas fa-check"></i> Connexion réussie!';
+                    button.style.backgroundColor = '#2ecc71';
+                    
+                    // Vérifier si c'est un compte restaurant pour rediriger
+                    if (data.account_type === 'restaurant') {
+                        setTimeout(() => {
+                            window.location.href = '{% url "restaurant_dashboard" %}';
+                        }, 1000);
+                    } else {
+                        setTimeout(() => {
+                            window.location.href = '{% url "accueil" %}';
+                        }, 1000);
+                    }
+                }
+            })
+            .catch(error => {
+                // Animation d'erreur
+                button.innerHTML = originalText;
+                button.disabled = false;
+                showError(error.message || "Nom d'utilisateur ou mot de passe incorrect");
+            });
+        });
+        
+        // Fonction pour afficher un message d'erreur
+        function showError(message) {
+            // Supprimer le message d'erreur existant s'il y en a un
+            const existingError = document.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Créer un nouvel élément d'erreur
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            
+            // Insérer avant le formulaire
+            const formElement = document.getElementById('login-form');
+            formElement.parentNode.insertBefore(errorDiv, formElement);
+            
+            // Animation de l'erreur avec GSAP
+            gsap.from(errorDiv, {
+                y: -20,
+                opacity: 0,
+                duration: 0.3
+            });
+        }
+    });
+</script>
+{% endblock %} 

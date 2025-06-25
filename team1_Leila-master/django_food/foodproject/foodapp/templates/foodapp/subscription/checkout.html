@@ -1,0 +1,491 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Finaliser votre abonnement | FoodFlex{% endblock %}
+{% block page_title %}Finaliser votre abonnement{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .checkout-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+    
+    @media (max-width: 768px) {
+        .checkout-wrapper {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .checkout-summary {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 30px;
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .checkout-payment {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .plan-badge {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 15px;
+    }
+    
+    .plan-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .plan-description {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 20px;
+    }
+    
+    .price-details {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    
+    .price-row.total {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 1rem;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+    
+    .payment-methods {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .payment-method {
+        flex: 1;
+        min-width: 100px;
+        padding: 15px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .payment-method:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .payment-method.selected {
+        border-color: var(--primary-color);
+        background-color: rgba(255, 107, 107, 0.1);
+    }
+    
+    .payment-method-icon {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+    
+    .card-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .card-details .form-group:first-child {
+        grid-column: span 2;
+    }
+    
+    .checkout-button {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        border-radius: 10px;
+        background-color: var(--primary-color);
+        color: #fff;
+        font-weight: 700;
+        text-align: center;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        font-size: 1.1rem;
+    }
+    
+    .checkout-button:hover {
+        background-color: var(--primary-color-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+    }
+    
+    .terms-text {
+        font-size: 0.8rem;
+        text-align: center;
+        margin-top: 20px;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .plan-features {
+        margin: 20px 0;
+        padding-left: 0;
+        list-style: none;
+    }
+    
+    .plan-features li {
+        margin-bottom: 10px;
+        padding-left: 30px;
+        position: relative;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+    }
+    
+    .plan-features li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: var(--primary-color);
+        font-weight: 700;
+    }
+    
+    .loader {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .loader-spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 4px solid var(--primary-color);
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+    <div class="breadcrumb">
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <a href="{% if plan_type == 'restaurant' %}{% url 'restaurant_pricing_plans' %}{% else %}{% url 'user_pricing_plans' %}{% endif %}">
+            Plans d'abonnement 
+            {% if plan_type == 'restaurant' %}Restaurant{% else %}Utilisateur{% endif %}
+        </a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span>Paiement</span>
+    </div>
+    
+    <div class="checkout-container">
+        <h1>Finaliser votre abonnement</h1>
+        
+        <div class="checkout-wrapper">
+            <div class="checkout-summary">
+                <div class="plan-badge">{{ plan.get_plan_type_display }}</div>
+                <h2 class="plan-name">Plan {{ plan.name }}</h2>
+                <p class="plan-description">{{ plan.description }}</p>
+                
+                {% if plan.features %}
+                <h3>Caractéristiques incluses :</h3>
+                <ul class="plan-features">
+                    {% for key, value in plan.features.items %}
+                        {% if value == True or value >= 0 %}
+                            <li>
+                                {% if key == 'listing_visibility' %}
+                                    Visibilité {{ value }}
+                                {% elif key == 'max_dishes' %}
+                                    {% if value == -1 %}
+                                        Plats illimités
+                                    {% else %}
+                                        {{ value }} plats maximum
+                                    {% endif %}
+                                {% elif key == 'reservations' %}
+                                    Système de réservation
+                                {% elif key == 'analytics' %}
+                                    Statistiques et analyse
+                                {% elif key == 'featured_listing' %}
+                                    Mise en avant dans les recherches
+                                {% elif key == 'support' %}
+                                    Support {{ value }}
+                                {% elif key == 'reviews_management' %}
+                                    Gestion des avis
+                                {% elif key == 'favorites' %}
+                                    {% if value == -1 %}
+                                        Favoris illimités
+                                    {% else %}
+                                        {{ value }} favoris maximum
+                                    {% endif %}
+                                {% elif key == 'notifications' %}
+                                    Notifications personnalisées
+                                {% elif key == 'priority_booking' %}
+                                    Réservation prioritaire
+                                {% elif key == 'discount_access' %}
+                                    Accès aux promotions exclusives
+                                {% else %}
+                                    {{ key }}: {{ value }}
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                
+                <div class="price-details">
+                    <div class="price-row">
+                        <span>Période de facturation</span>
+                        <span>{{ is_yearly|yesno:"Annuel,Mensuel" }}</span>
+                    </div>
+                    
+                    <div class="price-row">
+                        <span>Prix</span>
+                        <span>{{ price }} €</span>
+                    </div>
+                    
+                    {% if is_yearly %}
+                    <div class="price-row">
+                        <span>Économie</span>
+                        <span>-{{ plan.discount_percent }}%</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="price-row total">
+                        <span>Total à payer</span>
+                        <span>{{ price }} €</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="checkout-payment">
+                <form method="post" id="payment-form">
+                    {% csrf_token %}
+                    
+                    <h3>Mode de paiement</h3>
+                    
+                    <div class="payment-methods">
+                        <div class="payment-method selected" data-method="card">
+                            <div class="payment-method-icon">
+                                <i class="far fa-credit-card"></i>
+                            </div>
+                            <div>Carte</div>
+                        </div>
+                        
+                        <div class="payment-method" data-method="paypal">
+                            <div class="payment-method-icon">
+                                <i class="fab fa-paypal"></i>
+                            </div>
+                            <div>PayPal</div>
+                        </div>
+                        
+                        <div class="payment-method" data-method="bank">
+                            <div class="payment-method-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div>Virement</div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-details" id="card-payment">
+                        <div class="card-details">
+                            <div class="form-group">
+                                <label for="card-number">Numéro de carte</label>
+                                <input type="text" id="card-number" class="form-control" placeholder="1234 5678 9012 3456" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="expiry-date">Date d'expiration</label>
+                                <input type="text" id="expiry-date" class="form-control" placeholder="MM/YY" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="cvv">CVV</label>
+                                <input type="text" id="cvv" class="form-control" placeholder="123" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="name-on-card">Nom sur la carte</label>
+                            <input type="text" id="name-on-card" class="form-control" placeholder="John Doe" required>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-details" id="paypal-payment" style="display: none;">
+                        <p>Vous serez redirigé vers PayPal pour compléter votre paiement une fois que vous aurez cliqué sur "Payer maintenant".</p>
+                    </div>
+                    
+                    <div class="payment-details" id="bank-payment" style="display: none;">
+                        <p>Détails pour le virement bancaire :</p>
+                        <div class="form-group">
+                            <label>IBAN</label>
+                            <input type="text" class="form-control" value="FR76 1234 5678 9012 3456 7890 123" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>BIC</label>
+                            <input type="text" class="form-control" value="ABCDEFGHIJK" readonly>
+                        </div>
+                        <p>Veuillez inclure votre nom et "Plan {{ plan.name }}" en référence.</p>
+                    </div>
+                    
+                    <button type="submit" class="checkout-button">Payer maintenant</button>
+                    
+                    <div class="terms-text">
+                        En cliquant sur "Payer maintenant", vous acceptez nos <a href="#">conditions générales</a> et notre <a href="#">politique de confidentialité</a>.
+                    </div>
+                    
+                    <div class="loader" id="payment-loader">
+                        <div class="loader-spinner"></div>
+                        <p>Traitement de votre paiement en cours...</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion des méthodes de paiement
+        const paymentMethods = document.querySelectorAll('.payment-method');
+        const paymentDetails = document.querySelectorAll('.payment-details');
+        
+        paymentMethods.forEach(method => {
+            method.addEventListener('click', function() {
+                // Supprimer la classe selected de toutes les méthodes
+                paymentMethods.forEach(m => m.classList.remove('selected'));
+                
+                // Ajouter la classe selected à la méthode cliquée
+                this.classList.add('selected');
+                
+                // Cacher tous les détails de paiement
+                paymentDetails.forEach(details => details.style.display = 'none');
+                
+                // Afficher les détails correspondants
+                const paymentMethod = this.getAttribute('data-method');
+                document.getElementById(`${paymentMethod}-payment`).style.display = 'block';
+            });
+        });
+        
+        // Gestion du formulaire de paiement
+        const paymentForm = document.getElementById('payment-form');
+        const paymentLoader = document.getElementById('payment-loader');
+        
+        paymentForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Afficher le loader
+            paymentLoader.style.display = 'block';
+            
+            // Simuler un traitement de paiement
+            setTimeout(function() {
+                // Soumettre le formulaire
+                paymentForm.submit();
+            }, 2000);
+        });
+        
+        // Formattage du numéro de carte
+        const cardNumber = document.getElementById('card-number');
+        if (cardNumber) {
+            cardNumber.addEventListener('input', function() {
+                // Supprimer les espaces et caractères non numériques
+                let value = this.value.replace(/\D/g, '');
+                
+                // Ajouter un espace tous les 4 caractères
+                const formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+                
+                // Limiter à 19 caractères (16 chiffres + 3 espaces)
+                this.value = formattedValue.substring(0, 19);
+            });
+        }
+        
+        // Formattage de la date d'expiration
+        const expiryDate = document.getElementById('expiry-date');
+        if (expiryDate) {
+            expiryDate.addEventListener('input', function() {
+                // Supprimer les caractères non numériques
+                let value = this.value.replace(/\D/g, '');
+                
+                // Ajouter un slash après les 2 premiers caractères
+                if (value.length > 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2);
+                }
+                
+                // Limiter à 5 caractères (MM/YY)
+                this.value = value.substring(0, 5);
+            });
+        }
+        
+        // Limiter le CVV à 3 ou 4 chiffres
+        const cvv = document.getElementById('cvv');
+        if (cvv) {
+            cvv.addEventListener('input', function() {
+                // Supprimer les caractères non numériques
+                let value = this.value.replace(/\D/g, '');
+                
+                // Limiter à 4 caractères
+                this.value = value.substring(0, 4);
+            });
+        }
+    });
+</script>
+{% endblock %} 

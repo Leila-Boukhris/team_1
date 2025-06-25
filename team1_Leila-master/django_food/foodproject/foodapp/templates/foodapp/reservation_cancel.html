@@ -1,0 +1,146 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Annuler ma Réservation | FoodFlex Maroc{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cancel-container {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .reservation-info {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .restaurant-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    
+    .cancel-warning {
+        color: #721c24;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        margin-bottom: 20px;
+    }
+    
+    .confirmation-code {
+        font-family: monospace;
+        background-color: #f8f9fa;
+        padding: 3px 6px;
+        border-radius: 3px;
+        border: 1px dashed #ced4da;
+    }
+    
+    .date-info {
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'user_reservations_list' %}">Mes Réservations</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'reservation_detail' reservation.id %}">Détails</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Annuler</li>
+                </ol>
+            </nav>
+            
+            <div class="cancel-container">
+                <h1 class="mb-4 text-danger"><i class="fas fa-exclamation-triangle me-2"></i> Annuler ma Réservation</h1>
+                
+                <div class="cancel-warning">
+                    <p class="mb-0"><strong>Attention :</strong> Vous êtes sur le point d'annuler votre réservation. Cette action est irréversible.</p>
+                </div>
+                
+                <div class="reservation-info">
+                    <div class="d-flex align-items-center mb-3">
+                        {% if restaurant.image %}
+                            <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}" class="restaurant-image me-3">
+                        {% else %}
+                            <div class="restaurant-image bg-secondary d-flex align-items-center justify-content-center me-3">
+                                <i class="fas fa-utensils text-white"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="mb-0">{{ restaurant.name }}</h5>
+                            <p class="small mb-0">{{ restaurant.address }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><i class="fas fa-calendar-day me-2"></i> <span class="date-info">{{ reservation.date|date:"l d F Y" }}</span></p>
+                            <p><i class="fas fa-clock me-2"></i> <span class="date-info">{{ reservation.time|time:"H:i" }}</span></p>
+                            <p><i class="fas fa-users me-2"></i> {{ reservation.guests }} personne{{ reservation.guests|pluralize }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><i class="fas fa-user me-2"></i> {{ reservation.name }}</p>
+                            <p><i class="fas fa-envelope me-2"></i> {{ reservation.email }}</p>
+                            <p><i class="fas fa-phone me-2"></i> {{ reservation.phone }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <p class="mb-1"><i class="fas fa-ticket-alt me-2"></i> Code de réservation : <span class="confirmation-code">{{ reservation.confirmation_code }}</span></p>
+                    
+                    {% if reservation.notes %}
+                        <p class="mt-3 mb-0"><i class="fas fa-comment-dots me-2"></i> <strong>Notes :</strong> {{ reservation.notes }}</p>
+                    {% endif %}
+                </div>
+                
+                <form method="post" action="{% url 'reservation_cancel' reservation.id %}" class="mt-4">
+                    {% csrf_token %}
+                    
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="confirm-cancel" required>
+                        <label class="form-check-label" for="confirm-cancel">
+                            Je confirme vouloir annuler cette réservation
+                        </label>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'reservation_detail' reservation.id %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Retour
+                        </a>
+                        <button type="submit" class="btn btn-danger" id="cancel-button" disabled>
+                            <i class="fas fa-times-circle me-2"></i> Confirmer l'annulation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const confirmCheckbox = document.getElementById('confirm-cancel');
+        const cancelButton = document.getElementById('cancel-button');
+        
+        confirmCheckbox.addEventListener('change', function() {
+            cancelButton.disabled = !this.checked;
+        });
+    });
+</script>
+{% endblock %} 

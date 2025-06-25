@@ -1,0 +1,261 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Terms of Service | FoodFlex{% endblock %}
+{% block page_title %}Terms of Service{% endblock %}
+
+{% block extra_css %}
+<style>
+    .terms-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 30px;
+        background: var(--card-bg);
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .terms-header {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .terms-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+    
+    .terms-subtitle {
+        font-size: 16px;
+        color: var(--text-secondary);
+    }
+    
+    .terms-section {
+        margin-bottom: 40px;
+    }
+    
+    .terms-section h2 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+    }
+    
+    .terms-section h3 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        margin-top: 25px;
+        color: var(--text-primary);
+    }
+    
+    .terms-section p {
+        margin-bottom: 15px;
+        line-height: 1.6;
+        color: var(--text-secondary);
+    }
+    
+    .terms-section ul, .terms-section ol {
+        margin-bottom: 15px;
+        padding-left: 20px;
+    }
+    
+    .terms-section li {
+        margin-bottom: 10px;
+        color: var(--text-secondary);
+    }
+    
+    .terms-date {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+        font-size: 14px;
+        color: var(--text-secondary);
+        font-style: italic;
+    }
+    
+    .toc {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .toc h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+    
+    .toc ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    
+    .toc li {
+        margin-bottom: 8px;
+    }
+    
+    .toc a {
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .toc a:hover {
+        color: var(--accent-color);
+        padding-left: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="terms-container">
+    <div class="terms-header">
+        <div class="terms-title">Terms of Service</div>
+        <div class="terms-subtitle">Please read these Terms of Service carefully before using FoodFlex.</div>
+    </div>
+    
+    <div class="toc">
+        <h3>Table of Contents</h3>
+        <ul>
+            <li><a href="#agreement">1. Agreement to Terms</a></li>
+            <li><a href="#eligibility">2. Eligibility</a></li>
+            <li><a href="#account">3. Account Registration</a></li>
+            <li><a href="#content">4. User Content</a></li>
+            <li><a href="#conduct">5. Prohibited Conduct</a></li>
+            <li><a href="#payment">6. Payment and Fees</a></li>
+            <li><a href="#reservations">7. Reservations and Orders</a></li>
+            <li><a href="#disclaimers">8. Disclaimers</a></li>
+            <li><a href="#limitation">9. Limitation of Liability</a></li>
+            <li><a href="#indemnity">10. Indemnity</a></li>
+            <li><a href="#termination">11. Termination</a></li>
+            <li><a href="#disputes">12. Dispute Resolution</a></li>
+            <li><a href="#general">13. General Terms</a></li>
+        </ul>
+    </div>
+    
+    <div class="terms-section" id="agreement">
+        <h2>1. Agreement to Terms</h2>
+        <p>Welcome to FoodFlex. These Terms of Service ("Terms") govern your access to and use of the FoodFlex website, mobile applications, and other online products and services (collectively, the "Services").</p>
+        <p>By accessing or using our Services, you agree to be bound by these Terms. If you do not agree to these Terms, you may not access or use the Services.</p>
+    </div>
+    
+    <div class="terms-section" id="eligibility">
+        <h2>2. Eligibility</h2>
+        <p>You must be at least 16 years of age to use our Services. By using our Services, you represent and warrant that:</p>
+        <ul>
+            <li>You are at least 16 years old;</li>
+            <li>You have the legal capacity to enter into a binding agreement with us;</li>
+            <li>You will comply with these Terms and all applicable laws and regulations.</li>
+        </ul>
+        <p>If you are using the Services on behalf of a business or legal entity, you represent that you have the authority to bind that entity to these Terms.</p>
+    </div>
+    
+    <div class="terms-section" id="account">
+        <h2>3. Account Registration</h2>
+        <p>To access certain features of our Services, you may need to register for an account. When you register, you agree to provide accurate, current, and complete information about yourself and to keep this information up to date.</p>
+        <p>You are responsible for safeguarding your account credentials and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account or any other breach of security.</p>
+        <p>We reserve the right to disable any user account at any time if, in our opinion, you have failed to comply with these Terms or if we believe your account is being used fraudulently.</p>
+    </div>
+    
+    <div class="terms-section" id="content">
+        <h2>4. User Content</h2>
+        <p>Our Services may allow you to post, upload, store, share, send, or display content, including but not limited to text, photos, videos, and other materials ("User Content").</p>
+        <p>You retain all rights in and to your User Content. By posting User Content, you grant us a non-exclusive, royalty-free, worldwide, fully paid, and sublicensable license to use, reproduce, modify, adapt, publish, translate, create derivative works from, distribute, publicly perform, and display your User Content in all media formats and channels now known or later developed for the purpose of operating and providing our Services.</p>
+        <p>You represent and warrant that:</p>
+        <ul>
+            <li>You own or have the necessary rights to your User Content;</li>
+            <li>Your User Content does not violate these Terms, applicable law, or the rights of any third party;</li>
+            <li>Your User Content is not fraudulent, false, misleading, or deceptive.</li>
+        </ul>
+        <p>We are not responsible for any User Content. We reserve the right to remove or modify User Content for any reason without notice.</p>
+    </div>
+    
+    <div class="terms-section" id="conduct">
+        <h2>5. Prohibited Conduct</h2>
+        <p>You agree not to engage in any of the following prohibited activities:</p>
+        <ul>
+            <li>Violating any applicable law, regulation, or third-party right;</li>
+            <li>Using the Services for any illegal purpose or to promote illegal activities;</li>
+            <li>Attempting to interfere with, compromise the system integrity or security, or decipher any transmissions to or from the servers running the Services;</li>
+            <li>Impersonating another person or entity or falsely stating or misrepresenting your affiliation with a person or entity;</li>
+            <li>Collecting or storing personal data about other users without their express consent;</li>
+            <li>Engaging in any automated use of the system, such as using scripts to post comments or using any data mining, robots, or similar data gathering and extraction tools;</li>
+            <li>Uploading viruses, malware, or other malicious code;</li>
+            <li>Harassing, threatening, intimidating, or abusing other users or individuals;</li>
+            <li>Posting content that is offensive, defamatory, obscene, or otherwise objectionable.</li>
+        </ul>
+    </div>
+    
+    <div class="terms-section" id="payment">
+        <h2>6. Payment and Fees</h2>
+        <p>Some aspects of the Services may require payment of fees. You agree to pay all applicable fees as described on the Services.</p>
+        <p>When you provide payment information, you represent and warrant that:</p>
+        <ul>
+            <li>The payment information you provide is true and accurate;</li>
+            <li>You are authorized to use the payment method you provide;</li>
+            <li>You will pay the charges incurred at the rates in effect when the charges were incurred.</li>
+        </ul>
+        <p>All fees are quoted in the local currency specified on the Services and are exclusive of any applicable taxes unless stated otherwise.</p>
+        <p>We may change our fees at any time. If we increase fees for a service you're using, we'll give you advance notice.</p>
+    </div>
+    
+    <div class="terms-section" id="reservations">
+        <h2>7. Reservations and Orders</h2>
+        <p>Our Services allow you to make restaurant reservations and place food orders. By making a reservation or placing an order through our Services, you agree to pay the full amount for your reservation or order.</p>
+        <p>Restaurant policies regarding reservations (including cancellation policies) and orders are set by the individual restaurants. We are not responsible for restaurants' policies or their compliance with such policies.</p>
+        <p>If you wish to cancel a reservation or order, please follow the cancellation procedures specified by the restaurant or contact the restaurant directly.</p>
+        <p>We do not guarantee that restaurants will honor reservations or fulfill orders made through our Services. We are not responsible for the quality, safety, or legality of the food or other items offered by restaurants.</p>
+    </div>
+    
+    <div class="terms-section" id="disclaimers">
+        <h2>8. Disclaimers</h2>
+        <p>THE SERVICES ARE PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.</p>
+        <p>WE DO NOT GUARANTEE THAT THE SERVICES WILL FUNCTION WITHOUT INTERRUPTION OR ERRORS, OR THAT THE SERVICES WILL BE AVAILABLE AT ALL TIMES.</p>
+        <p>WE ARE NOT RESPONSIBLE FOR THE QUALITY, SAFETY, OR LEGALITY OF FOOD OR OTHER ITEMS OFFERED BY RESTAURANTS, THE TRUTH OR ACCURACY OF RESTAURANT LISTINGS, THE ABILITY OF RESTAURANTS TO FULFILL ORDERS OR HONOR RESERVATIONS, OR THE QUALITY OF SERVICES PROVIDED BY RESTAURANTS.</p>
+    </div>
+    
+    <div class="terms-section" id="limitation">
+        <h2>9. Limitation of Liability</h2>
+        <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT WILL FOODFLEX, ITS AFFILIATES, OFFICERS, DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE FOR ANY INDIRECT, PUNITIVE, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR EXEMPLARY DAMAGES, INCLUDING WITHOUT LIMITATION DAMAGES FOR LOSS OF PROFITS, GOODWILL, USE, DATA, OR OTHER INTANGIBLE LOSSES, THAT RESULT FROM THE USE OF, OR INABILITY TO USE, THE SERVICES OR ANY CONTENT THEREIN.</p>
+        <p>IN NO EVENT WILL OUR TOTAL LIABILITY TO YOU FOR ALL CLAIMS ARISING FROM OR RELATING TO THESE TERMS OR YOUR USE OF THE SERVICES EXCEED THE GREATER OF (A) THE AMOUNT YOU HAVE PAID FOODFLEX IN THE PAST SIX MONTHS, OR (B) $100.</p>
+    </div>
+    
+    <div class="terms-section" id="indemnity">
+        <h2>10. Indemnity</h2>
+        <p>You agree to defend, indemnify, and hold harmless FoodFlex, its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including without limitation reasonable attorneys' fees and costs, arising out of or in any way connected with your access to or use of the Services, your violation of these Terms, or your violation of any rights of another.</p>
+    </div>
+    
+    <div class="terms-section" id="termination">
+        <h2>11. Termination</h2>
+        <p>We may terminate or suspend your account and access to the Services at our sole discretion, without prior notice or liability, for any reason, including, but not limited to, your breach of these Terms.</p>
+        <p>Upon termination, your right to use the Services will immediately cease. If you wish to terminate your account, you may simply discontinue using the Services or delete your account.</p>
+        <p>All provisions of these Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity, and limitations of liability.</p>
+    </div>
+    
+    <div class="terms-section" id="disputes">
+        <h2>12. Dispute Resolution</h2>
+        <p>You and FoodFlex agree that any dispute, claim, or controversy arising out of or relating to these Terms or the breach, termination, enforcement, interpretation, or validity thereof or the use of the Services (collectively, "Disputes") will be settled by binding arbitration, except that each party retains the right to seek injunctive or other equitable relief in a court of competent jurisdiction to prevent the actual or threatened infringement, misappropriation, or violation of a party's copyrights, trademarks, trade secrets, patents, or other intellectual property rights.</p>
+        <p>The arbitration will be conducted in Casablanca, Morocco, unless you and FoodFlex agree otherwise. If you are using the Services for commercial purposes, each party will be responsible for paying any arbitration fees in accordance with the applicable arbitration rules. If you are an individual using the Services for non-commercial purposes, FoodFlex will pay all arbitration fees.</p>
+        <p>YOU UNDERSTAND AND AGREE THAT, BY ENTERING INTO THESE TERMS, YOU AND FOODFLEX ARE EACH WAIVING THE RIGHT TO A TRIAL BY JURY OR TO PARTICIPATE IN A CLASS ACTION.</p>
+    </div>
+    
+    <div class="terms-section" id="general">
+        <h2>13. General Terms</h2>
+        <p><strong>Entire Agreement.</strong> These Terms constitute the entire agreement between you and FoodFlex regarding your use of the Services and supersede any prior agreements.</p>
+        <p><strong>Changes to Terms.</strong> We may modify these Terms at any time. If we make changes, we will provide notice of such changes, such as by sending an email notification, providing notice through the Services, or updating the "Last Updated" date at the bottom of these Terms. Your continued use of the Services following notification of changes will constitute your acceptance of such changes.</p>
+        <p><strong>Waiver.</strong> Our failure to enforce any right or provision of these Terms will not be considered a waiver of such right or provision.</p>
+        <p><strong>Severability.</strong> If any provision of these Terms is held to be invalid or unenforceable, the remaining provisions will remain in full force and effect.</p>
+        <p><strong>Assignment.</strong> You may not assign or transfer these Terms, by operation of law or otherwise, without our prior written consent. Any attempt by you to assign or transfer these Terms without such consent will be null. We may freely assign or transfer these Terms without restriction.</p>
+        <p><strong>Governing Law.</strong> These Terms shall be governed by and construed in accordance with the laws of Morocco, without regard to its conflict of law provisions.</p>
+        <p><strong>Contact Information.</strong> If you have any questions about these Terms, please contact us at legal@foodflex.com.</p>
+    </div>
+    
+    <div class="terms-date">
+        Last Updated: May 22, 2025
+    </div>
+</div>
+{% endblock %} 

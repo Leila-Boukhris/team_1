@@ -1,0 +1,47 @@
+Environnement :
+- python -m venv env
+- Set-ExecutionPolicy Unrestricted -Scope Process
+- env\Scripts\activate
+
+Models Migrations :
+- python manage.py makemigrations
+- python manage.py migrate
+
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+
+teamFood
+mdp : teamFood
+
+python manage.py runserver
+
+
+DJANGO_FOOD/
+│
+├── env/                  # Ton environnement virtuel (parfait)
+│
+├── foodproject/          # Ton projet Django
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py       # Paramètres Django
+│   ├── urls.py           # URLs principales
+│   ├── wsgi.py
+│
+├── foodapp/              # Ton application Django
+│   ├── __init__.py
+│   ├── admin.py          # Admin pour enregistrer tes modèles
+│   ├── apps.py
+│   ├── forms.py          # (bien vu de l'avoir déjà)
+│   ├── migrations/       # Migrations de ton app
+│   ├── models.py         # Modèles City, Dish
+│   ├── tests.py
+│   ├── urls.py           # URLs spécifiques à l'app
+│   ├── views.py          # Vues (logique)
+│   ├── templates/foodapp/
+│       └── dish_list.html  # Template pour afficher les plats
+        └── index.html  # Page principale
+        
+├── db.sqlite3            # Base de données SQLite (normal)
+├── manage.py             # Fichier Django pour gérer les commandes
+├── notes.txt             # (optionnel, pour tes notes)

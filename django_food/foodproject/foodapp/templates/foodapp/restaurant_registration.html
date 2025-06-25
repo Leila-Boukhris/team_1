@@ -1,0 +1,384 @@
+{% extends 'foodapp/base.html' %}
+{% load static %}
+{% load foodapp_filters %}
+
+{% block title %}FoodFlex | Inscription Restaurant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .registration-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: var(--card-bg);
+        border-radius: 15px;
+        box-shadow: var(--shadow);
+    }
+
+    .wizard-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .wizard-steps::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--border-color);
+        z-index: 1;
+    }
+
+    .step {
+        position: relative;
+        z-index: 2;
+        background: var(--bg-primary);
+        padding: 0.5rem;
+        text-align: center;
+        min-width: 120px;
+    }
+
+    .step.active {
+        color: var(--primary-color);
+        font-weight: bold;
+    }
+
+    .step.completed {
+        color: var(--success-color);
+    }
+
+    .step-number {
+        width: 30px;
+        height: 30px;
+        background: var(--border-color);
+        color: var(--text-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+    }
+
+    .step.active .step-number {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .step.completed .step-number {
+        background: var(--success-color);
+        color: white;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section h3 {
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text-color);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+    }
+
+    .file-upload {
+        border: 2px dashed var(--border-color);
+        padding: 2rem;
+        text-align: center;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .file-upload:hover {
+        border-color: var(--primary-color);
+        background: rgba(var(--primary-rgb), 0.05);
+    }
+
+    .file-info {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background: rgba(var(--primary-rgb), 0.05);
+        border-radius: 4px;
+    }
+
+    .file-info ul {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .file-info li {
+        margin-bottom: 0.25rem;
+    }
+
+    .upload-progress {
+        width: 100%;
+        height: 4px;
+        margin-top: 0.5rem;
+        background: var(--border-color);
+        border-radius: 2px;
+        overflow: hidden;
+        display: none;
+    }
+
+    .upload-progress-bar {
+        height: 100%;
+        background: var(--primary-color);
+        width: 0;
+        transition: width 0.3s ease;
+    }
+
+    .file-preview {
+        max-width: 200px;
+        max-height: 200px;
+        margin-top: 1rem;
+        border-radius: 4px;
+        display: none;
+    }
+
+    .navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+
+    .btn-prev,
+    .btn-next {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-prev {
+        background: var(--border-color);
+        color: var(--text-color);
+    }
+
+    .btn-next {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-prev:hover,
+    .btn-next:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .help-text {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+    }
+
+    .error-message {
+        color: var(--danger-color);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="registration-container">
+    <h2 class="text-center mb-4">Inscription Restaurant</h2>
+
+    <div class="wizard-steps">
+        {% for title in step_titles %}
+        <div class="step {% if forloop.counter0 == wizard.steps.step0 %}active
+                        {% elif forloop.counter0 < wizard.steps.step0 %}completed{% endif %}">
+            <div class="step-number">{{ forloop.counter }}</div>
+            <div class="step-title">{{ title }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <form action="" method="post" enctype="multipart/form-data" id="registration-form">
+        {% csrf_token %}
+        {{ wizard.management_form }}
+
+        <div class="form-section">
+            {% if wizard.form.forms %}
+                {{ wizard.form.management_form }}
+                {% for form in wizard.form.forms %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="help-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% if field.errors %}
+                                {% for error in field.errors %}
+                                    <div class="error-message">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                            {% if field.name in allowed_extensions %}
+                                <div class="file-info">
+                                    <strong>Types de fichiers autorisés :</strong>
+                                    <ul>
+                                        {% for ext in allowed_extensions|get_item:field.name %}
+                                            <li>{{ ext }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    <div>Taille maximale : {{ max_file_size|filesizeformat }}</div>
+                                    <div class="upload-progress">
+                                        <div class="upload-progress-bar"></div>
+                                    </div>
+                                    {% if field.name in 'main_image,interior_image1,interior_image2'|split:',' %}
+                                        <img class="file-preview" alt="Aperçu de l'image">
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            {% else %}
+                {% for field in wizard.form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="help-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <div class="error-message">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        {% if field.name in allowed_extensions %}
+                            <div class="file-info">
+                                <strong>Types de fichiers autorisés :</strong>
+                                <ul>
+                                    {% for ext in allowed_extensions|get_item:field.name %}
+                                        <li>{{ ext }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <div>Taille maximale : {{ max_file_size|filesizeformat }}</div>
+                                <div class="upload-progress">
+                                    <div class="upload-progress-bar"></div>
+                                </div>
+                                {% if field.name in 'main_image,interior_image1,interior_image2'|split:',' %}
+                                    <img class="file-preview" alt="Aperçu de l'image">
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="navigation-buttons">
+            {% if wizard.steps.prev %}
+            <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="btn btn-prev">
+                <i class="fas fa-arrow-left"></i> Précédent
+            </button>
+            {% else %}
+            <div></div>
+            {% endif %}
+
+            {% if wizard.steps.next %}
+            <button type="submit" class="btn btn-next">
+                Suivant <i class="fas fa-arrow-right"></i>
+            </button>
+            {% else %}
+            <button type="submit" class="btn btn-next">
+                Terminer <i class="fas fa-check"></i>
+            </button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+    
+    var CONFIG = {
+        maxFileSize: "{{ max_file_size }}",
+        allowedExtensions: JSON.parse('{{ allowed_extensions|safe|escapejs }}')
+    };
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var form = document.getElementById('registration-form');
+        var fileInputs = form.querySelectorAll('input[type="file"]');
+
+        fileInputs.forEach(function(input) {
+            input.addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+
+                // Vérifier la taille du fichier
+                if (file.size > parseInt(CONFIG.maxFileSize)) {
+                    alert('Le fichier est trop volumineux. Taille maximum : ' + formatFileSize(CONFIG.maxFileSize));
+                    e.target.value = '';
+                    return;
+                }
+
+                // Vérifier l'extension
+                var ext = '.' + file.name.split('.').pop().toLowerCase();
+                var fieldName = input.name;
+                var allowedExts = CONFIG.allowedExtensions[fieldName] || [];
+                
+                if (allowedExts.indexOf(ext) === -1) {
+                    alert('Type de fichier non autorisé. Extensions autorisées : ' + allowedExts.join(', '));
+                    e.target.value = '';
+                    return;
+                }
+
+                // Afficher l'aperçu pour les images
+                var previewContainer = input.closest('.form-group').querySelector('.file-preview');
+                if (previewContainer && file.type.startsWith('image/')) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewContainer.src = e.target.result;
+                        previewContainer.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        function formatFileSize(bytes) {
+            bytes = parseInt(bytes);
+            if (bytes === 0) return '0 KB';
+            var k = 1024;
+            var sizes = ['KB', 'MB', 'GB'];
+            var i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+    });
+})();
+</script>
+{% endblock %}
+{% endblock %} 

@@ -1,0 +1,335 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Ajouter un plat au menu | {{ restaurant.name }} | FoodFlex{% endblock %}
+{% block page_title %}Ajouter un plat au menu{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 24px;
+        min-height: calc(100vh - 180px);
+    }
+    
+    .sidebar {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 24px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        position: sticky;
+        top: 100px;
+        height: calc(100vh - 140px);
+        overflow-y: auto;
+    }
+    
+    .sidebar-profile {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .restaurant-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 15px;
+        overflow: hidden;
+        margin: 0 auto 15px;
+        border: 3px solid var(--primary-color);
+    }
+    
+    .restaurant-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        margin-bottom: 8px;
+        border-radius: 10px;
+        color: rgba(255, 255, 255, 0.7);
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .nav-link:hover {
+        background-color: rgba(255, 107, 107, 0.1);
+        color: var(--primary-color);
+    }
+    
+    .nav-link.active {
+        background-color: rgba(255, 107, 107, 0.2);
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .nav-link i {
+        font-size: 18px;
+        width: 24px;
+        text-align: center;
+    }
+    
+    .form-container {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 30px;
+    }
+    
+    .form-row {
+        display: flex;
+        margin: 0 -15px;
+        flex-wrap: wrap;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+        padding: 0 15px;
+        flex: 1;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        background-color: var(--input-bg);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: var(--text-color);
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
+    }
+    
+    .form-check {
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+    }
+    
+    .form-check-input {
+        margin-right: 10px;
+    }
+    
+    .btn-container {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-color);
+    }
+    
+    .btn-primary:hover {
+        background-color: #ff5252;
+    }
+    
+    .btn-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .preview-container {
+        margin-top: 20px;
+        text-align: center;
+    }
+    
+    .preview-image {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 8px;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+    <div class="breadcrumb">
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <a href="{% url 'restaurant_dashboard' %}">Tableau de bord</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <a href="{% url 'restaurant_menu' %}">Menu</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span>Ajouter un plat</span>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-profile">
+                <div class="restaurant-image">
+                    {% if restaurant.image %}
+                        <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                    {% else %}
+                        <img src="{% static 'foodapp/images/placeholder.jpg' %}" alt="{{ restaurant.name }}">
+                    {% endif %}
+                </div>
+                <h3>{{ restaurant.name }}</h3>
+                <div class="restaurant-meta">
+                    <span>{{ restaurant.city.name }}</span>
+                    <div class="status-badge {% if restaurant.is_open %}status-open{% else %}status-closed{% endif %}">
+                        <i class="fas {% if restaurant.is_open %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                        {% if restaurant.is_open %}Ouvert{% else %}Fermé{% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="{% url 'restaurant_dashboard' %}" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Vue d'ensemble
+                </a>
+                <a href="{% url 'restaurant_orders' %}" class="nav-link">
+                    <i class="fas fa-utensils"></i>
+                    Commandes
+                </a>
+                <a href="{% url 'restaurant_menu' %}" class="nav-link active">
+                    <i class="fas fa-clipboard-list"></i>
+                    Menu
+                </a>
+                <a href="{% url 'restaurant_reservations' %}" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    Réservations
+                </a>
+                <a href="{% url 'restaurant_reviews' %}" class="nav-link">
+                    <i class="fas fa-star"></i>
+                    Avis clients
+                </a>
+                <a href="{% url 'restaurant_stats' %}" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    Statistiques
+                </a>
+                <a href="{% url 'restaurant_settings' %}" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Paramètres
+                </a>
+            </nav>
+        </div>
+        
+        <div class="main-content">
+            <h1 class="page-title">Ajouter un plat au menu</h1>
+            
+            <div class="form-container">
+                <form method="post" action="{% url 'restaurant_menu_create' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="name">Nom du plat *</label>
+                            <input type="text" class="form-control" id="name" name="name" required placeholder="Ex: Tajine au poulet">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="price_range">Gamme de prix *</label>
+                            <select class="form-control" id="price_range" name="price_range" required>
+                                <option value="">Sélectionner une gamme de prix</option>
+                                <option value="$">$ (Économique)</option>
+                                <option value="$$">$$ (Intermédiaire)</option>
+                                <option value="$$$">$$$ (Haut de gamme)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label class="form-label" for="description">Description *</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required placeholder="Décrivez votre plat, ses ingrédients principaux, sa préparation..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="type">Type de plat *</label>
+                            <select class="form-control" id="type" name="type" required>
+                                <option value="">Sélectionner un type</option>
+                                <option value="sweet">Sucré</option>
+                                <option value="salty">Salé</option>
+                                <option value="drink">Boisson</option>
+                            </select>
+                            
+                            <div class="form-check mt-3">
+                                <input type="checkbox" class="form-check-input" id="is_vegetarian" name="is_vegetarian">
+                                <label class="form-check-label" for="is_vegetarian">Végétarien</label>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="is_vegan" name="is_vegan">
+                                <label class="form-check-label" for="is_vegan">Vegan</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="image">Image du plat</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*" onchange="previewImage(this)">
+                            <div class="preview-container">
+                                <img id="preview" class="preview-image" src="#" alt="Prévisualisation">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <a href="{% url 'restaurant_menu' %}" class="btn btn-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-primary">Ajouter le plat</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById('preview');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %} 

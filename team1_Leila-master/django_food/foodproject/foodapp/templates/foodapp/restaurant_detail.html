@@ -1,0 +1,784 @@
+{% extends "foodapp/base.html" %}
+    {% load static %}
+
+{% block title %}{{ restaurant.name }} | FoodFlex{% endblock %}
+{% block page_title %}{{ restaurant.name }}{% endblock %}
+
+{% block extra_css %}
+    <style>
+    .restaurant-header {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .restaurant-cover {
+        width: 100%;
+        height: 300px;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .restaurant-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        }
+        
+    .restaurant-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+        padding: 30px 20px 20px;
+    }
+    
+    .restaurant-title {
+        color: white;
+        font-size: 32px;
+            font-weight: 700;
+        margin-bottom: 5px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+    .restaurant-meta {
+            display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 15px;
+        }
+        
+    .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+        font-size: 14px;
+        }
+        
+    .meta-item i {
+        color: var(--accent-color);
+        }
+        
+        .status-badge {
+            border-radius: 30px;
+        padding: 6px 15px;
+        font-size: 13px;
+            font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        }
+        
+        .status-open {
+        background-color: rgba(46, 213, 115, 0.15);
+        color: #2ed573;
+        border: 1px solid rgba(46, 213, 115, 0.3);
+        }
+        
+        .status-closed {
+        background-color: rgba(255, 107, 107, 0.15);
+        color: #ff6b6b;
+        border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+    
+    .restaurant-content {
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        gap: 30px;
+        }
+        
+        .restaurant-info {
+            display: flex;
+            flex-direction: column;
+        gap: 30px;
+    }
+    
+    .info-section {
+        padding: 25px;
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+    .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--accent-color);
+            display: flex;
+            align-items: center;
+        gap: 10px;
+    }
+    
+    .section-title i {
+        color: var(--primary-color);
+    }
+    
+    .description {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+    
+    .address {
+        display: flex;
+        align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+    }
+    
+    .address-icon {
+        color: var(--primary-color);
+        font-size: 24px;
+        margin-top: 3px;
+    }
+    
+    .address-details {
+        color: var(--text-secondary);
+        }
+        
+    .restaurant-sidebar {
+            display: flex;
+        flex-direction: column;
+        gap: 20px;
+        }
+        
+    .sidebar-section {
+        padding: 20px;
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+    .sidebar-title {
+        font-size: 18px;
+            font-weight: 600;
+        margin-bottom: 15px;
+        color: var(--accent-color);
+            display: flex;
+            align-items: center;
+        gap: 10px;
+    }
+    
+    .sidebar-title i {
+        color: var(--primary-color);
+    }
+    
+    .opening-hours {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        }
+        
+    .opening-day {
+        display: flex;
+        justify-content: space-between;
+        color: var(--text-secondary);
+        }
+        
+    .day-name {
+        font-weight: 500;
+        }
+        
+    .current-day {
+        color: var(--primary-color);
+            font-weight: 600;
+    }
+    
+    .features-list {
+            display: flex;
+        flex-direction: column;
+            gap: 12px;
+        }
+        
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-secondary);
+    }
+    
+    .feature-icon {
+            color: var(--primary-color);
+        font-size: 16px;
+        width: 20px;
+        text-align: center;
+    }
+    
+    .reservation-form {
+        padding: 25px;
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+        }
+        
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+    
+    .form-control {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        padding: 12px 15px;
+        border-radius: 8px;
+        width: 100%;
+        font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+    .form-control:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+    }
+    
+    .btn-reserve {
+        background: var(--gradient);
+            color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        gap: 10px;
+        }
+        
+    .btn-reserve:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+        
+    .form-decoration {
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        opacity: 0.05;
+        z-index: 0;
+        }
+        
+    .form-decoration-1 {
+        top: -50px;
+        right: -50px;
+    }
+    
+    .form-decoration-2 {
+        bottom: -50px;
+        left: -50px;
+        }
+        
+    .form-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .menu-section {
+        margin-top: 40px;
+        }
+        
+    .menu-section .section-title {
+        margin-bottom: 30px;
+        }
+        
+    .menu-category {
+        margin-bottom: 40px;
+    }
+    
+    .category-title {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--text-primary);
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+    .menu-items {
+            display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        }
+        
+    .menu-item {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+            overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+    }
+    
+    .menu-item:hover {
+            transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        border-color: var(--primary-color);
+        }
+        
+    .menu-item-image {
+        width: 100px;
+        height: 100px;
+        flex-shrink: 0;
+        }
+        
+    .menu-item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        }
+        
+    .menu-item-content {
+        padding: 15px;
+        flex-grow: 1;
+    }
+    
+    .menu-item-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: var(--text-primary);
+        }
+        
+    .menu-item-description {
+            font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+            display: -webkit-box;
+        -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+    .menu-item-price {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+    .reviews-section {
+        margin-top: 40px;
+    }
+    
+    .reviews-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        }
+        
+    .review-card {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+            padding: 20px;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+    .reviewer {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        }
+        
+    .reviewer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .reviewer-info {
+        display: flex;
+        flex-direction: column;
+        }
+        
+    .reviewer-name {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .review-date {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+    
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .stars {
+        color: var(--accent-color);
+    }
+    
+    .review-text {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+        .restaurant-content {
+            grid-template-columns: 1fr;
+        }
+        
+            .restaurant-header {
+            flex-direction: column;
+        }
+        
+        .menu-items {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'accueil' %}">Accueil</a>
+    <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+    <a href="{% url 'restaurants' %}">Restaurants</a>
+    <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+    <span>{{ restaurant.name }}</span>
+        </div>
+    
+<div class="restaurant-header">
+    <div class="restaurant-cover">
+        {% if restaurant.image %}
+            <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                {% else %}
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80" alt="{{ restaurant.name }}">
+                {% endif %}
+                
+        <div class="restaurant-overlay">
+            <h1 class="restaurant-title">{{ restaurant.name }}</h1>
+            <div class="restaurant-meta">
+                <div class="meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ restaurant.city.name }}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-phone"></i>
+                    <span>{{ restaurant.phone|default:"Non disponible" }}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-star"></i>
+                    <span>{{ restaurant.rating|floatformat:1 }}/5</span>
+                </div>
+                <div class="meta-item">
+                    {% if restaurant.is_open %}
+                        <span class="status-badge status-open">
+                            <i class="fas fa-check-circle"></i> Ouvert
+                        </span>
+                {% else %}
+                        <span class="status-badge status-closed">
+                            <i class="fas fa-times-circle"></i> Fermé
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+            </div>
+            
+<div class="restaurant-content">
+            <div class="restaurant-info">
+        <div class="info-section">
+            <h2 class="section-title">
+                <i class="fas fa-info-circle"></i> À propos
+            </h2>
+            <div class="description">
+                {{ restaurant.description|linebreaks }}
+                    </div>
+            <div class="address">
+                <div class="address-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                <div class="address-details">
+                    <p>{{ restaurant.address }}</p>
+                    <p>{{ restaurant.city.name }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="menu-section">
+            <h2 class="section-title">
+                <i class="fas fa-utensils"></i> Menu
+            </h2>
+            
+            {% regroup dishes by category as dish_list %}
+            
+            {% for category in dish_list %}
+                <div class="menu-category">
+                    <h3 class="category-title">{{ category.grouper }}</h3>
+                    <div class="menu-items">
+                        {% for dish in category.list %}
+                            <div class="menu-item">
+                                <div class="menu-item-image">
+                                    {% if dish.image %}
+                                        <img src="{{ dish.image.url }}" alt="{{ dish.name }}">
+                                    {% else %}
+                                        <img src="https://via.placeholder.com/100x100?text={{ dish.name }}" alt="{{ dish.name }}">
+                                    {% endif %}
+                                </div>
+                                <div class="menu-item-content">
+                                    <h4 class="menu-item-title">{{ dish.name }}</h4>
+                                    <p class="menu-item-description">{{ dish.description|truncatechars:80 }}</p>
+                                    <div class="menu-item-price">{{ dish.price }} MAD</div>
+                                </div>
+                    </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% empty %}
+                <p>Aucun plat disponible pour ce restaurant.</p>
+            {% endfor %}
+        </div>
+        
+        <div class="reviews-section">
+            <h2 class="section-title">
+                <i class="fas fa-star"></i> Avis ({{ reviews|length }})
+            </h2>
+            
+            <div class="reviews-container">
+                {% for review in reviews %}
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="reviewer">
+                                <div class="reviewer-avatar">
+                                    {{ review.user.username|make_list|first|upper }}
+                                </div>
+                                <div class="reviewer-info">
+                                    <div class="reviewer-name">{{ review.user.username }}</div>
+                                    <div class="review-date">{{ review.created_at|date:"d/m/Y" }}</div>
+                                </div>
+                            </div>
+                            <div class="rating">
+                                <div class="stars">
+                                    {% with ''|center:review.rating as range %}
+                                        {% for _ in range %}★{% endfor %}
+                                    {% endwith %}
+                                    {% with ''|center:5|slice:review.rating as range %}
+                                        {% for _ in range %}☆{% endfor %}
+                                    {% endwith %}
+                                </div>
+                                <span>{{ review.rating }}/5</span>
+                            </div>
+                    </div>
+                        <div class="review-text">
+                            {{ review.comment|linebreaks }}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>Aucun avis pour ce restaurant.</p>
+                {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+    <div class="restaurant-sidebar">
+        <div class="reservation-form">
+            <div class="form-decoration form-decoration-1"></div>
+            <div class="form-decoration form-decoration-2"></div>
+            <div class="form-content">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-calendar-alt"></i> Réserver une table
+                </h3>
+                
+                <form method="post" action="{% url 'reservation' restaurant.id %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" id="date" name="date" class="form-control" required min="{{ today|date:'Y-m-d' }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="time" class="form-label">Heure</label>
+                        <select id="time" name="time" class="form-control" required>
+                            <option value="">Sélectionnez une heure</option>
+                            <option value="12:00:00">12:00</option>
+                            <option value="12:30:00">12:30</option>
+                            <option value="13:00:00">13:00</option>
+                            <option value="13:30:00">13:30</option>
+                            <option value="19:00:00">19:00</option>
+                            <option value="19:30:00">19:30</option>
+                            <option value="20:00:00">20:00</option>
+                            <option value="20:30:00">20:30</option>
+                            <option value="21:00:00">21:00</option>
+                        </select>
+                </div>
+                
+                    <div class="form-group">
+                        <label for="guests" class="form-label">Nombre de personnes</label>
+                        <select id="guests" name="guests" class="form-control" required>
+                            <option value="">Sélectionnez</option>
+                            {% for i in "12345678910"|make_list %}
+                                <option value="{{ i }}">{{ i }} personne{{ i|pluralize }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes" class="form-label">Notes spéciales (optionnel)</label>
+                        <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Allergies, occasions spéciales, etc."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-reserve">
+                        <i class="fas fa-calendar-check"></i> Réserver maintenant
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3 class="sidebar-title">
+                <i class="fas fa-clock"></i> Horaires d'ouverture
+            </h3>
+            <div class="opening-hours">
+                <div class="opening-day {% if current_day == 0 %}current-day{% endif %}">
+                    <span class="day-name">Lundi</span>
+                    <span class="day-hours">12:00 - 15:00, 19:00 - 23:00</span>
+                </div>
+                <div class="opening-day {% if current_day == 1 %}current-day{% endif %}">
+                    <span class="day-name">Mardi</span>
+                    <span class="day-hours">12:00 - 15:00, 19:00 - 23:00</span>
+                </div>
+                <div class="opening-day {% if current_day == 2 %}current-day{% endif %}">
+                    <span class="day-name">Mercredi</span>
+                    <span class="day-hours">12:00 - 15:00, 19:00 - 23:00</span>
+                </div>
+                <div class="opening-day {% if current_day == 3 %}current-day{% endif %}">
+                    <span class="day-name">Jeudi</span>
+                    <span class="day-hours">12:00 - 15:00, 19:00 - 23:00</span>
+                </div>
+                <div class="opening-day {% if current_day == 4 %}current-day{% endif %}">
+                    <span class="day-name">Vendredi</span>
+                    <span class="day-hours">12:00 - 15:00, 19:00 - 23:00</span>
+                </div>
+                <div class="opening-day {% if current_day == 5 %}current-day{% endif %}">
+                    <span class="day-name">Samedi</span>
+                    <span class="day-hours">12:00 - 15:00, 19:00 - 23:00</span>
+                </div>
+                <div class="opening-day {% if current_day == 6 %}current-day{% endif %}">
+                    <span class="day-name">Dimanche</span>
+                    <span class="day-hours">12:00 - 15:00, 19:00 - 23:00</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3 class="sidebar-title">
+                <i class="fas fa-concierge-bell"></i> Services et équipements
+            </h3>
+            <div class="features-list">
+                <div class="feature-item">
+                    <i class="fas fa-wifi feature-icon"></i>
+                    <span>Wi-Fi gratuit</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-smoking-ban feature-icon"></i>
+                    <span>Non-fumeur</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-parking feature-icon"></i>
+                    <span>Parking disponible</span>
+                    </div>
+                <div class="feature-item">
+                    <i class="fas fa-wheelchair feature-icon"></i>
+                    <span>Accès handicapé</span>
+                        </div>
+                <div class="feature-item">
+                    <i class="fas fa-baby feature-icon"></i>
+                    <span>Menu enfant</span>
+                    </div>
+                <div class="feature-item">
+                    <i class="fas fa-credit-card feature-icon"></i>
+                    <span>Paiement par carte</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-money-bill-wave feature-icon"></i>
+                    <span>Paiement en espèces</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+    
+{% block scripts %}
+    <script>
+    // Script pour vérifier la disponibilité des créneaux
+        document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('date');
+        const timeSelect = document.getElementById('time');
+        
+        // Mettre à jour les créneaux disponibles lors du changement de date
+        dateInput.addEventListener('change', function() {
+            const selectedDate = this.value;
+            
+            if (selectedDate) {
+                // Appel API pour récupérer les créneaux disponibles
+                fetch(`/api/restaurant/{{ restaurant.id }}/available-slots/?date=${selectedDate}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Réinitialiser les options
+                        timeSelect.innerHTML = '<option value="">Sélectionnez une heure</option>';
+            
+                        // Ajouter les créneaux disponibles
+                        data.available_slots.forEach(slot => {
+                            const option = document.createElement('option');
+                            option.value = slot.time;
+                            option.textContent = slot.formatted_time;
+                            timeSelect.appendChild(option);
+                        });
+                        
+                        if (data.available_slots.length === 0) {
+                            const option = document.createElement('option');
+                            option.value = "";
+                            option.textContent = "Aucun créneau disponible";
+                            option.disabled = true;
+                            timeSelect.appendChild(option);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors de la récupération des créneaux:', error);
+                });
+            }
+            });
+        });
+    </script>
+{% endblock %} 

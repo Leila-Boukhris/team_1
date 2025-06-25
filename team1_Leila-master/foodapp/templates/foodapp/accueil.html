@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>FoodFlex Desktop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% load static %}
+    <style>
+        :root {
+            --app-bg: #0f0f13;
+            --sidebar-bg: #16171d;
+            --card-bg: #1e1f29;
+            --accent: #FF6F61;
+            --accent-hover: #ff8075;
+            --text: #ffffff;
+            --text-secondary: #9fa1a4;
+            --border: rgba(255, 255, 255, 0.08);
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        body {
+            background: var(--app-bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .app-titlebar {
+            height: 32px;
+            background: var(--sidebar-bg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            -webkit-app-region: drag;
+            z-index: 1000;
+        }
+        
+        .titlebar-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .window-controls {
+            display: flex;
+            -webkit-app-region: no-drag;
+        }
+        
+        .window-control {
+            width: 30px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .window-control:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .window-control.close:hover {
+            background: #e81123;
+            color: white;
+        }
+        
+        .app-container {
+            display: flex;
+            height: calc(100vh - 32px);
+        }
+        
+        .sidebar {
+            width: 70px;
+            background: var(--sidebar-bg);
+            height: 100%;
+            overflow: hidden;
+            transition: width 0.3s;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        
+        .sidebar:hover {
+            width: 260px;
+        }
+        
+        .sidebar-header {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .logo-icon {
+            min-width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .logo-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-left: 15px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .sidebar:hover .logo-text {
+            opacity: 1;
+        }
+        
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            padding: 15px 0;
+            flex: 1;
+        }
+        
+        .menu-item {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+            overflow: hidden;
+        }
+        
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+        }
+        
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--accent);
+        }
+        
+        .menu-icon {
+            min-width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .menu-item.active .menu-icon {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .menu-text {
+            font-size: 15px;
+            font-weight: 500;
+            margin-left: 15px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .sidebar:hover .menu-text {
+            opacity: 1;
+        }
+        
+        .user-profile {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+        }
+        
+        .user-avatar {
+            min-width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #2A3990;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            overflow: hidden;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-info {
+            margin-left: 15px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        
+        .sidebar:hover .user-info {
+            opacity: 1;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .user-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px 30px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .search-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 30px auto 0;
+            text-align: center;
+        }
+        
+        .search-title {
+            font-size: 38px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            background: linear-gradient(to right, #FF6F61, #FF9671);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .search-box {
+            width: 100%;
+            height: 60px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 0 25px;
+            font-size: 16px;
+            color: var(--text);
+            transition: all 0.3s;
+            outline: none;
+        }
+        
+        .search-box:focus {
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+        
+        .section {
+            margin: 40px 0;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin-right: 15px;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .food-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+        
+        .food-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow);
+            border-color: var(--accent);
+        }
+        
+        .food-img {
+            height: 150px;
+            width: 100%;
+            object-fit: cover;
+        }
+        
+        .food-info {
+            padding: 15px;
+        }
+        
+        .food-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .food-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            height: 40px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .food-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .food-meta span {
+            display: flex;
+            align-items: center;
+        }
+        
+        .food-meta i {
+            margin-right: 5px;
+            font-size: 12px;
+        }
+        
+        .food-rating {
+            color: #FFD700;
+        }
+        
+        .food-price {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .right-sidebar {
+            width: 300px;
+            background: var(--sidebar-bg);
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border);
+        }
+        
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+        
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .category-item {
+            background: var(--card-bg);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+        }
+        
+        .category-item:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .category-item.active {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .notification {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .notification:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 10px;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        
+        .notification-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        @media (max-width: 1200px) {
+            .right-sidebar {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .sidebar {
+                width: 0;
+            }
+            
+            .sidebar:hover {
+                width: 260px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- App Titlebar -->
+    <div class="app-titlebar">
+        <span class="titlebar-title">FoodFlex Desktop</span>
+        <div class="window-controls">
+            <button class="window-control minimize">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button class="window-control maximize">
+                <i class="fas fa-square"></i>
+            </button>
+            <button class="window-control close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="logo-text">FoodFlex</div>
+            </div>
+            
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active">
+                    <div class="menu-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="menu-text">Accueil</div>
+                </a>
+                <a href="#" class="menu-item">
+                    <div class="menu-icon">
+                        <i class="fas fa-compass"></i>
+                    </div>
+                    <div class="menu-text">Explorer</div>
+                </a>
+                <a href="#" class="menu-item">
+                    <div class="menu-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="menu-text">Près de moi</div>
+                </a>
+                <a href="#" class="menu-item">
+                    <div class="menu-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="menu-text">Favoris</div>
+                </a>
+                <a href="#" class="menu-item">
+                    <div class="menu-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="menu-text">Historique</div>
+                </a>
+                <a href="#" class="menu-item">
+                    <div class="menu-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="menu-text">Commandes</div>
+                </a>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ request.user.username|default:"Invité" }}</div>
+                    <div class="user-status">{% if user.is_authenticated %}En ligne{% else %}Non connecté{% endif %}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Search Section -->
+            <div class="search-container">
+                <h1 class="search-title">Qu'est-ce que tu veux manger aujourd'hui ?</h1>
+                <input type="text" class="search-box" placeholder="Rechercher un plat, un restaurant, une cuisine...">
+            </div>
+            
+            <!-- Dish of the Day Section -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h2 class="section-title">Plat du jour</h2>
+                </div>
+                
+                <div class="card-grid">
+                    {% for dish in daily_dishes|slice:":4" %}
+                    <div class="food-card">
+                        {% if dish.image %}
+                        <img src="{{ dish.image.url }}" alt="{{ dish.name }}" class="food-img">
+                        {% else %}
+                        <img src="https://images.unsplash.com/photo-1559847844-5315695dadae" alt="{{ dish.name }}" class="food-img">
+                        {% endif %}
+                        <div class="food-info">
+                            <h3 class="food-name">{{ dish.name }}</h3>
+                            <p class="food-desc">{{ dish.description|truncatechars:60 }}</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> {{ dish.city.name }}</span>
+                                <span class="food-price">{{ dish.get_price_range_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591" alt="Pizza Italienne" class="food-img">
+                        <div class="food-info">
+                            <h3 class="food-name">Pizza Italienne</h3>
+                            <p class="food-desc">Pizza traditionnelle italienne avec tomates, mozzarella et basilic frais.</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> Rome</span>
+                                <span class="food-price">$$$</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87" alt="Sushi Maki" class="food-img">
+                        <div class="food-info">
+                            <h3 class="food-name">Sushi Maki</h3>
+                            <p class="food-desc">Assortiment de makis frais avec du saumon, thon et avocat.</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> Tokyo</span>
+                                <span class="food-price">$$$$</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd" alt="Hamburger Gourmet" class="food-img">
+                        <div class="food-info">
+                            <h3 class="food-name">Hamburger Gourmet</h3>
+                            <p class="food-desc">Hamburger avec viande de bœuf, fromage cheddar et sauce spéciale.</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> New York</span>
+                                <span class="food-price">$$</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1505253758473-96b7015fcd40" alt="Paëlla Espagnole" class="food-img">
+                        <div class="food-info">
+                            <h3 class="food-name">Paëlla Espagnole</h3>
+                            <p class="food-desc">Riz safrané avec fruits de mer, poulet et légumes.</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> Barcelone</span>
+                                <span class="food-price">$$$</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Best Restaurants Section -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h2 class="section-title">Meilleurs restaurants du jour</h2>
+                </div>
+                
+                <div class="card-grid">
+                    {% for restaurant in top_restaurants|slice:":4" %}
+                    <div class="food-card">
+                        {% if restaurant.image %}
+                        <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}" class="food-img">
+                        {% else %}
+                        <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9" alt="{{ restaurant.name }}" class="food-img">
+                        {% endif %}
+                        <div class="food-info">
+                            <h3 class="food-name">{{ restaurant.name }}</h3>
+                            <p class="food-desc">{{ restaurant.description|truncatechars:60 }}</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> {{ restaurant.city.name }}</span>
+                                <span class="food-rating"><i class="fas fa-star"></i> {{ restaurant.rating|default:"4.5" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4" alt="La Trattoria" class="food-img">
+                        <div class="food-info">
+                            <h3 class="food-name">La Trattoria</h3>
+                            <p class="food-desc">Restaurant italien authentique avec une sélection de pâtes et pizzas.</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> Milan</span>
+                                <span class="food-rating"><i class="fas fa-star"></i> 4.8</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1599458252573-56ae36120de1" alt="Sushi Palace" class="food-img">
+                        <div class="food-info">
+                            <h3 class="food-name">Sushi Palace</h3>
+                            <p class="food-desc">Restaurant japonais proposant des sushis et sashimis frais.</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> Kyoto</span>
+                                <span class="food-rating"><i class="fas fa-star"></i> 4.9</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1537047902294-62a40c20a6ae" alt="Le Bistrot Français" class="food-img">
+                        <div class="food-info">
+                            <h3 class="food-name">Le Bistrot Français</h3>
+                            <p class="food-desc">Cuisine française raffinée dans un cadre élégant.</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> Paris</span>
+                                <span class="food-rating"><i class="fas fa-star"></i> 4.7</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1579027989536-b7b1f875659b" alt="El Tapeo" class="food-img">
+                        <div class="food-info">
+                            <h3 class="food-name">El Tapeo</h3>
+                            <p class="food-desc">Bar à tapas espagnol avec une ambiance conviviale.</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> Madrid</span>
+                                <span class="food-rating"><i class="fas fa-star"></i> 4.6</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Popular Categories Section -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-th-large"></i>
+                    </div>
+                    <h2 class="section-title">Catégories populaires</h2>
+                </div>
+                
+                <div class="card-grid">
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327" alt="Italien" class="food-img">
+                        <div class="food-info">
+                            <h3 class="food-name">Italien</h3>
+                            <p class="food-desc">Découvrez les saveurs authentiques de l'Italie</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-utensils"></i> 25 restaurants</span>
+                                <span><i class="fas fa-fire"></i> Populaire</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1563245372-f21724e3856d" alt="Japonais" class="food-img">
+                        <div class="food-info">
+                            <h3 class="food-name">Japonais</h3>
+                            <p class="food-desc">Savourez les délicats plats de la cuisine nippone</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-utensils"></i> 18 restaurants</span>
+                                <span><i class="fas fa-fire"></i> Tendance</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1586816001966-79b736744398" alt="Mexicain" class="food-img">
+                        <div class="food-info">
+                            <h3 class="food-name">Mexicain</h3>
+                            <p class="food-desc">Expérimentez les saveurs épicées du Mexique</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-utensils"></i> 12 restaurants</span>
+                                <span><i class="fas fa-star"></i> 4.5</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1631292784640-751a2faf389b" alt="Indien" class="food-img">
+                        <div class="food-info">
+                            <h3 class="food-name">Indien</h3>
+                            <p class="food-desc">Explorez les arômes riches et épicés de l'Inde</p>
+                            <div class="food-meta">
+                                <span><i class="fas fa-utensils"></i> 15 restaurants</span>
+                                <span><i class="fas fa-fire"></i> Populaire</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Sidebar -->
+        <div class="right-sidebar">
+            <!-- Categories Section -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Catégories</h3>
+                <div class="category-list">
+                    <div class="category-item active">Tous</div>
+                    <div class="category-item">Italien</div>
+                    <div class="category-item">Japonais</div>
+                    <div class="category-item">Indien</div>
+                    <div class="category-item">Mexicain</div>
+                    <div class="category-item">Fast-food</div>
+                    <div class="category-item">Végétarien</div>
+                    <div class="category-item">Desserts</div>
+                </div>
+            </div>
+            
+            <!-- Notifications Section -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Notifications</h3>
+                <div class="notification">
+                    <div class="notification-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">Offre spéciale</div>
+                        <div class="notification-desc">-20% sur votre prochaine commande</div>
+                    </div>
+                </div>
+                <div class="notification">
+                    <div class="notification-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">Nouveau restaurant</div>
+                        <div class="notification-desc">Découvrez El Tapeo à Madrid</div>
+                    </div>
+                </div>
+                <div class="notification">
+                    <div class="notification-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">Plat recommandé</div>
+                        <div class="notification-desc">Essayez notre sushi maki premium</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Abonnement Section -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Votre abonnement</h3>
+                <div class="notification">
+                    <div class="notification-icon" style="background: #FFD700;">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">Premium</div>
+                        <div class="notification-desc">Valide jusqu'au 15/06/2023</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Section -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Contactez-nous</h3>
+                <div class="notification">
+                    <div class="notification-icon" style="background: #4267B2;">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">Support client</div>
+                        <div class="notification-desc">support@foodflex.com</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{% static 'foodapp/js/window-controls.js' %}"></script>
+    <script>
+        // Window controls
+        document.querySelector('.window-control.minimize').addEventListener('click', () => {
+            if (window.electron) {
+                window.electron.minimize();
+            }
+        });
+        
+        document.querySelector('.window-control.maximize').addEventListener('click', () => {
+            if (window.electron) {
+                window.electron.maximize();
+            }
+        });
+        
+        document.querySelector('.window-control.close').addEventListener('click', () => {
+            if (window.electron) {
+                window.electron.close();
+            }
+        });
+        
+        // Animations for cards
+        document.querySelectorAll('.food-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px)';
+                card.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.3)';
+                card.style.borderColor = 'var(--accent)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+                card.style.boxShadow = '';
+                card.style.borderColor = '';
+            });
+        });
+        
+        // Animations for category items
+        document.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.category-item').forEach(i => {
+                    i.classList.remove('active');
+                });
+                item.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html> 

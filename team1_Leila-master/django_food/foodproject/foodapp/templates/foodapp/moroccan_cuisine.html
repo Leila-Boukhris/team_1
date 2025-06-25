@@ -1,0 +1,634 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Cuisine Marocaine | Guide Touristique | FoodFlex{% endblock %}
+{% block page_title %}Découverte de la Cuisine Marocaine{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<style>
+    .cuisine-header {
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("{% static 'foodapp/images/moroccan-food-header.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+        margin-bottom: 40px;
+        border-radius: 10px;
+    }
+    
+    .cuisine-header h1 {
+        font-size: 48px;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .cuisine-header p {
+        font-size: 18px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .section-title {
+        position: relative;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    .section-title::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background-color: var(--primary-color);
+    }
+    
+    .dish-card {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative;
+    }
+    
+    .dish-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .dish-card-img {
+        height: 200px;
+        overflow: hidden;
+    }
+    
+    .dish-card-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .dish-card:hover .dish-card-img img {
+        transform: scale(1.1);
+    }
+    
+    .dish-card-content {
+        padding: 20px;
+    }
+    
+    .dish-card-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    
+    .dish-card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    
+    .dish-tag {
+        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background-color: rgba(255, 107, 107, 0.1);
+        color: var(--primary-color);
+    }
+    
+    .dish-card-description {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 15px;
+    }
+    
+    .dishes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        margin-bottom: 50px;
+    }
+    
+    .destination-section {
+        background-color: rgba(255, 255, 255, 0.03);
+        border-radius: 15px;
+        padding: 30px;
+        margin-top: 50px;
+        margin-bottom: 50px;
+    }
+    
+    .tourist-tips {
+        background-color: rgba(78, 205, 196, 0.1);
+        border-left: 4px solid var(--accent-color);
+        padding: 20px;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 30px;
+    }
+    
+    .tourist-tips h3 {
+        color: var(--accent-color);
+        margin-bottom: 15px;
+    }
+    
+    .tourist-tips ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    
+    .tourist-tips li {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .tourist-tips li i {
+        color: var(--accent-color);
+        margin-right: 10px;
+        margin-top: 4px;
+    }
+    
+    .category-tabs {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .category-tab {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.7);
+        padding: 10px 20px;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .category-tab.active, .category-tab:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .dish-section {
+        margin-bottom: 60px;
+    }
+    
+    /* Badge Nouveau */
+    .new-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background-color: var(--primary-color);
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 20px;
+        z-index: 2;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .new-badge:hover {
+        transform: scale(1.05);
+        background-color: var(--primary-color-hover);
+    }
+    
+    .new-badge i {
+        font-size: 10px;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    .new-badge.pulse {
+        animation: pulse 1.5s infinite;
+    }
+    
+    /* Carte des régions culinaires */
+    #moroccan-map {
+        height: 400px;
+        width: 100%;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .region-info {
+        background-color: var(--card-bg);
+        padding: 20px;
+        border-radius: 15px;
+        margin-top: 20px;
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .region-info h3 {
+        color: var(--primary-color);
+        margin-bottom: 15px;
+    }
+    
+    .region-info p {
+        margin-bottom: 10px;
+    }
+    
+    .region-specialties {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .region-specialty {
+        background-color: rgba(255, 255, 255, 0.05);
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+    <div class="breadcrumb">
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span>Cuisine Marocaine</span>
+    </div>
+    
+    <div class="cuisine-header">
+        <h1>Cuisine Marocaine</h1>
+        <p>Découvrez les saveurs authentiques du Maroc avec notre guide touristique de la cuisine marocaine. Des tajines aux couscous, en passant par les pâtisseries traditionnelles.</p>
+    </div>
+    
+    <div class="tourist-tips">
+        <h3><i class="fas fa-lightbulb"></i> Guide du Touriste</h3>
+        <ul>
+            <li><i class="fas fa-utensils"></i> <strong>Repas traditionnels</strong> : Le déjeuner est généralement le repas principal au Maroc, servi en milieu de journée.</li>
+            <li><i class="fas fa-hand-paper"></i> <strong>Étiquette</strong> : Mangez avec votre main droite lorsque vous êtes invité à partager un plat commun.</li>
+            <li><i class="fas fa-clock"></i> <strong>Timing</strong> : Les restaurants servent souvent le dîner plus tard qu'en Europe, à partir de 19h30-20h.</li>
+            <li><i class="fas fa-money-bill-wave"></i> <strong>Pourboire</strong> : Un pourboire de 10% est apprécié dans les restaurants touristiques.</li>
+        </ul>
+    </div>
+    
+    <!-- Carte des régions culinaires du Maroc -->
+    <div class="section">
+        <h2 class="section-title">Carte des Régions Culinaires</h2>
+        <p>Explorez les différentes régions culinaires du Maroc et leurs spécialités gastronomiques. Cliquez sur les marqueurs pour découvrir les plats emblématiques de chaque région.</p>
+        
+        <div id="moroccan-map"></div>
+        
+        <div class="region-info" id="region-details">
+            <h3>Cliquez sur une région pour découvrir ses spécialités</h3>
+            <p>Chaque région du Maroc possède ses propres traditions culinaires, influencées par l'histoire, la géographie et les cultures locales.</p>
+        </div>
+    </div>
+    
+    <div class="category-tabs">
+        <div class="category-tab active" data-target="recommended">Recommandés</div>
+        <div class="category-tab" data-target="salty">Plats Salés</div>
+        <div class="category-tab" data-target="sweet">Pâtisseries & Desserts</div>
+        <div class="category-tab" data-target="drinks">Boissons</div>
+    </div>
+    
+    <!-- Plats recommandés aux touristes -->
+    <div id="recommended" class="dish-section">
+        <h2 class="section-title">Plats Recommandés aux Touristes</h2>
+        <p>Ces plats emblématiques de la cuisine marocaine sont particulièrement recommandés aux visiteurs découvrant le Maroc pour la première fois.</p>
+        
+        <div class="dishes-grid">
+            {% for dish in recommended_dishes %}
+            <div class="dish-card">
+                {% if dish.is_new_for_current_user %}
+                <div class="new-badge pulse" data-dish-id="{{ dish.id }}">
+                    <i class="fas fa-star"></i> Nouveau
+                </div>
+                {% endif %}
+                <div class="dish-card-img">
+                    {% if dish.image %}
+                    <img src="{{ dish.image.url }}" alt="{{ dish.name }}">
+                    {% else %}
+                    <img src="{% static 'foodapp/images/default-dish.jpg' %}" alt="{{ dish.name }}">
+                    {% endif %}
+                </div>
+                <div class="dish-card-content">
+                    <h3 class="dish-card-title">{{ dish.name }}</h3>
+                    <div class="dish-card-tags">
+                        <span class="dish-tag">{{ dish.get_origin_display }}</span>
+                        {% if dish.is_vegetarian %}
+                        <span class="dish-tag">Végétarien</span>
+                        {% endif %}
+                        {% if dish.is_vegan %}
+                        <span class="dish-tag">Vegan</span>
+                        {% endif %}
+                    </div>
+                    <p class="dish-card-description">{{ dish.description|truncatechars:100 }}</p>
+                    <a href="{% url 'dish_detail' dish.id %}" class="btn-outline">Découvrir <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            {% empty %}
+            <p>Aucun plat recommandé n'est disponible pour le moment.</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Plats salés -->
+    <div id="salty" class="dish-section" style="display: none;">
+        <h2 class="section-title">Plats Principaux & Salés</h2>
+        <p>Découvrez les plats principaux de la cuisine marocaine, riches en saveurs et en épices.</p>
+        
+        <div class="dishes-grid">
+            {% for dish in salty_dishes %}
+            <div class="dish-card">
+                {% if dish.is_new_for_current_user %}
+                <div class="new-badge pulse" data-dish-id="{{ dish.id }}">
+                    <i class="fas fa-star"></i> Nouveau
+                </div>
+                {% endif %}
+                <div class="dish-card-img">
+                    {% if dish.image %}
+                    <img src="{{ dish.image.url }}" alt="{{ dish.name }}">
+                    {% else %}
+                    <img src="{% static 'foodapp/images/default-dish.jpg' %}" alt="{{ dish.name }}">
+                    {% endif %}
+                </div>
+                <div class="dish-card-content">
+                    <h3 class="dish-card-title">{{ dish.name }}</h3>
+                    <div class="dish-card-tags">
+                        <span class="dish-tag">{{ dish.get_origin_display }}</span>
+                        {% if dish.is_vegetarian %}
+                        <span class="dish-tag">Végétarien</span>
+                        {% endif %}
+                    </div>
+                    <p class="dish-card-description">{{ dish.description|truncatechars:100 }}</p>
+                    <a href="{% url 'dish_detail' dish.id %}" class="btn-outline">Découvrir <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            {% empty %}
+            <p>Aucun plat salé n'est disponible pour le moment.</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Plats sucrés et desserts -->
+    <div id="sweet" class="dish-section" style="display: none;">
+        <h2 class="section-title">Pâtisseries & Desserts</h2>
+        <p>La pâtisserie marocaine est réputée pour sa délicatesse et ses saveurs combinant miel, fruits secs et fleur d'oranger.</p>
+        
+        <div class="dishes-grid">
+            {% for dish in sweet_dishes %}
+            <div class="dish-card">
+                {% if dish.is_new_for_current_user %}
+                <div class="new-badge pulse" data-dish-id="{{ dish.id }}">
+                    <i class="fas fa-star"></i> Nouveau
+                </div>
+                {% endif %}
+                <div class="dish-card-img">
+                    {% if dish.image %}
+                    <img src="{{ dish.image.url }}" alt="{{ dish.name }}">
+                    {% else %}
+                    <img src="{% static 'foodapp/images/default-dish.jpg' %}" alt="{{ dish.name }}">
+                    {% endif %}
+                </div>
+                <div class="dish-card-content">
+                    <h3 class="dish-card-title">{{ dish.name }}</h3>
+                    <div class="dish-card-tags">
+                        <span class="dish-tag">{{ dish.get_origin_display }}</span>
+                    </div>
+                    <p class="dish-card-description">{{ dish.description|truncatechars:100 }}</p>
+                    <a href="{% url 'dish_detail' dish.id %}" class="btn-outline">Découvrir <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            {% empty %}
+            <p>Aucun dessert n'est disponible pour le moment.</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Boissons -->
+    <div id="drinks" class="dish-section" style="display: none;">
+        <h2 class="section-title">Boissons Traditionnelles</h2>
+        <p>Du célèbre thé à la menthe aux jus de fruits frais, découvrez les boissons qui font partie intégrante de la culture marocaine.</p>
+        
+        <div class="dishes-grid">
+            {% for dish in drinks %}
+            <div class="dish-card">
+                {% if dish.is_new_for_current_user %}
+                <div class="new-badge pulse" data-dish-id="{{ dish.id }}">
+                    <i class="fas fa-star"></i> Nouveau
+                </div>
+                {% endif %}
+                <div class="dish-card-img">
+                    {% if dish.image %}
+                    <img src="{{ dish.image.url }}" alt="{{ dish.name }}">
+                    {% else %}
+                    <img src="{% static 'foodapp/images/default-dish.jpg' %}" alt="{{ dish.name }}">
+                    {% endif %}
+                </div>
+                <div class="dish-card-content">
+                    <h3 class="dish-card-title">{{ dish.name }}</h3>
+                    <div class="dish-card-tags">
+                        <span class="dish-tag">{{ dish.get_origin_display }}</span>
+                    </div>
+                    <p class="dish-card-description">{{ dish.description|truncatechars:100 }}</p>
+                    <a href="{% url 'dish_detail' dish.id %}" class="btn-outline">Découvrir <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            {% empty %}
+            <p>Aucune boisson traditionnelle n'est disponible pour le moment.</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="destination-section">
+        <h2 class="section-title">Les Principales Villes Gastronomiques</h2>
+        <p>Chaque ville du Maroc possède ses spécialités culinaires. Découvrez où déguster les meilleurs plats de la cuisine marocaine.</p>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <i class="fas fa-mosque fa-3x mb-3" style="color: var(--primary-color);"></i>
+                        <h4>Fès</h4>
+                        <p>Capitale gastronomique traditionnelle, célèbre pour ses tajines et ses pastillas.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <i class="fas fa-water fa-3x mb-3" style="color: var(--accent-color);"></i>
+                        <h4>Essaouira</h4>
+                        <p>Réputée pour ses fruits de mer frais et sa cuisine de poisson.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <i class="fas fa-building fa-3x mb-3" style="color: var(--primary-color);"></i>
+                        <h4>Marrakech</h4>
+                        <p>Melting-pot culinaire avec des influences traditionnelles et modernes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialisation de la carte
+        const map = L.map('moroccan-map').setView([31.7917, -7.0926], 5);
+        
+        // Ajouter le fond de carte
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Données des régions culinaires
+        const regions = [
+            {
+                name: "Fès",
+                coords: [34.0181, -5.0078],
+                description: "Capitale gastronomique traditionnelle du Maroc",
+                specialties: ["Pastilla au pigeon", "Tajine de pruneaux", "Harira", "Cornes de gazelle"]
+            },
+            {
+                name: "Marrakech",
+                coords: [31.6295, -7.9811],
+                description: "Célèbre pour ses plats mijotés et ses épices",
+                specialties: ["Tanjia", "Couscous aux sept légumes", "Méchoui", "Briouats"]
+            },
+            {
+                name: "Essaouira",
+                coords: [31.5085, -9.7595],
+                description: "Cuisine côtière riche en fruits de mer",
+                specialties: ["Sardines grillées", "Tajine de poisson", "Amlou", "Pastilla aux fruits de mer"]
+            },
+            {
+                name: "Chefchaouen",
+                coords: [35.1672, -5.2564],
+                description: "Cuisine berbère des montagnes du Rif",
+                specialties: ["Bissara", "Pain rond traditionnel", "Tagine aux légumes", "Fromage de chèvre local"]
+            },
+            {
+                name: "Agadir",
+                coords: [30.4278, -9.5981],
+                description: "Cuisine du Sud influencée par les traditions berbères",
+                specialties: ["Poisson grillé", "Amlou", "Couscous au poisson", "Jus d'orange frais"]
+            },
+            {
+                name: "Ouarzazate",
+                coords: [30.9335, -6.9370],
+                description: "Cuisine du désert et des oasis",
+                specialties: ["Pain de sable", "Tajine aux dattes", "Couscous berbère", "Thé à la menthe"]
+            }
+        ];
+        
+        // Ajouter les marqueurs pour chaque région
+        regions.forEach(region => {
+            const marker = L.marker(region.coords)
+                .addTo(map)
+                .bindPopup(`<strong>${region.name}</strong>`);
+                
+            marker.on('click', function() {
+                // Mettre à jour les informations de la région
+                document.getElementById('region-details').innerHTML = `
+                    <h3>${region.name}</h3>
+                    <p>${region.description}</p>
+                    <h4>Spécialités locales:</h4>
+                    <div class="region-specialties">
+                        ${region.specialties.map(specialty => `<span class="region-specialty">${specialty}</span>`).join('')}
+                    </div>
+                `;
+            });
+        });
+        
+        // Gestion des onglets de catégories
+        const categoryTabs = document.querySelectorAll('.category-tab');
+        const dishSections = document.querySelectorAll('.dish-section');
+        
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Masquer toutes les sections
+                dishSections.forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // Afficher la section correspondante
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).style.display = 'block';
+                
+                // Mettre à jour les classes actives
+                categoryTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Gestion des badges "Nouveau"
+        const newBadges = document.querySelectorAll('.new-badge');
+        
+        newBadges.forEach(badge => {
+            badge.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const dishId = this.getAttribute('data-dish-id');
+                
+                // Envoyer une requête AJAX pour marquer le plat comme vu
+                fetch(`/api/mark-dish-viewed/${dishId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Masquer le badge
+                        this.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                });
+            });
+        });
+        
+        // Fonction pour récupérer la valeur d'un cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %} 

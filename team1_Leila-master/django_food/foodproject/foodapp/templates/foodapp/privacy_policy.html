@@ -1,0 +1,249 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Privacy Policy | FoodFlex{% endblock %}
+{% block page_title %}Privacy Policy{% endblock %}
+
+{% block extra_css %}
+<style>
+    .privacy-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 30px;
+        background: var(--card-bg);
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .privacy-header {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .privacy-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+    
+    .privacy-subtitle {
+        font-size: 16px;
+        color: var(--text-secondary);
+    }
+    
+    .privacy-section {
+        margin-bottom: 40px;
+    }
+    
+    .privacy-section h2 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+    }
+    
+    .privacy-section h3 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        margin-top: 25px;
+        color: var(--text-primary);
+    }
+    
+    .privacy-section p {
+        margin-bottom: 15px;
+        line-height: 1.6;
+        color: var(--text-secondary);
+    }
+    
+    .privacy-section ul, .privacy-section ol {
+        margin-bottom: 15px;
+        padding-left: 20px;
+    }
+    
+    .privacy-section li {
+        margin-bottom: 10px;
+        color: var(--text-secondary);
+    }
+    
+    .privacy-date {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+        font-size: 14px;
+        color: var(--text-secondary);
+        font-style: italic;
+    }
+    
+    .toc {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .toc h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+    
+    .toc ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    
+    .toc li {
+        margin-bottom: 8px;
+    }
+    
+    .toc a {
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .toc a:hover {
+        color: var(--accent-color);
+        padding-left: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="privacy-container">
+    <div class="privacy-header">
+        <div class="privacy-title">Privacy Policy</div>
+        <div class="privacy-subtitle">This Privacy Policy explains how FoodFlex collects, uses, and discloses information about you.</div>
+    </div>
+    
+    <div class="toc">
+        <h3>Table of Contents</h3>
+        <ul>
+            <li><a href="#introduction">1. Introduction</a></li>
+            <li><a href="#information-we-collect">2. Information We Collect</a></li>
+            <li><a href="#how-we-use-information">3. How We Use Your Information</a></li>
+            <li><a href="#information-sharing">4. Information Sharing and Disclosure</a></li>
+            <li><a href="#data-retention">5. Data Retention</a></li>
+            <li><a href="#security">6. Security</a></li>
+            <li><a href="#your-rights">7. Your Rights and Choices</a></li>
+            <li><a href="#children">8. Children's Privacy</a></li>
+            <li><a href="#international">9. International Data Transfers</a></li>
+            <li><a href="#changes">10. Changes to this Privacy Policy</a></li>
+            <li><a href="#contact">11. Contact Us</a></li>
+        </ul>
+    </div>
+    
+    <div class="privacy-section" id="introduction">
+        <h2>1. Introduction</h2>
+        <p>FoodFlex ("we", "us", or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and share information about you when you use our website, mobile applications, and other online products and services (collectively, the "Services") or when you otherwise interact with us.</p>
+        <p>By using our Services, you agree to the collection, use, and disclosure of your information as described in this Privacy Policy. If you do not agree with our policies and practices, do not use our Services.</p>
+    </div>
+    
+    <div class="privacy-section" id="information-we-collect">
+        <h2>2. Information We Collect</h2>
+        
+        <h3>Information You Provide to Us</h3>
+        <p>We collect information you provide directly to us when you:</p>
+        <ul>
+            <li>Create an account and profile</li>
+            <li>Make restaurant reservations</li>
+            <li>Place food orders</li>
+            <li>Participate in surveys, contests, or promotions</li>
+            <li>Communicate with us</li>
+        </ul>
+        <p>This information may include your name, email address, phone number, mailing address, payment information, photos, food preferences, dietary restrictions, and any other information you choose to provide.</p>
+        
+        <h3>Information We Collect Automatically</h3>
+        <p>When you access or use our Services, we automatically collect information about you, including:</p>
+        <ul>
+            <li><strong>Log and Usage Data:</strong> Information related to your access to and use of the Services, such as your IP address, browser type, operating system, referral URLs, device information, pages viewed, and the dates/times of your visits.</li>
+            <li><strong>Location Information:</strong> With your consent, we may collect information about your precise location to provide location-based services.</li>
+            <li><strong>Cookies and Similar Technologies:</strong> We and our service providers use cookies, web beacons, and other tracking technologies to track activity on our Services and to understand how you interact with our Services.</li>
+        </ul>
+    </div>
+    
+    <div class="privacy-section" id="how-we-use-information">
+        <h2>3. How We Use Your Information</h2>
+        <p>We use the information we collect to:</p>
+        <ul>
+            <li>Provide, maintain, and improve our Services</li>
+            <li>Process transactions and send related information</li>
+            <li>Personalize your experience and deliver content relevant to your interests</li>
+            <li>Send you technical notices, updates, security alerts, and administrative messages</li>
+            <li>Respond to your comments, questions, and requests</li>
+            <li>Communicate with you about products, services, offers, promotions, and events</li>
+            <li>Monitor and analyze trends, usage, and activities in connection with our Services</li>
+            <li>Detect, investigate, and prevent fraudulent transactions and other illegal activities</li>
+            <li>Comply with legal obligations</li>
+        </ul>
+    </div>
+    
+    <div class="privacy-section" id="information-sharing">
+        <h2>4. Information Sharing and Disclosure</h2>
+        <p>We may share information about you as follows or as otherwise described in this Privacy Policy:</p>
+        <ul>
+            <li><strong>With Restaurants:</strong> When you make a reservation or place an order, we share your information with the relevant restaurant to fulfill your request.</li>
+            <li><strong>With Service Providers:</strong> We share information with vendors, consultants, and other service providers who need access to such information to carry out work on our behalf.</li>
+            <li><strong>For Legal Reasons:</strong> We may disclose information if we believe that disclosure is in accordance with, or required by, any applicable law, regulation, legal process, or governmental request.</li>
+            <li><strong>With Your Consent:</strong> We may share information with your consent or at your direction.</li>
+            <li><strong>Business Transfers:</strong> If we are involved in a merger, acquisition, financing, reorganization, bankruptcy, or sale of our assets, your information may be transferred as part of that transaction.</li>
+        </ul>
+    </div>
+    
+    <div class="privacy-section" id="data-retention">
+        <h2>5. Data Retention</h2>
+        <p>We store the information we collect about you for as long as is necessary for the purposes for which we originally collected it, or for other legitimate business purposes, including to meet our legal, regulatory, or other compliance obligations.</p>
+    </div>
+    
+    <div class="privacy-section" id="security">
+        <h2>6. Security</h2>
+        <p>We take reasonable measures to help protect information about you from loss, theft, misuse, unauthorized access, disclosure, alteration, and destruction. However, no security system is impenetrable, and we cannot guarantee the security of our systems.</p>
+    </div>
+    
+    <div class="privacy-section" id="your-rights">
+        <h2>7. Your Rights and Choices</h2>
+        <p>Depending on your location, you may have certain rights regarding your personal information, including:</p>
+        <ul>
+            <li>The right to access and receive a copy of your personal information</li>
+            <li>The right to rectify or update your personal information</li>
+            <li>The right to delete your personal information</li>
+            <li>The right to restrict or object to our processing of your personal information</li>
+            <li>The right to data portability</li>
+        </ul>
+        <p>To exercise these rights, please contact us using the information provided in the "Contact Us" section below.</p>
+    </div>
+    
+    <div class="privacy-section" id="children">
+        <h2>8. Children's Privacy</h2>
+        <p>Our Services are not directed to individuals under 16. We do not knowingly collect personal information from children under 16. If we learn we have collected personal information from a child under 16, we will delete this information as quickly as possible. If you believe we have any information from or about a child under 16, please contact us.</p>
+    </div>
+    
+    <div class="privacy-section" id="international">
+        <h2>9. International Data Transfers</h2>
+        <p>We are based in Morocco, and we process and store information in Morocco and other countries. By accessing or using the Services or otherwise providing information to us, you consent to the processing, transfer, and storage of information in and to Morocco and other countries, where you may not have the same rights and protections as you do under local law.</p>
+    </div>
+    
+    <div class="privacy-section" id="changes">
+        <h2>10. Changes to this Privacy Policy</h2>
+        <p>We may change this Privacy Policy from time to time. If we make changes, we will notify you by revising the date at the bottom of the policy and, in some cases, we may provide you with additional notice. We encourage you to review the Privacy Policy whenever you access the Services or otherwise interact with us to stay informed about our information practices.</p>
+    </div>
+    
+    <div class="privacy-section" id="contact">
+        <h2>11. Contact Us</h2>
+        <p>If you have any questions about this Privacy Policy or our information practices, please contact us at:</p>
+        <p>
+            FoodFlex<br>
+            123 Main Street<br>
+            Casablanca, Morocco<br>
+            Email: privacy@foodflex.com<br>
+            Phone: +212 522 123 456
+        </p>
+    </div>
+    
+    <div class="privacy-date">
+        Last Updated: May 22, 2025
+    </div>
+</div>
+{% endblock %} 

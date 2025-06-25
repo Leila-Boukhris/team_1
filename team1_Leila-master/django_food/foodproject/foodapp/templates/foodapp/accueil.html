@@ -1,0 +1,464 @@
+{% extends 'foodapp/base.html' %}
+{% load static %}
+{% load foodapp_extras %}
+
+{% block title %}FoodFlex | Accueil{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .hero-section {
+        position: relative;
+        height: 600px;
+        background: linear-gradient(135deg, rgba(18, 22, 32, 0.9), rgba(26, 31, 44, 0.8)), url('{% static "foodapp/img/hero-bg.jpg" %}') center/cover;
+        border-radius: 24px;
+        margin: -1rem -2rem 2rem;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        padding: 4rem;
+    }
+
+    .hero-content {
+        max-width: 600px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+        background: var(--gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .hero-description {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+        animation: fadeInUp 0.8s ease-out 0.2s backwards;
+    }
+
+    .hero-cta {
+        display: inline-flex;
+        gap: 1rem;
+        animation: fadeInUp 0.8s ease-out 0.4s backwards;
+    }
+
+    /* Featured Restaurants Section */
+    .featured-section {
+        margin: 4rem 0;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .restaurant-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .restaurant-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all var(--transition-speed) ease;
+        position: relative;
+    }
+
+    .restaurant-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .restaurant-image {
+        height: 200px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .restaurant-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .restaurant-card:hover .restaurant-image img {
+        transform: scale(1.1);
+    }
+
+    .restaurant-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--gradient);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .restaurant-content {
+        padding: 1.5rem;
+    }
+
+    .restaurant-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .restaurant-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .restaurant-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        color: #FFA41B;
+    }
+
+    .restaurant-cuisine {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .restaurant-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* Categories Section */
+    .categories-section {
+        margin: 4rem 0;
+    }
+
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .category-card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all var(--transition-speed) ease;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .category-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .category-image {
+        height: 140px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .category-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .category-card:hover .category-image img {
+        transform: scale(1.1);
+    }
+
+    .category-content {
+        padding: 1.25rem;
+        text-align: center;
+    }
+
+    .category-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .category-description {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    /* Popular Dishes Section */
+    .dishes-section {
+        margin: 4rem 0;
+    }
+
+    .dishes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .dish-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all var(--transition-speed) ease;
+    }
+
+    .dish-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .dish-image {
+        height: 180px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dish-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .dish-card:hover .dish-image img {
+        transform: scale(1.1);
+    }
+
+    .dish-content {
+        padding: 1.5rem;
+    }
+
+    .dish-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .dish-description {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    .dish-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .dish-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hero-section {
+            height: 500px;
+            padding: 2rem;
+            margin: -1rem -1rem 2rem;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+        }
+
+        .hero-description {
+            font-size: 1rem;
+        }
+
+        .restaurant-grid,
+        .categories-grid,
+        .dishes-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Découvrez la Cuisine Marocaine</h1>
+        <p class="hero-description">Explorez les saveurs authentiques de la cuisine marocaine. Des plats traditionnels préparés avec passion par nos meilleurs restaurants partenaires.</p>
+        <div class="hero-cta">
+            <a href="{% url 'restaurants' %}" class="btn btn-primary">
+                <i class="fas fa-utensils"></i>
+                Explorer les Restaurants
+            </a>
+            <a href="{% url 'dish_list' %}" class="btn btn-secondary">
+                <i class="fas fa-search"></i>
+                Voir les Plats
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Restaurants Section -->
+<section class="featured-section">
+    <div class="section-header">
+        <h2 class="section-title">Restaurants Populaires</h2>
+        <a href="{% url 'restaurants' %}" class="view-all">Voir tout <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="restaurant-grid">
+        {% for restaurant in restaurants %}
+        <div class="restaurant-card">
+            <div class="restaurant-image">
+                <img src="{{ restaurant|get_image_url }}" alt="{{ restaurant.name }}">
+                {% if restaurant.is_premium %}
+                <span class="restaurant-badge">Premium</span>
+                {% endif %}
+            </div>
+            <div class="restaurant-content">
+                <h3 class="restaurant-title">{{ restaurant.name }}</h3>
+                <div class="restaurant-info">
+                    <div class="restaurant-rating">
+                        <i class="fas fa-star"></i>
+                        <span>{{ restaurant.rating|default:"4.5" }}</span>
+                    </div>
+                    <div class="restaurant-cuisine">
+                        <i class="fas fa-utensils"></i>
+                        <span>{{ restaurant.cuisine_type|default:"Marocaine" }}</span>
+                    </div>
+                </div>
+                <div class="restaurant-footer">
+                    <span class="restaurant-price">{{ restaurant.price_range|default:"€€" }}</span>
+                    <a href="{% url 'restaurant_detail' restaurant.id %}" class="btn btn-primary">Réserver</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section">
+    <div class="section-header">
+        <h2 class="section-title">Catégories</h2>
+        <a href="{% url 'dish_list' %}" class="view-all">Voir tout <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="categories-grid">
+        {% for category in categories %}
+        <div class="category-card">
+            <div class="category-image">
+                <img src="{{ category|get_image_url }}" alt="{{ category.name }}">
+            </div>
+            <div class="category-content">
+                <h3 class="category-title">{{ category.name }}</h3>
+                <p class="category-description">{{ category.description }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Popular Dishes Section -->
+<section class="dishes-section">
+    <div class="section-header">
+        <h2 class="section-title">Plats Populaires</h2>
+        <a href="{% url 'dish_list' %}" class="view-all">Voir tout <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="dishes-grid">
+        {% for dish in popular_dishes %}
+        <div class="dish-card">
+            <div class="dish-image">
+                <img src="{{ dish|get_image_url }}" alt="{{ dish.name }}">
+            </div>
+            <div class="dish-content">
+                <h3 class="dish-title">{{ dish.name }}</h3>
+                <p class="dish-description">{{ dish.description }}</p>
+                <div class="dish-footer">
+                    <span class="dish-price">{{ dish.price }} €</span>
+                    <a href="{% url 'dish_detail' dish.id %}" class="btn btn-primary">Commander</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate elements on scroll
+        const animateOnScroll = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(animateOnScroll, {
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.restaurant-card, .category-card, .dish-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+    });
+</script>
+{% endblock %} 

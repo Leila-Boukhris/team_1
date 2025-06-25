@@ -1,0 +1,257 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Inscription Rapide | FoodFlex{% endblock %}
+{% block page_title %}Inscription Rapide Restaurant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .signup-rapide-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .signup-form-wrapper {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin-top: 20px;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .form-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--primary-color);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-signup-rapide {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background-color: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(255, 255, 255, 0.1);
+        border-top: 5px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .success-message {
+        background-color: rgba(46, 204, 113, 0.15);
+        border: 1px solid rgba(46, 204, 113, 0.3);
+        color: #2ecc71;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        text-align: center;
+        display: none;
+    }
+    
+    .error-message {
+        background-color: rgba(231, 76, 60, 0.15);
+        border: 1px solid rgba(231, 76, 60, 0.3);
+        color: #e74c3c;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        text-align: center;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+    <div class="breadcrumb">
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span>Inscription Rapide Restaurant</span>
+    </div>
+    
+    <div class="signup-rapide-container">
+        <div class="form-header">
+            <h2>Inscription Express</h2>
+            <p>Enregistrez votre restaurant en quelques secondes !</p>
+        </div>
+        
+        <div class="signup-form-wrapper">
+            <form id="rapide-signup-form">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="restaurant_name" class="form-label">Nom du restaurant *</label>
+                    <input type="text" id="restaurant_name" name="restaurant_name" class="form-control" placeholder="Nom de votre restaurant" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="restaurant_email" class="form-label">Email professionnel *</label>
+                    <input type="email" id="restaurant_email" name="restaurant_email" class="form-control" placeholder="email@votrerestaurant.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="restaurant_phone" class="form-label">Téléphone *</label>
+                    <input type="tel" id="restaurant_phone" name="restaurant_phone" class="form-control" placeholder="Numéro de téléphone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="restaurant_city" class="form-label">Ville *</label>
+                    <select id="restaurant_city" name="restaurant_city" class="form-control" required>
+                        <option value="">Sélectionnez une ville</option>
+                        {% for city in cities %}
+                            <option value="{{ city.id }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="restaurant_address" class="form-label">Adresse *</label>
+                    <input type="text" id="restaurant_address" name="restaurant_address" class="form-control" placeholder="Adresse complète" required>
+                </div>
+                
+                <button type="submit" class="btn-signup-rapide">
+                    <i class="fas fa-bolt"></i> Inscription Express
+                </button>
+            </form>
+            
+            <div class="success-message" id="success-message">
+                <i class="fas fa-check-circle"></i> Restaurant enregistré avec succès ! Vous recevrez un email pour finaliser votre inscription.
+            </div>
+            
+            <div class="error-message" id="error-message">
+                <i class="fas fa-exclamation-circle"></i> <span id="error-text">Une erreur est survenue.</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('rapide-signup-form');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Cacher les messages précédents
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            
+            // Afficher l'overlay de chargement
+            loadingOverlay.style.display = 'flex';
+            
+            // Récupérer les données du formulaire
+            const formData = {
+                restaurant_name: document.getElementById('restaurant_name').value,
+                restaurant_email: document.getElementById('restaurant_email').value,
+                restaurant_phone: document.getElementById('restaurant_phone').value,
+                restaurant_city: document.getElementById('restaurant_city').value,
+                restaurant_address: document.getElementById('restaurant_address').value,
+            };
+            
+            // Envoyer les données en AJAX
+            fetch('{% url "restaurant_signup_rapide" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Cacher l'overlay de chargement
+                loadingOverlay.style.display = 'none';
+                
+                if (data.success) {
+                    // Afficher le message de succès
+                    successMessage.style.display = 'block';
+                    // Réinitialiser le formulaire
+                    form.reset();
+                } else {
+                    // Afficher le message d'erreur
+                    errorText.textContent = data.errors ? Object.values(data.errors)[0] : 'Une erreur est survenue.';
+                    errorMessage.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                // Cacher l'overlay de chargement
+                loadingOverlay.style.display = 'none';
+                
+                // Afficher le message d'erreur
+                errorText.textContent = 'Une erreur de communication est survenue.';
+                errorMessage.style.display = 'block';
+                console.error('Error:', error);
+            });
+        });
+    });
+</script>
+{% endblock %} 

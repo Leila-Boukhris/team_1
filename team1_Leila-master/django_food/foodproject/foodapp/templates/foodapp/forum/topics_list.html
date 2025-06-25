@@ -1,0 +1,410 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Forum Communautaire | FoodFlex{% endblock %}
+{% block page_title %}Forum Communautaire{% endblock %}
+
+{% block extra_css %}
+<style>
+    .forum-container {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 30px;
+    }
+    
+    .forum-sidebar {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: var(--card-shadow);
+        height: fit-content;
+    }
+    
+    .forum-sidebar h3 {
+        font-size: 18px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .category-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .category-item {
+        margin-bottom: 8px;
+    }
+    
+    .category-link {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-radius: 8px;
+        color: var(--text-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .category-link:hover, .category-link.active {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: var(--primary-color);
+    }
+    
+    .category-count {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        min-width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+    
+    .forum-search {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .forum-search input {
+        width: 100%;
+        padding: 12px 15px 12px 40px;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+    }
+    
+    .forum-search i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .forum-content {
+        width: 100%;
+    }
+    
+    .forum-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .forum-header h2 {
+        margin: 0;
+    }
+    
+    .topic-filters {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    
+    .topic-filter {
+        padding: 8px 15px;
+        border-radius: 20px;
+        background-color: rgba(255, 255, 255, 0.05);
+        color: var(--text-color);
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .topic-filter.active {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .topic-item {
+        background-color: var(--card-bg);
+        border-radius: 10px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .topic-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .topic-content {
+        padding: 15px 20px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 160px;
+        gap: 15px;
+    }
+    
+    .topic-main-info h3 {
+        margin: 0 0 5px 0;
+        font-size: 18px;
+    }
+    
+    .topic-title-link {
+        color: var(--text-color);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .topic-title-link:hover {
+        color: var(--primary-color);
+    }
+    
+    .topic-meta {
+        display: flex;
+        gap: 15px;
+        font-size: 13px;
+        color: var(--text-light);
+        margin-bottom: 10px;
+    }
+    
+    .topic-meta span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .topic-category {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        background-color: rgba(78, 205, 196, 0.1);
+        color: #4ecdc4;
+        margin-right: 8px;
+    }
+    
+    .topic-side-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+        color: var(--text-light);
+        font-size: 13px;
+    }
+    
+    .message-count {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+    
+    .views-count {
+        margin-top: 3px;
+    }
+    
+    .topic-pinned {
+        background-color: rgba(255, 107, 107, 0.05);
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .pin-indicator {
+        color: var(--primary-color);
+        margin-right: 5px;
+    }
+    
+    .recent-topics h3 {
+        margin-top: 25px;
+    }
+    
+    .recent-topic-item {
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .recent-topic-item:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .recent-topic-title {
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 5px;
+        color: var(--text-color);
+        text-decoration: none;
+        display: block;
+    }
+    
+    .recent-topic-title:hover {
+        color: var(--primary-color);
+    }
+    
+    .recent-topic-meta {
+        font-size: 12px;
+        color: var(--text-light);
+    }
+    
+    @media (max-width: 768px) {
+        .forum-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .topic-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .topic-side-info {
+            align-items: flex-start;
+            flex-direction: row;
+            gap: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+    <div class="breadcrumb">
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span>Forum Communautaire</span>
+    </div>
+    
+    <div class="forum-container">
+        <!-- Sidebar -->
+        <div class="forum-sidebar">
+            <h3>Catégories</h3>
+            <ul class="category-list">
+                <li class="category-item">
+                    <a href="{% url 'forum_topics_list' %}" class="category-link {% if not category %}active{% endif %}">
+                        <span><i class="fas fa-comments"></i> Toutes les discussions</span>
+                        <span class="category-count">{{ topics.count }}</span>
+                    </a>
+                </li>
+                {% for cat_code, cat_name in categories %}
+                <li class="category-item">
+                    <a href="{% url 'forum_topics_by_category' cat_code %}" class="category-link {% if category == cat_code %}active{% endif %}">
+                        <span>
+                            {% if cat_code == 'general' %}<i class="fas fa-globe"></i>
+                            {% elif cat_code == 'recipes' %}<i class="fas fa-utensils"></i>
+                            {% elif cat_code == 'restaurants' %}<i class="fas fa-store"></i>
+                            {% elif cat_code == 'travel' %}<i class="fas fa-plane"></i>
+                            {% elif cat_code == 'events' %}<i class="fas fa-calendar-alt"></i>
+                            {% endif %}
+                            {{ cat_name }}
+                        </span>
+                        <span class="category-count">                            {% if cat_code == 'general' %}{{ category_counts.general }}                            {% elif cat_code == 'recipes' %}{{ category_counts.recipes }}                            {% elif cat_code == 'restaurants' %}{{ category_counts.restaurants }}                            {% elif cat_code == 'travel' %}{{ category_counts.travel }}                            {% elif cat_code == 'events' %}{{ category_counts.events }}                            {% else %}0                            {% endif %}                        </span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            
+            <div class="recent-topics">
+                <h3>Sujets récents</h3>
+                {% for topic in recent_topics %}
+                <div class="recent-topic-item">
+                    <a href="{% url 'forum_topic_detail' topic.id %}" class="recent-topic-title">{{ topic.title }}</a>
+                    <div class="recent-topic-meta">
+                        <span>Par {{ topic.author.username }}</span>
+                        <span>{{ topic.created_at|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p>Aucun sujet récent</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Contenu principal -->
+        <div class="forum-content">
+            <div class="forum-header">
+                <h2>{{ category_name|default:"Toutes les discussions" }}</h2>
+                <a href="{% url 'forum_new_topic' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nouveau sujet
+                </a>
+            </div>
+            
+            <form method="GET" action="{% url 'forum_topics_list' %}" class="forum-search">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" placeholder="Rechercher dans le forum..." value="{{ search|default_if_none:'' }}">
+            </form>
+            
+            <div class="topic-filters">
+                <div class="topic-filter active">Tous</div>
+                <div class="topic-filter">Récents</div>
+                <div class="topic-filter">Populaires</div>
+            </div>
+            
+            {% for topic in topics %}
+            <div class="topic-item {% if topic.is_pinned %}topic-pinned{% endif %}">
+                <div class="topic-content">
+                    <div class="topic-main-info">
+                        <h3>
+                            {% if topic.is_pinned %}
+                            <i class="fas fa-thumbtack pin-indicator"></i>
+                            {% endif %}
+                            <a href="{% url 'forum_topic_detail' topic.id %}" class="topic-title-link">{{ topic.title }}</a>
+                        </h3>
+                        <div class="topic-meta">
+                            <span><i class="fas fa-user"></i> {{ topic.author.username }}</span>
+                            <span><i class="fas fa-clock"></i> {{ topic.created_at|date:"d/m/Y" }}</span>
+                        </div>
+                        <div>
+                            <span class="topic-category">
+                                {% if topic.category == 'general' %}<i class="fas fa-globe"></i>
+                                {% elif topic.category == 'recipes' %}<i class="fas fa-utensils"></i>
+                                {% elif topic.category == 'restaurants' %}<i class="fas fa-store"></i>
+                                {% elif topic.category == 'travel' %}<i class="fas fa-plane"></i>
+                                {% elif topic.category == 'events' %}<i class="fas fa-calendar-alt"></i>
+                                {% endif %}
+                                {{ topic.get_category_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="topic-side-info">
+                        <div class="message-count">
+                            <i class="fas fa-comments"></i> {{ topic.messages_count }}
+                        </div>
+                        <div class="views-count">
+                            <i class="fas fa-eye"></i> {{ topic.views_count }} vues
+                        </div>
+                        <div class="last-activity">
+                            <i class="fas fa-history"></i> {{ topic.last_activity|date:"d/m/Y H:i" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                {% if search %}
+                Aucun sujet trouvé pour "{{ search }}". <a href="{% url 'forum_new_topic' %}">Créer un nouveau sujet ?</a>
+                {% elif category %}
+                Aucun sujet dans cette catégorie pour le moment. <a href="{% url 'forum_new_topic' %}">Créer le premier sujet ?</a>
+                {% else %}
+                Aucun sujet dans le forum pour le moment. <a href="{% url 'forum_new_topic' %}">Créer le premier sujet ?</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion des filtres de sujets (sans réelle implémentation côté serveur pour l'instant)
+        const filters = document.querySelectorAll('.topic-filter');
+        
+        filters.forEach(filter => {
+            filter.addEventListener('click', function() {
+                // Supprimer la classe active de tous les filtres
+                filters.forEach(f => f.classList.remove('active'));
+                
+                // Ajouter la classe active au filtre cliqué
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
+{% endblock %} 

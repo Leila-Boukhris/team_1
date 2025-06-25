@@ -1,0 +1,333 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Administration Restaurants{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'foodapp/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Dashboard Administration Restaurants</h1>
+        {% if user.is_staff %}
+        <div class="admin-actions">
+            <button class="btn btn-primary" id="showPendingStats">
+                <i class="fas fa-chart-bar"></i> Statistiques des restaurants en attente
+            </button>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Modal pour les statistiques -->
+    <div class="modal fade" id="pendingStatsModal" tabindex="-1" aria-labelledby="pendingStatsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pendingStatsModalLabel">Statistiques des restaurants en attente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">{{ pending_restaurants.count }}</div>
+                            <div class="stat-label">Total en attente</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">{{ pending_restaurants|length }}</div>
+                            <div class="stat-label">Nouveaux aujourd'hui</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">{{ pending_restaurants|length }}</div>
+                            <div class="stat-label">En attente > 7 jours</div>
+                        </div>
+                    </div>
+                    <div class="stats-details mt-4">
+                        <h6>Répartition par ville</h6>
+                        <div class="city-stats">
+                            {% for city in cities %}
+                            <div class="city-stat-item">
+                                <span class="city-name">{{ city.name }}</span>
+                                <span class="city-count">{{ city.pending_count }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-value">{{ pending_restaurants.count }}</div>
+            <div class="stat-label">En attente d'approbation</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ approved_restaurants.count }}</div>
+            <div class="stat-label">Restaurants approuvés</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ sanctioned_restaurants.count }}</div>
+            <div class="stat-label">Restaurants sanctionnés</div>
+        </div>
+    </div>
+    
+    <div class="dashboard-tabs">
+        <div class="dashboard-tab active" data-tab="pending">En attente ({{ pending_restaurants.count }})</div>
+        <div class="dashboard-tab" data-tab="approved">Approuvés ({{ approved_restaurants.count }})</div>
+        <div class="dashboard-tab" data-tab="sanctioned">Sanctionnés ({{ sanctioned_restaurants.count }})</div>
+    </div>
+    
+    <!-- Restaurants en attente d'approbation -->
+    <div class="tab-content active" id="tab-pending">
+        {% if pending_restaurants %}
+            {% for account in pending_restaurants %}
+                <div class="restaurant-card">
+                    {% if account.restaurant.logo %}
+                        <img src="{{ account.restaurant.logo.url }}" alt="{{ account.restaurant.name }}" class="restaurant-image">
+                    {% else %}
+                        <img src="{% static 'foodapp/images/restaurant-placeholder.jpg' %}" alt="{{ account.restaurant.name }}" class="restaurant-image">
+                    {% endif %}
+                    <div class="restaurant-info">
+                        <h3 class="restaurant-name">
+                            {{ account.restaurant.name }}
+                            <span class="badge badge-pending">En attente</span>
+                        </h3>
+                        <div class="restaurant-meta">
+                            <div class="restaurant-meta-item">
+                                <i class="fas fa-map-marker-alt"></i> {{ account.restaurant.address }}, {{ account.restaurant.city.name }}
+                            </div>
+                            <div class="restaurant-meta-item">
+                                <i class="fas fa-phone"></i> {{ account.restaurant.phone }}
+                            </div>
+                            <div class="restaurant-meta-item">
+                                <i class="fas fa-envelope"></i> {{ account.restaurant.email }}
+                            </div>
+                            <div class="restaurant-meta-item">
+                                <i class="fas fa-user"></i> {{ account.restaurant.owner_name }}
+                            </div>
+                        </div>
+                        <p>{{ account.restaurant.description|default:"Aucune description disponible" }}</p>
+                        <div class="action-buttons">
+                            <div class="dropdown">
+                                <button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton{{ account.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ account.id }}">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'restaurant_detail' account.restaurant.id %}">
+                                            <i class="fas fa-eye"></i> Voir le profil
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <form method="post" action="{% url 'approve_restaurant' account.restaurant.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item text-success" onclick="return confirm('Êtes-vous sûr de vouloir approuver ce restaurant?')">
+                                                <i class="fas fa-check"></i> Approuver
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form method="post" action="{% url 'sanction_restaurant' account.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Êtes-vous sûr de vouloir sanctionner ce restaurant?')">
+                                                <i class="fas fa-ban"></i> Sanctionner
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-message">
+                <p>Aucun restaurant en attente d'approbation.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Restaurants approuvés -->
+    <div class="tab-content" id="tab-approved">
+        {% if approved_restaurants %}
+            {% for account in approved_restaurants %}
+                <div class="restaurant-card">
+                    {% if account.restaurant.logo %}
+                        <img src="{{ account.restaurant.logo.url }}" alt="{{ account.restaurant.name }}" class="restaurant-image">
+                    {% else %}
+                        <img src="{% static 'foodapp/images/restaurant-placeholder.jpg' %}" alt="{{ account.restaurant.name }}" class="restaurant-image">
+                    {% endif %}
+                    <div class="restaurant-info">
+                        <h3 class="restaurant-name">
+                            {{ account.restaurant.name }}
+                            <span class="badge badge-approved">Approuvé</span>
+                        </h3>
+                        <div class="restaurant-meta">
+                            <div class="restaurant-meta-item">
+                                <i class="fas fa-map-marker-alt"></i> {{ account.restaurant.address }}, {{ account.restaurant.city.name }}
+                            </div>
+                            <div class="restaurant-meta-item">
+                                <i class="fas fa-phone"></i> {{ account.restaurant.phone }}
+                            </div>
+                            <div class="restaurant-meta-item">
+                                <i class="fas fa-envelope"></i> {{ account.restaurant.email }}
+                            </div>
+                            <div class="restaurant-meta-item">
+                                <i class="fas fa-user"></i> {{ account.restaurant.owner_name }}
+                            </div>
+                        </div>
+                        <p>{{ account.restaurant.description|default:"Aucune description disponible" }}</p>
+                        <div class="action-buttons">
+                            <div class="dropdown">
+                                <button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton{{ account.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ account.id }}">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'restaurant_detail' account.restaurant.id %}">
+                                            <i class="fas fa-eye"></i> Voir le profil
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'restaurant_orders' account.restaurant.id %}">
+                                            <i class="fas fa-shopping-cart"></i> Gérer les commandes
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'restaurant_orders_live' account.restaurant.id %}">
+                                            <i class="fas fa-clock"></i> Commandes en direct
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="post" action="{% url 'sanction_restaurant' account.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Êtes-vous sûr de vouloir sanctionner ce restaurant?')">
+                                                <i class="fas fa-ban"></i> Sanctionner
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-message">
+                <p>Aucun restaurant approuvé.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Restaurants sanctionnés -->
+    <div class="tab-content" id="tab-sanctioned">
+        {% if sanctioned_restaurants %}
+            {% for account in sanctioned_restaurants %}
+                <div class="restaurant-card">
+                    {% if account.restaurant.logo %}
+                        <img src="{{ account.restaurant.logo.url }}" alt="{{ account.restaurant.name }}" class="restaurant-image">
+                    {% else %}
+                        <img src="{% static 'foodapp/images/restaurant-placeholder.jpg' %}" alt="{{ account.restaurant.name }}" class="restaurant-image">
+                    {% endif %}
+                    <div class="restaurant-info">
+                        <h3 class="restaurant-name">
+                            {{ account.restaurant.name }}
+                            <span class="badge badge-sanctioned">Sanctionné</span>
+                        </h3>
+                        <div class="restaurant-meta">
+                            <div class="restaurant-meta-item">
+                                <i class="fas fa-map-marker-alt"></i> {{ account.restaurant.address }}, {{ account.restaurant.city.name }}
+                            </div>
+                            <div class="restaurant-meta-item">
+                                <i class="fas fa-phone"></i> {{ account.restaurant.phone }}
+                            </div>
+                            <div class="restaurant-meta-item">
+                                <i class="fas fa-envelope"></i> {{ account.restaurant.email }}
+                            </div>
+                            <div class="restaurant-meta-item">
+                                <i class="fas fa-user"></i> {{ account.restaurant.owner_name }}
+                            </div>
+                        </div>
+                        <p>{{ account.restaurant.description|default:"Aucune description disponible" }}</p>
+                        <div class="action-buttons">
+                            <div class="dropdown">
+                                <button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton{{ account.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ account.id }}">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'restaurant_detail' account.restaurant.id %}">
+                                            <i class="fas fa-eye"></i> Voir le profil
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'restaurant_orders' account.restaurant.id %}">
+                                            <i class="fas fa-history"></i> Historique des commandes
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="post" action="{% url 'unsanction_restaurant' account.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item text-success" onclick="return confirm('Êtes-vous sûr de vouloir lever la sanction de ce restaurant?')">
+                                                <i class="fas fa-check"></i> Lever la sanction
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-message">
+                <p>Aucun restaurant sanctionné.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des onglets
+    const tabs = document.querySelectorAll('.dashboard-tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Retirer la classe active de tous les onglets
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+
+            // Ajouter la classe active à l'onglet cliqué
+            this.classList.add('active');
+
+            // Afficher le contenu correspondant
+            const tabId = 'tab-' + this.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
+    // Gestion du modal des statistiques
+    const showPendingStatsBtn = document.getElementById('showPendingStats');
+    if (showPendingStatsBtn) {
+        showPendingStatsBtn.addEventListener('click', function() {
+            const modal = new bootstrap.Modal(document.getElementById('pendingStatsModal'));
+            modal.show();
+        });
+    }
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'foodapp/js/dashboard.js' %}"></script>
+{% endblock %} 

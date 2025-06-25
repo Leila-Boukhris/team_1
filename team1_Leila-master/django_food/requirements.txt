@@ -1,0 +1,4 @@
+django==5.2.1
+pywebview==4.4.1
+pillow==10.1.0
+pyinstaller==6.3.0 

@@ -1,0 +1,106 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .restaurant-info {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #79aec8;
+        }
+        .restaurant-info h3 {
+            margin-top: 0;
+            color: #417690;
+        }
+        .restaurant-info p {
+            margin: 5px 0;
+        }
+        .restaurant-info .label {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #666;
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url 'admin:foodapp_restaurant_changelist' %}">Restaurants</a>
+&rsaquo; <a href="{% url 'admin:foodapp_restaurant_change' restaurant.pk %}">{{ restaurant.name }}</a>
+&rsaquo; {% trans 'Create Account' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>{{ title }}</h1>
+    
+    <div class="restaurant-info">
+        <h3>Informations du restaurant</h3>
+        <p><span class="label">Nom:</span> {{ restaurant.name }}</p>
+        <p><span class="label">Ville:</span> {{ restaurant.city.name }}</p>
+        <p><span class="label">Adresse:</span> {{ restaurant.address }}</p>
+        <p><span class="label">Téléphone:</span> {{ restaurant.phone }}</p>
+        <p><span class="label">Email:</span> {{ restaurant.email }}</p>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <fieldset class="module aligned">
+            <div class="form-row">
+                {{ form.username.errors }}
+                <div class="field-box">
+                    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}:</label>
+                    {{ form.username }}
+                    {% if form.username.help_text %}
+                    <div class="help">{{ form.username.help_text }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-row">
+                {{ form.email.errors }}
+                <div class="field-box">
+                    <label for="{{ form.email.id_for_label }}">{{ form.email.label }}:</label>
+                    {{ form.email }}
+                    {% if form.email.help_text %}
+                    <div class="help">{{ form.email.help_text }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-row">
+                {{ form.password.errors }}
+                <div class="field-box">
+                    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}:</label>
+                    {{ form.password }}
+                    {% if form.password.help_text %}
+                    <div class="help">{{ form.password.help_text }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-row">
+                {{ form.is_active.errors }}
+                <div class="field-box">
+                    <label for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}:</label>
+                    {{ form.is_active }}
+                    {% if form.is_active.help_text %}
+                    <div class="help">{{ form.is_active.help_text }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </fieldset>
+        
+        <div class="submit-row">
+            <input type="submit" value="{% trans 'Create Account' %}" class="default" name="_create">
+            <a href="{% url 'admin:foodapp_restaurant_change' restaurant.pk %}" class="button">{% trans 'Cancel' %}</a>
+        </div>
+    </form>
+</div>
+{% endblock %} 

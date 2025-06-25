@@ -1,0 +1,768 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Paramètres | {{ restaurant.name }} | FoodFlex{% endblock %}
+{% block page_title %}Paramètres du Restaurant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 24px;
+        min-height: calc(100vh - 180px);
+    }
+    
+    .sidebar {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 24px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        position: sticky;
+        top: 100px;
+        height: calc(100vh - 140px);
+        overflow-y: auto;
+    }
+    
+    .sidebar-profile {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .restaurant-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 15px;
+        overflow: hidden;
+        margin: 0 auto 15px;
+        border: 3px solid var(--primary-color);
+    }
+    
+    .restaurant-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        margin-bottom: 8px;
+        border-radius: 10px;
+        color: rgba(255, 255, 255, 0.7);
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .nav-link:hover {
+        background-color: rgba(255, 107, 107, 0.1);
+        color: var(--primary-color);
+    }
+    
+    .nav-link.active {
+        background-color: rgba(255, 107, 107, 0.2);
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .nav-link i {
+        font-size: 18px;
+        width: 24px;
+        text-align: center;
+    }
+    
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    
+    .settings-card {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 24px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 24px;
+    }
+    
+    .settings-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .settings-header h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+    }
+    
+    .settings-header i {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(255, 107, 107, 0.2);
+        color: var(--primary-color);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .form-control {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 12px 15px;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+    }
+    
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    .btn-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--primary-color-hover);
+    }
+    
+    .btn-secondary {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-danger {
+        background-color: rgba(231, 76, 60, 0.7);
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: rgba(231, 76, 60, 0.9);
+    }
+    
+    .image-preview {
+        width: 200px;
+        height: 200px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+    }
+    
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+    
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.2);
+        transition: .4s;
+        border-radius: 34px;
+    }
+    
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+        background-color: var(--primary-color);
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+    
+    .toggle-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .toggle-group:last-child {
+        border-bottom: none;
+    }
+    
+    .toggle-label {
+        font-weight: 500;
+    }
+    
+    .toggle-description {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 5px;
+    }
+    
+    .hours-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    
+    .hours-table th,
+    .hours-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .hours-table th {
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .hours-input {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+    }
+    
+    .closed-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    @media (max-width: 992px) {
+        .dashboard-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .sidebar {
+            display: none;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .settings-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .btn-group {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+    <div class="breadcrumb">
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <a href="{% url 'restaurant_dashboard' %}">Tableau de bord</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span>Paramètres</span>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-profile">
+                <div class="restaurant-image">
+                    {% if restaurant.image %}
+                        <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                    {% else %}
+                        <img src="{% static 'foodapp/images/placeholder.jpg' %}" alt="{{ restaurant.name }}">
+                    {% endif %}
+                </div>
+                <h3>{{ restaurant.name }}</h3>
+                <div class="restaurant-meta">
+                    <span>{{ restaurant.city.name }}</span>
+                    <div class="status-badge {% if restaurant.is_open %}status-open{% else %}status-closed{% endif %}">
+                        <i class="fas {% if restaurant.is_open %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                        {% if restaurant.is_open %}Ouvert{% else %}Fermé{% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="{% url 'restaurant_dashboard' %}" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Vue d'ensemble
+                </a>
+                <a href="{% url 'restaurant_orders' %}" class="nav-link">
+                    <i class="fas fa-utensils"></i>
+                    Commandes
+                </a>
+                <a href="{% url 'restaurant_menu' %}" class="nav-link">
+                    <i class="fas fa-clipboard-list"></i>
+                    Menu
+                </a>
+                <a href="{% url 'restaurant_reservations' %}" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    Réservations
+                </a>
+                <a href="{% url 'restaurant_reviews' %}" class="nav-link">
+                    <i class="fas fa-star"></i>
+                    Avis clients
+                </a>
+                <a href="{% url 'restaurant_stats' %}" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    Statistiques
+                </a>
+                <a href="{% url 'restaurant_settings' %}" class="nav-link active">
+                    <i class="fas fa-cog"></i>
+                    Paramètres
+                </a>
+            </nav>
+        </div>
+        
+        <div class="main-content">
+            <h1 class="page-title">Paramètres du restaurant</h1>
+            
+            <div class="settings-card">
+                <div class="settings-header">
+                    <h2><i class="fas fa-store"></i> Informations du restaurant</h2>
+                </div>
+                
+                <form method="post" enctype="multipart/form-data" action="{% url 'restaurant_settings' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="restaurant_info">
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Image du restaurant</label>
+                                <div class="image-preview">
+                                    {% if restaurant.image %}
+                                        <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                                    {% else %}
+                                        <div class="empty-image-placeholder">
+                                            <i class="fas fa-camera"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <input type="file" name="image" id="restaurant-image" class="form-control-file">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="name">Nom du restaurant</label>
+                                <input type="text" id="name" name="name" class="form-control" value="{{ restaurant.name }}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" class="form-control" value="{{ restaurant.email }}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="phone">Téléphone</label>
+                                <input type="tel" id="phone" name="phone" class="form-control" value="{{ restaurant.phone }}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="website">Site web</label>
+                                <input type="url" id="website" name="website" class="form-control" value="{{ restaurant.website }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="address">Adresse</label>
+                                <input type="text" id="address" name="address" class="form-control" value="{{ restaurant.address }}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea id="description" name="description" class="form-control" rows="4">{{ restaurant.description }}</textarea>
+                            </div>
+                            
+                            <div class="toggle-group">
+                                <div>
+                                    <div class="toggle-label">Statut du restaurant</div>
+                                    <div class="toggle-description">Indiquez si votre restaurant est actuellement ouvert aux commandes</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" name="is_open" {% if restaurant.is_open %}checked{% endif %}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="capacity">Capacité maximale</label>
+                                <input type="number" id="capacity" name="capacity" class="form-control" value="{{ restaurant.capacity }}" min="1" required>
+                            </div>
+                            
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Enregistrer les modifications
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="settings-card">
+                <div class="settings-header">
+                    <h2><i class="fas fa-clock"></i> Horaires d'ouverture</h2>
+                </div>
+                
+                <form method="post" action="{% url 'restaurant_settings' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="opening_hours">
+                    
+                    <table class="hours-table">
+                        <thead>
+                            <tr>
+                                <th>Jour</th>
+                                <th>Ouverture</th>
+                                <th>Fermeture</th>
+                                <th>Fermé</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for day in days_of_week %}
+                                <tr>
+                                    <td>{{ day.name }}</td>
+                                    <td>
+                                        <input type="time" name="opening_{{ day.code }}" class="hours-input" value="{{ day.opening|default:'09:00' }}" {% if day.closed %}disabled{% endif %}>
+                                    </td>
+                                    <td>
+                                        <input type="time" name="closing_{{ day.code }}" class="hours-input" value="{{ day.closing|default:'22:00' }}" {% if day.closed %}disabled{% endif %}>
+                                    </td>
+                                    <td>
+                                        <div class="closed-toggle">
+                                            <label class="switch">
+                                                <input type="checkbox" name="closed_{{ day.code }}" class="closed-checkbox" {% if day.closed %}checked{% endif %}>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Enregistrer les horaires
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="settings-card">
+                <div class="settings-header">
+                    <h2><i class="fas fa-bell"></i> Notifications</h2>
+                </div>
+                
+                <form method="post" action="{% url 'restaurant_settings' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="notifications">
+                    
+                    <div class="toggle-group">
+                        <div>
+                            <div class="toggle-label">Notifications par email</div>
+                            <div class="toggle-description">Recevoir des notifications par email</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="email_notifications" {% if account.notification_settings.email %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div>
+                            <div class="toggle-label">Notifications de nouvelles commandes</div>
+                            <div class="toggle-description">Être notifié lorsque vous recevez une nouvelle commande</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="order_notifications" {% if account.notification_settings.orders %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div>
+                            <div class="toggle-label">Notifications de réservations</div>
+                            <div class="toggle-description">Être notifié lorsque vous recevez une nouvelle réservation</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="reservation_notifications" {% if account.notification_settings.reservations %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div>
+                            <div class="toggle-label">Notifications d'avis</div>
+                            <div class="toggle-description">Être notifié lorsque vous recevez un nouvel avis</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="review_notifications" {% if account.notification_settings.reviews %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Enregistrer les préférences
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="settings-card">
+                <div class="settings-header">
+                    <h2><i class="fas fa-user-shield"></i> Compte et sécurité</h2>
+                </div>
+                
+                <form method="post" action="{% url 'restaurant_settings' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="account_security">
+                    
+                    <div class="form-group">
+                        <label for="username">Nom d'utilisateur</label>
+                        <input type="text" id="username" class="form-control" value="{{ request.user.username }}" disabled>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="current_password">Mot de passe actuel</label>
+                        <input type="password" id="current_password" name="current_password" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new_password">Nouveau mot de passe</label>
+                        <input type="password" id="new_password" name="new_password" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm_password">Confirmer le mot de passe</label>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control">
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Mettre à jour le mot de passe
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="settings-card">
+                <div class="settings-header">
+                    <h2><i class="fas fa-credit-card"></i> Plan d'abonnement</h2>
+                </div>
+                
+                <div class="subscription-info">
+                    <h3>Plan actuel : {{ account.get_account_type_display }}</h3>
+                    {% if account.subscription %}
+                        <p>Expire le : {{ account.subscription.end_date }}</p>
+                        <p>Jours restants : {{ account.subscription.days_remaining }}</p>
+                        
+                        <div class="btn-group">
+                            <a href="{% url 'restaurant_pricing_plans' %}" class="btn btn-primary">
+                                <i class="fas fa-arrow-up"></i> Mettre à niveau
+                            </a>
+                        </div>
+                    {% else %}
+                        <p>Vous n'avez pas d'abonnement actif.</p>
+                        <div class="btn-group">
+                            <a href="{% url 'restaurant_pricing_plans' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Souscrire à un abonnement
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="settings-card">
+                <div class="settings-header">
+                    <h2><i class="fas fa-trash-alt"></i> Zone dangereuse</h2>
+                </div>
+                
+                <div class="danger-zone">
+                    <p>Les actions ci-dessous sont irréversibles. Soyez prudent.</p>
+                    
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deactivateModal">
+                            <i class="fas fa-power-off"></i> Désactiver temporairement le restaurant
+                        </button>
+                        
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+                            <i class="fas fa-trash-alt"></i> Supprimer définitivement le restaurant
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de désactivation -->
+<div class="modal fade" id="deactivateModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Désactiver votre restaurant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Voulez-vous vraiment désactiver temporairement votre restaurant ? Il ne sera plus visible pour les clients jusqu'à sa réactivation.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <form method="post" action="{% url 'restaurant_settings' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="deactivate">
+                    <button type="submit" class="btn btn-danger">Désactiver</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Supprimer votre restaurant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Voulez-vous vraiment supprimer définitivement votre restaurant et toutes ses données ? Cette action est irréversible.</p>
+                <div class="form-group">
+                    <label for="confirm-delete">Veuillez saisir "SUPPRIMER" pour confirmer</label>
+                    <input type="text" id="confirm-delete" class="form-control" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <form method="post" action="{% url 'restaurant_settings' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="delete">
+                    <button type="submit" id="delete-btn" class="btn btn-danger" disabled>Supprimer définitivement</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion des checkboxes pour les jours fermés
+        const closedCheckboxes = document.querySelectorAll('.closed-checkbox');
+        
+        closedCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const row = this.closest('tr');
+                const timeInputs = row.querySelectorAll('.hours-input');
+                
+                timeInputs.forEach(input => {
+                    input.disabled = this.checked;
+                });
+            });
+        });
+        
+        // Validation pour la suppression du restaurant
+        const confirmDeleteInput = document.getElementById('confirm-delete');
+        const deleteBtn = document.getElementById('delete-btn');
+        
+        if (confirmDeleteInput && deleteBtn) {
+            confirmDeleteInput.addEventListener('input', function() {
+                deleteBtn.disabled = this.value !== 'SUPPRIMER';
+            });
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,170 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+{% load foodapp_extras %}
+
+{% block title %}Dashboard Administration Restaurants{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        padding: 30px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .dashboard-title {
+        font-size: 28px;
+        color: var(--primary-color);
+        font-weight: 700;
+    }
+
+    .dashboard-tabs {
+        display: flex;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-tab {
+        padding: 12px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        position: relative;
+    }
+
+    .dashboard-tab.active {
+        color: var(--primary-color);
+        border-bottom: 3px solid var(--primary-color);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .restaurant-card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 20px;
+        margin-bottom: 20px;
+        display: flex;
+        position: relative;
+    }
+
+    .restaurant-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-right: 20px;
+    }
+
+    .restaurant-info {
+        flex: 1;
+    }
+
+    .restaurant-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 8px;
+    }
+
+    .restaurant-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+    .restaurant-meta-item {
+        display: flex;
+        align-items: center;
+    }
+    
+    .btn-view-all {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+    }
+    
+    .btn-view-all:hover {
+        background-color: #0056b3;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Dashboard Administration Restaurants</h1>
+        <a href="{% url 'restaurant_lists' %}" class="btn-view-all">
+            <i class="fas fa-list"></i> Voir toutes les listes détaillées
+        </a>
+    </div>
+
+    <div class="dashboard-tabs">
+        <div class="dashboard-tab active" data-tab="pending">En attente ({{ pending_restaurants.count }})</div>
+        <div class="dashboard-tab" data-tab="approved">Approuvés ({{ approved_restaurants.count }})</div>
+        <div class="dashboard-tab" data-tab="sanctioned">Sanctionnés ({{ sanctioned_restaurants.count }})</div>
+    </div>
+
+    <!-- Le reste du contenu reste identique -->
+    
+    <!-- ... existing code ... -->
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion des onglets
+        const tabs = document.querySelectorAll('.dashboard-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Retirer la classe active de tous les onglets
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                // Ajouter la classe active à l'onglet cliqué
+                this.classList.add('active');
+
+                // Afficher le contenu correspondant
+                const tabId = 'tab-' + this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Confirmation avant action
+        const actionButtons = document.querySelectorAll('.btn-action');
+        actionButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                const action = this.innerText.trim();
+                if (!confirm(`Êtes-vous sûr de vouloir ${action} ce restaurant ?`)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

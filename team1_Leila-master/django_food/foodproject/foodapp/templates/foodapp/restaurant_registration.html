@@ -1,0 +1,707 @@
+{% extends 'foodapp/base.html' %}
+{% load static %}
+{% load foodapp_extras %}
+
+{% block title %}FoodFlex | Inscription Restaurant{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Styles de base améliorés */
+    .registration-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2.5rem;
+        background: var(--card-bg);
+        border-radius: 20px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Arrière-plan animé */
+    .registration-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: linear-gradient(90deg, var(--primary-color), #ff9d4a, var(--primary-color));
+        background-size: 200% 100%;
+        animation: gradientFlow 3s ease infinite;
+        z-index: 1;
+    }
+    
+    @keyframes gradientFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* Étapes du formulaire avec design amélioré */
+    .wizard-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 3rem;
+        position: relative;
+        padding: 0 20px;
+    }
+
+    .wizard-steps::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--border-color);
+        z-index: 1;
+    }
+
+    .step {
+        position: relative;
+        z-index: 2;
+        background: var(--bg-primary);
+        padding: 0.5rem;
+        text-align: center;
+        min-width: 140px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .step:hover {
+        transform: translateY(-3px);
+    }
+
+    .step.active {
+        color: var(--primary-color);
+        font-weight: bold;
+        transform: translateY(-5px) scale(1.05);
+    }
+
+    .step.completed {
+        color: var(--success-color);
+    }
+
+    .step-number {
+        width: 35px;
+        height: 35px;
+        background: var(--border-color);
+        color: var(--text-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .step.active .step-number {
+        background: var(--primary-color);
+        color: white;
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        transform: scale(1.1);
+    }
+
+    .step.completed .step-number {
+        background: var(--success-color);
+        color: white;
+    }
+    
+    .step-title {
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .step.active .step-title {
+        font-size: 1rem;
+    }
+
+    /* Améliorations des champs de formulaire */
+    .form-section {
+        margin-bottom: 2.5rem;
+        animation: fadeIn 0.5s ease;
+        border-left: 3px solid var(--primary-color);
+        padding-left: 1.5rem;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-section h3 {
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .form-group {
+        margin-bottom: 1.8rem;
+        position: relative;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.7rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+    
+    .form-group:focus-within label {
+        color: var(--primary-color);
+        transform: translateX(5px);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        background: var(--input-bg);
+        color: var(--text-color);
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .form-control::placeholder {
+        color: rgba(var(--text-rgb), 0.5);
+    }
+
+    /* Zone de téléchargement de fichier avec prévisualisation */
+    .file-upload {
+        border: 2px dashed var(--border-color);
+        padding: 2.5rem;
+        text-align: center;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .file-upload:hover {
+        border-color: var(--primary-color);
+        background: rgba(var(--primary-rgb), 0.05);
+    }
+    
+    .file-upload i {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    .file-upload-text {
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .file-info {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-top: 0.8rem;
+        padding: 0.8rem;
+        background: rgba(var(--primary-rgb), 0.05);
+        border-radius: 8px;
+    }
+
+    .file-info ul {
+        margin: 0.7rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .file-info li {
+        margin-bottom: 0.3rem;
+    }
+
+    .upload-progress {
+        width: 100%;
+        height: 6px;
+        margin-top: 0.8rem;
+        background: var(--border-color);
+        border-radius: 3px;
+        overflow: hidden;
+        display: none;
+    }
+
+    .upload-progress-bar {
+        height: 100%;
+        background: var(--primary-color);
+        width: 0;
+        transition: width 0.3s ease;
+    }
+
+    .file-preview {
+        max-width: 200px;
+        max-height: 200px;
+        margin-top: 1.2rem;
+        border-radius: 8px;
+        display: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .file-preview:hover {
+        transform: scale(1.05);
+    }
+
+    /* Boutons de navigation améliorés */
+    .navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 3rem;
+    }
+
+    .btn-prev,
+    .btn-next {
+        padding: 0.9rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-prev {
+        background: var(--border-color);
+        color: var(--text-color);
+    }
+
+    .btn-next {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-prev:hover,
+    .btn-next:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-next:hover {
+        background: var(--primary-color-hover);
+    }
+    
+    .btn-prev i, .btn-next i {
+        font-size: 0.9rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-prev:hover i {
+        transform: translateX(-3px);
+    }
+    
+    .btn-next:hover i {
+        transform: translateX(3px);
+    }
+
+    .help-text {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-top: 0.5rem;
+        transition: opacity 0.3s ease;
+    }
+    
+    .form-group:focus-within .help-text {
+        opacity: 1;
+    }
+
+    .error-message {
+        color: var(--danger-color);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background: rgba(var(--danger-rgb), 0.1);
+        border-radius: 5px;
+        animation: shake 0.5s ease;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .registration-container {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+        
+        .wizard-steps {
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding-top: 2rem;
+        }
+        
+        .wizard-steps::before {
+            height: 100%;
+            width: 3px;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 1rem;
+        }
+        
+        .step-number {
+            margin: 0;
+        }
+    }
+
+    /* Optimisations CSS pour le formulaire */
+    .validation-message {
+        margin-top: 5px;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+    }
+    .validation-message.error {
+        color: #d9534f;
+        background-color: rgba(217, 83, 79, 0.1);
+    }
+    .validation-message.success {
+        color: #5cb85c;
+        background-color: rgba(92, 184, 92, 0.1);
+    }
+    .validation-message .icon {
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+    }
+    .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        vertical-align: middle;
+        margin-left: 10px;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="registration-container">
+    <h2 class="text-center mb-4" style="font-weight: 700; color: var(--primary-color); margin-bottom: 2rem;">Inscription Restaurant</h2>
+
+    <div class="wizard-steps">
+        {% for title in step_titles %}
+        <div class="step {% if forloop.counter0 == wizard.steps.step0 %}active
+                        {% elif forloop.counter0 < wizard.steps.step0 %}completed{% endif %}">
+            <div class="step-number">
+                {% if forloop.counter0 < wizard.steps.step0 %}
+                    <i class="fas fa-check"></i>
+                {% else %}
+                    {{ forloop.counter }}
+                {% endif %}
+            </div>
+            <div class="step-title">{{ title }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <form action="" method="post" enctype="multipart/form-data" id="registration-form">
+        {% csrf_token %}
+        {{ wizard.management_form }}
+
+        <div class="form-section">
+            {% if wizard.form.forms %}
+                {{ wizard.form.management_form }}
+                {% for form in wizard.form.forms %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {% if field.field.widget.input_type == 'file' %}
+                                <div class="file-upload">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <div class="file-upload-text">Glisser-déposer votre fichier ici</div>
+                                    <div>ou <span style="color: var(--primary-color); font-weight: 600;">cliquez pour parcourir</span></div>
+                                    {{ field }}
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                            {% if field.help_text %}
+                                <div class="help-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% if field.errors %}
+                                {% for error in field.errors %}
+                                    <div class="error-message">
+                                        <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            {% if field.name in allowed_extensions %}
+                                <div class="file-info">
+                                    <strong>Types de fichiers autorisés :</strong>
+                                    <ul>
+                                        {% for ext in allowed_extensions|get_item:field.name %}
+                                            <li>{{ ext }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    <div>Taille maximale : {{ max_file_size|filesizeformat }}</div>
+                                    <div class="upload-progress">
+                                        <div class="upload-progress-bar"></div>
+                                    </div>
+                                    {% if field.name in 'main_image,interior_image1,interior_image2'|split:',' %}
+                                        <img class="file-preview" alt="Aperçu de l'image">
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            {% else %}
+                {% for field in wizard.form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {% if field.field.widget.input_type == 'file' %}
+                            <div class="file-upload">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <div class="file-upload-text">Glisser-déposer votre fichier ici</div>
+                                <div>ou <span style="color: var(--primary-color); font-weight: 600;">cliquez pour parcourir</span></div>
+                                {{ field }}
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                        {% if field.help_text %}
+                            <div class="help-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        {% if field.name in allowed_extensions %}
+                            <div class="file-info">
+                                <strong>Types de fichiers autorisés :</strong>
+                                <ul>
+                                    {% for ext in allowed_extensions|get_item:field.name %}
+                                        <li>{{ ext }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <div>Taille maximale : {{ max_file_size|filesizeformat }}</div>
+                                <div class="upload-progress">
+                                    <div class="upload-progress-bar"></div>
+                                </div>
+                                {% if field.name in 'main_image,interior_image1,interior_image2'|split:',' %}
+                                    <img class="file-preview" alt="Aperçu de l'image">
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="navigation-buttons">
+            {% if wizard.steps.prev %}
+            <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="btn btn-prev">
+                <i class="fas fa-arrow-left"></i> Précédent
+            </button>
+            {% else %}
+            <div></div>
+            {% endif %}
+
+            {% if wizard.steps.next %}
+            <button type="submit" class="btn btn-next">
+                Suivant <i class="fas fa-arrow-right"></i>
+            </button>
+            {% else %}
+            <button type="submit" class="btn btn-next">
+                Terminer <i class="fas fa-check"></i>
+            </button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+    
+    var CONFIG = {
+        maxFileSize: "{{ max_file_size }}",
+        allowedExtensions: JSON.parse('{{ allowed_extensions_json|escapejs }}')
+    };
+    
+    // Optimisation: préchargement des icônes
+    var CHECK_ICON = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMGEwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWxpbmUgcG9pbnRzPSIyMCA2IDkgMTcgNCAxMiI+PC9wb2x5bGluZT48L3N2Zz4=';
+    var ERROR_ICON = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZjAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCI+PC9jaXJjbGU+PGxpbmUgeDE9IjE1IiB5MT0iOSIgeDI9IjkiIHkyPSIxNSI+PC9saW5lPjxsaW5lIHgxPSI5IiB5MT0iOSIgeDI9IjE1IiB5Mj0iMTUiPjwvbGluZT48L3N2Zz4=';
+    
+    // Cache des objets DOM fréquemment utilisés
+    var form = null;
+    var fileInputs = [];
+    var submitButton = null;
+    
+    // Optimisation: cache des validations
+    var fileValidationCache = {};
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        form = document.getElementById('registration-form');
+        fileInputs = Array.from(form.querySelectorAll('input[type="file"]'));
+        submitButton = form.querySelector('button[type="submit"].btn-next');
+        
+        // Optimisation: désactiver temporairement la validation au chargement initial
+        var validationEnabled = false;
+        setTimeout(function() {
+            validationEnabled = true;
+        }, 500);
+        
+        // Réduire le nombre d'événements attachés
+        fileInputs.forEach(function(input) {
+            var fieldName = input.name;
+            var allowedExts = CONFIG.allowedExtensions[fieldName] || [];
+            
+            // Optimisation: délégation d'événement unique
+            input.addEventListener('change', function() {
+                if (!validationEnabled) return;
+                
+                var file = this.files[0];
+                if (!file) return;
+                
+                validateAndProcessFile(this, file, allowedExts);
+            });
+        });
+        
+        // Optimisation: validation au submit
+        form.addEventListener('submit', function(e) {
+            var hasErrors = false;
+            
+            // Vérifier rapidement tous les fichiers avant soumission
+            fileInputs.forEach(function(input) {
+                if (input.files && input.files[0]) {
+                    var file = input.files[0];
+                    var cacheKey = input.name + '_' + file.name + '_' + file.size;
+                    
+                    if (fileValidationCache[cacheKey] === false) {
+                        hasErrors = true;
+                    }
+                }
+            });
+            
+            if (hasErrors) {
+                e.preventDefault();
+                alert('Veuillez corriger les erreurs avant de continuer.');
+            } else if (submitButton) {
+                // Désactiver le bouton pendant la soumission
+                submitButton.disabled = true;
+                submitButton.innerHTML = 'Traitement en cours... <div class="spinner"></div>';
+            }
+        });
+    });
+    
+    // Fonction optimisée de validation de fichier
+    function validateAndProcessFile(input, file, allowedExts) {
+        var fieldName = input.name;
+        var cacheKey = fieldName + '_' + file.name + '_' + file.size;
+        
+        // Vérifier si nous avons déjà validé ce fichier
+        if (fileValidationCache[cacheKey] !== undefined) {
+            return fileValidationCache[cacheKey];
+        }
+        
+        // Vérifier la taille du fichier
+        if (file.size > parseInt(CONFIG.maxFileSize)) {
+            showError(input, 'Le fichier est trop volumineux. Taille maximum : ' + formatFileSize(CONFIG.maxFileSize));
+            fileValidationCache[cacheKey] = false;
+            return false;
+        }
+        
+        // Vérifier l'extension
+        var ext = '.' + file.name.split('.').pop().toLowerCase();
+        if (allowedExts.length && !allowedExts.includes(ext)) {
+            showError(input, 'Type de fichier non autorisé. Types acceptés : ' + allowedExts.join(', '));
+            fileValidationCache[cacheKey] = false;
+            return false;
+        }
+        
+        // Montrer la prévisualisation pour les images
+        if (/\.(jpe?g|png|gif)$/i.test(file.name)) {
+            var previewContainer = input.closest('.form-group').querySelector('.file-preview');
+            if (previewContainer) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    previewContainer.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Fichier valide
+        showSuccess(input, 'Fichier valide');
+        fileValidationCache[cacheKey] = true;
+        return true;
+    }
+    
+    // Fonctions d'affichage optimisées
+    function showError(input, message) {
+        var container = input.closest('.form-group');
+        var errorElem = container.querySelector('.validation-message');
+        
+        if (!errorElem) {
+            errorElem = document.createElement('div');
+            errorElem.className = 'validation-message';
+            container.appendChild(errorElem);
+        }
+        
+        errorElem.innerHTML = '<img src="' + ERROR_ICON + '" class="icon" /> ' + message;
+        errorElem.className = 'validation-message error';
+    }
+    
+    function showSuccess(input, message) {
+        var container = input.closest('.form-group');
+        var messageElem = container.querySelector('.validation-message');
+        
+        if (!messageElem) {
+            messageElem = document.createElement('div');
+            messageElem.className = 'validation-message';
+            container.appendChild(messageElem);
+        }
+        
+        messageElem.innerHTML = '<img src="' + CHECK_ICON + '" class="icon" /> ' + message;
+        messageElem.className = 'validation-message success';
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+})();
+</script>
+{% endblock %}
+{% endblock %} 

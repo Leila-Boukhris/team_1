@@ -1,0 +1,202 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Nouveau Sujet | Forum FoodFlex{% endblock %}
+{% block page_title %}Créer un nouveau sujet{% endblock %}
+
+{% block extra_css %}
+<style>
+    .new-topic-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .new-topic-form {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .new-topic-form h2 {
+        margin-bottom: 25px;
+        font-size: 24px;
+        color: var(--text-color);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+        font-family: inherit;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+    
+    textarea.form-control {
+        min-height: 200px;
+        resize: vertical;
+    }
+    
+    .form-help {
+        margin-top: 5px;
+        font-size: 13px;
+        color: var(--text-light);
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 30px;
+    }
+    
+    .form-actions .btn {
+        padding: 10px 25px;
+    }
+    
+    .back-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-light);
+        text-decoration: none;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .back-link:hover {
+        color: var(--primary-color);
+    }
+    
+    .error-message {
+        color: #ff6b6b;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    
+    .markdown-tips {
+        background-color: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+    
+    .markdown-tips h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    
+    .markdown-tips ul {
+        list-style-type: none;
+        padding-left: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 10px;
+    }
+    
+    .markdown-tips li {
+        font-size: 13px;
+        color: var(--text-light);
+    }
+    
+    .markdown-tips code {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+    <div class="breadcrumb">
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <a href="{% url 'forum_topics_list' %}">Forum</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span>Nouveau Sujet</span>
+    </div>
+    
+    <div class="new-topic-container">
+        <a href="{% url 'forum_topics_list' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour au forum
+        </a>
+        
+        <div class="new-topic-form">
+            <h2>Créer un nouveau sujet</h2>
+            
+            <form method="post" action="{% url 'forum_new_topic' %}">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_title">Titre du sujet</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="error-message">{{ form.title.errors }}</div>
+                    {% endif %}
+                    <div class="form-help">Choisissez un titre descriptif pour votre sujet</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_category">Catégorie</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <div class="error-message">{{ form.category.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_content">Contenu du sujet</label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <div class="error-message">{{ form.content.errors }}</div>
+                    {% endif %}
+                    <div class="form-help">Décrivez votre sujet en détail. Vous pouvez utiliser du Markdown pour le formatage.</div>
+                </div>
+                
+                <div class="markdown-tips">
+                    <h3>Astuces de formatage</h3>
+                    <ul>
+                        <li><code>**texte**</code> pour <strong>gras</strong></li>
+                        <li><code>*texte*</code> pour <em>italique</em></li>
+                        <li><code>[lien](url)</code> pour les liens</li>
+                        <li><code>![alt](url)</code> pour les images</li>
+                        <li><code># Titre</code> pour les titres</li>
+                        <li><code>- item</code> pour les listes</li>
+                        <li><code>1. item</code> pour les listes numérotées</li>
+                        <li><code>> citation</code> pour les citations</li>
+                    </ul>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="{% url 'forum_topics_list' %}" class="btn btn-secondary">Annuler</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Créer le sujet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

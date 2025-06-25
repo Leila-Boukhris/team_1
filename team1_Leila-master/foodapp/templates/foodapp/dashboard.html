@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>FoodFlex - Tableau de Bord</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'foodapp/css/desktop.css' %}">
+</head>
+<body>
+    <!-- Titlebar -->
+    <div class="titlebar">
+        <div class="titlebar-drag">FoodFlex</div>
+        <div class="window-controls">
+            <button class="window-control minimize">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button class="window-control maximize">
+                <i class="fas fa-square"></i>
+            </button>
+            <button class="window-control close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="app-logo">
+                <i class="fas fa-utensils"></i>
+                <span class="logo-text">FoodFlex</span>
+            </div>
+            <nav class="app-nav">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'admin:foodapp_restaurant_changelist' %}" class="nav-link">
+                    <i class="fas fa-store"></i>
+                    <span>Restaurants</span>
+                </a>
+                <a href="{% url 'admin:foodapp_dish_changelist' %}" class="nav-link">
+                    <i class="fas fa-hamburger"></i>
+                    <span>Plats</span>
+                </a>
+                <a href="{% url 'admin:foodapp_city_changelist' %}" class="nav-link">
+                    <i class="fas fa-city"></i>
+                    <span>Villes</span>
+                </a>
+                <a href="{% url 'restaurants' %}" class="nav-link">
+                    <i class="fas fa-globe"></i>
+                    <span>Site public</span>
+                </a>
+                <a href="{% url 'admin:index' %}" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Admin Django</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Statistiques</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>Utilisateurs</span>
+                </a>
+                <a href="{% url 'logout' %}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Déconnexion</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <div class="greeting">
+                    Bonjour, <span>{{ request.user.username }}</span>
+                </div>
+                <div class="actions">
+                    <button class="app-btn">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                    </button>
+                    <button class="app-btn primary">
+                        <i class="fas fa-plus"></i>
+                        <span>Nouveau Plat</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card fade-in">
+                    <i class="fas fa-store stat-icon"></i>
+                    <div class="stat-title">Restaurants</div>
+                    <div class="stat-value">{{ restaurants_count }}</div>
+                    <div class="stat-desc">{{ active_restaurants_count }} actifs</div>
+                </div>
+
+                <div class="stat-card fade-in">
+                    <i class="fas fa-hamburger stat-icon"></i>
+                    <div class="stat-title">Plats</div>
+                    <div class="stat-value">{{ dishes_count }}</div>
+                    <div class="stat-desc">{{ vegetarian_dishes_count }} végétariens</div>
+                </div>
+
+                <div class="stat-card fade-in">
+                    <i class="fas fa-city stat-icon"></i>
+                    <div class="stat-title">Villes</div>
+                    <div class="stat-value">{{ cities_count }}</div>
+                    <div class="stat-desc">Dans tout le pays</div>
+                </div>
+
+                <div class="stat-card fade-in">
+                    <i class="fas fa-users stat-icon"></i>
+                    <div class="stat-title">Utilisateurs</div>
+                    <div class="stat-value">{{ users_count }}</div>
+                    <div class="stat-desc">{{ staff_count }} administrateurs</div>
+                </div>
+            </div>
+
+            <div class="charts-row">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <div class="card-title">Plats par ville</div>
+                        <select class="app-btn">
+                            <option value="week">Cette semaine</option>
+                            <option value="month" selected>Ce mois</option>
+                            <option value="year">Cette année</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="dishes-by-city"></canvas>
+                    </div>
+                </div>
+
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <div class="card-title">Types de plats</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="dish-types"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gestion des contrôles de fenêtre
+        document.querySelector('.window-control.minimize').addEventListener('click', () => {
+            window.electron.minimize();
+        });
+        
+        document.querySelector('.window-control.maximize').addEventListener('click', () => {
+            window.electron.maximize();
+        });
+        
+        document.querySelector('.window-control.close').addEventListener('click', () => {
+            window.electron.close();
+        });
+
+        // Animation des cartes avec GSAP
+        gsap.from('.stat-card', {
+            duration: 0.6,
+            y: 20,
+            opacity: 0,
+            stagger: 0.1,
+            ease: 'power3.out'
+        });
+
+        gsap.from('.card', {
+            duration: 0.6,
+            y: 20,
+            opacity: 0,
+            stagger: 0.1,
+            delay: 0.3,
+            ease: 'power3.out'
+        });
+
+        // Initialisation des graphiques
+        document.addEventListener('DOMContentLoaded', function() {
+            const cityLabels = [];
+            const cityData = [];
+            {% for city in cities %}
+                cityLabels.push('{{ city.name }}');
+                cityData.push({{ city.dishes.count }});
+            {% endfor %}
+
+            const sweetCount = {{ sweet_dishes_count }};
+            const saltyCount = {{ salty_dishes_count }};
+            const drinkCount = {{ drink_dishes_count }};
+
+            // Configuration des graphiques
+            const cityChart = new Chart(document.getElementById('dishes-by-city'), {
+                type: 'bar',
+                data: {
+                    labels: cityLabels,
+                    datasets: [{
+                        label: 'Nombre de plats',
+                        data: cityData,
+                        backgroundColor: '#2ed573',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#8b8d91'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#8b8d91'
+                            }
+                        }
+                    }
+                }
+            });
+
+            const typeChart = new Chart(document.getElementById('dish-types'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sucrés', 'Salés', 'Boissons'],
+                    datasets: [{
+                        data: [sweetCount, saltyCount, drinkCount],
+                        backgroundColor: ['#2ed573', '#ff5722', '#2196f3'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#8b8d91',
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

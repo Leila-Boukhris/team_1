@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodFlex - Tableau de Bord</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    {% load static %}
+    <style>
+        :root {
+            --primary-color: #FF6B6B;
+            --secondary-color: #4ECDC4;
+            --tertiary-color: #FF9F1C;
+            --light-bg: #ffffff;
+            --sidebar-bg: #2D3748;
+            --light-gray: #f8f9fa;
+            --text-dark: #2D3748;
+            --text-gray: #718096;
+            --text-light: #f8f9fa;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: var(--text-light);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 15px 0;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .greeting {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .greeting span {
+            color: var(--primary-color);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            background-color: var(--light-bg);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .stat-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            color: var(--primary-color);
+            opacity: 0.2;
+        }
+        
+        .stat-title {
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .stat-desc {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+        
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-card {
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+        
+        .tables-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+        
+        .table-card {
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .table-header {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .data-table th {
+            font-weight: 500;
+            color: var(--text-gray);
+        }
+        
+        .data-table tbody tr:hover {
+            background-color: var(--light-gray);
+        }
+        
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status.active {
+            background-color: rgba(78, 205, 196, 0.1);
+            color: var(--secondary-color);
+        }
+        
+        .status.inactive {
+            background-color: rgba(255, 107, 107, 0.1);
+            color: var(--primary-color);
+        }
+    </style>
+    <script src="{% static 'js/dashboard.js' %}"></script>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <span>FoodFlex</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-link active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Tableau de bord</span>
+            </a>
+            <a href="{% url 'admin:foodapp_restaurant_changelist' %}" class="nav-link">
+                <i class="fas fa-store"></i>
+                <span>Restaurants</span>
+            </a>
+            <a href="{% url 'admin:foodapp_dish_changelist' %}" class="nav-link">
+                <i class="fas fa-hamburger"></i>
+                <span>Plats</span>
+            </a>
+            <a href="{% url 'admin:foodapp_city_changelist' %}" class="nav-link">
+                <i class="fas fa-city"></i>
+                <span>Villes</span>
+            </a>
+            <a href="{% url 'restaurants' %}" class="nav-link">
+                <i class="fas fa-globe"></i>
+                <span>Site public</span>
+            </a>
+            <a href="{% url 'admin:index' %}" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>Admin Django</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Statistiques</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-users"></i>
+                <span>Utilisateurs</span>
+            </a>
+            <a href="{% url 'logout' %}" class="nav-link">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Déconnexion</span>
+            </a>
+        </nav>
+    </aside>
+    
+    <main class="main-content">
+        <header class="page-header">
+            <div class="greeting">
+                Bonjour, <span>{{ request.user.username }}</span>
+            </div>
+            <div class="actions">
+                <a href="#" class="btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-dot"></span>
+                </a>
+                <a href="{% url 'admin:foodapp_restaurant_add' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Ajouter un restaurant
+                </a>
+            </div>
+        </header>
+        
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="stat-title">Restaurants</div>
+                <div class="stat-value">{{ restaurants_count }}</div>
+                <div class="stat-desc">{{ active_restaurants_count }} actifs</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-hamburger"></i>
+                </div>
+                <div class="stat-title">Plats</div>
+                <div class="stat-value">{{ dishes_count }}</div>
+                <div class="stat-desc">{{ vegetarian_dishes_count }} végétariens</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-city"></i>
+                </div>
+                <div class="stat-title">Villes</div>
+                <div class="stat-value">{{ cities_count }}</div>
+                <div class="stat-desc">Dans tout le pays</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-title">Utilisateurs</div>
+                <div class="stat-value">{{ users_count }}</div>
+                <div class="stat-desc">{{ staff_count }} administrateurs</div>
+            </div>
+        </section>
+        
+        <section class="charts-row">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <span>Plats par ville</span>
+                    <div class="chart-actions">
+                        <select id="chart-period" class="btn">
+                            <option value="week">Cette semaine</option>
+                            <option value="month" selected>Ce mois</option>
+                            <option value="year">Cette année</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="dishes-by-city"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-title">
+                    <span>Types de plats</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="dish-types"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <section class="tables-row">
+            <div class="table-card">
+                <div class="table-header">
+                    <span>Derniers restaurants ajoutés</span>
+                    <a href="{% url 'admin:foodapp_restaurant_changelist' %}" class="btn">
+                        Voir tous
+                    </a>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Ville</th>
+                            <th>Statut</th>
+                            <th>Date d'ajout</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for restaurant in latest_restaurants %}
+                        <tr>
+                            <td>{{ restaurant.name }}</td>
+                            <td>{{ restaurant.city.name }}</td>
+                            <td>
+                                {% if restaurant.is_open %}
+                                <span class="status active">Ouvert</span>
+                                {% else %}
+                                <span class="status inactive">Fermé</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ restaurant.created_at|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center;">Aucun restaurant trouvé</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="table-card">
+                <div class="table-header">
+                    <span>Derniers plats ajoutés</span>
+                    <a href="{% url 'admin:foodapp_dish_changelist' %}" class="btn">
+                        Voir tous
+                    </a>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Type</th>
+                            <th>Ville</th>
+                            <th>Prix</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dish in latest_dishes %}
+                        <tr>
+                            <td>{{ dish.name }}</td>
+                            <td>{{ dish.get_type_display }}</td>
+                            <td>{{ dish.city.name }}</td>
+                            <td>{{ dish.get_price_range_display }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center;">Aucun plat trouvé</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    
+    <script>
+        // Préparation des données Django pour JavaScript
+        var cityLabels = [];
+        var cityData = [];
+        {% for city in cities %}
+            cityLabels.push('{{ city.name }}');
+            cityData.push({{ city.dishes.count }});
+        {% endfor %}
+        
+        var sweetCount = {{ sweet_dishes_count }};
+        var saltyCount = {{ salty_dishes_count }};
+        var drinkCount = {{ drink_dishes_count }};
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser le tableau de bord avec les données
+            initDashboard(cityLabels, cityData, sweetCount, saltyCount, drinkCount);
+        });
+    </script>
+</body>
+</html> 

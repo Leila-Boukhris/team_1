@@ -1,0 +1,276 @@
+/* FoodFlex Desktop - Sidebar Styles */
+
+.app-sidebar {
+    position: fixed;
+    left: 0;
+    top: 32px; /* Below the titlebar */
+    bottom: 0;
+    width: 70px;
+    background: rgba(15, 16, 20, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    transition: width 0.3s ease, background 0.3s ease;
+    z-index: 990;
+    overflow: hidden;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.app-sidebar.expanded {
+    width: 220px;
+    background: rgba(20, 21, 26, 0.9);
+}
+
+.app-sidebar .logo {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-sidebar .logo img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    transition: all 0.3s ease;
+}
+
+.app-sidebar.expanded .logo img {
+    width: 120px;
+}
+
+.sidebar-links {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 15px 20px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+    margin-bottom: 6px;
+    border-radius: 0 6px 6px 0;
+}
+
+.sidebar-link:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-link.active {
+    color: var(--text-primary);
+    background: var(--gradient);
+    border-radius: 0 8px 8px 0;
+}
+
+.sidebar-link.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--gradient);
+}
+
+.sidebar-icon {
+    min-width: 30px;
+    display: flex;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.sidebar-label {
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s ease;
+    margin-left: 15px;
+    display: none;
+}
+
+.app-sidebar.expanded .sidebar-label {
+    opacity: 1;
+    transform: translateX(0);
+    display: block;
+}
+
+.sidebar-bottom {
+    width: 100%;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.theme-switch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 0 20px;
+}
+
+.theme-switch-toggle {
+    position: relative;
+    display: inline-block;
+    width: 45px;
+    height: 24px;
+}
+
+.theme-switch-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.theme-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #3e4046;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.theme-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--text-primary);
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .theme-switch-slider {
+    background: var(--gradient);
+}
+
+input:checked + .theme-switch-slider:before {
+    transform: translateX(21px);
+}
+
+.theme-mode-label {
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+    font-size: 14px;
+    margin-left: 12px;
+    white-space: nowrap;
+    opacity: 0;
+}
+
+.app-sidebar.expanded .theme-mode-label {
+    opacity: 1;
+}
+
+.user-profile {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.user-profile:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.user-info {
+    margin-left: 15px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.app-sidebar.expanded .user-info {
+    opacity: 1;
+}
+
+.user-name {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.user-status {
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+/* Notifications badge */
+.sidebar-link .badge {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .app-sidebar {
+        width: 0;
+        transition: width 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+        visibility: hidden;
+        opacity: 0;
+    }
+    
+    .app-sidebar.mobile-visible {
+        width: 220px;
+        visibility: visible;
+        opacity: 1;
+    }
+    
+    .app-sidebar .sidebar-label {
+        display: block;
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    .app-sidebar .theme-mode-label,
+    .app-sidebar .user-info {
+        opacity: 1;
+    }
+} 

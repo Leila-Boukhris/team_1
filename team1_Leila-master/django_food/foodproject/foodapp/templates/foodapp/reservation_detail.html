@@ -1,0 +1,280 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Détails de la Réservation | FoodFlex Maroc{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reservation-detail-card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .restaurant-header {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+    }
+    
+    .restaurant-header img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .restaurant-header-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 20px;
+        background: linear-gradient(transparent, rgba(0,0,0,0.8));
+        color: white;
+    }
+    
+    .status-badge {
+        border-radius: 30px;
+        padding: 8px 20px;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-confirmed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .status-canceled {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .status-completed {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+    
+    .confirmation-code {
+        font-family: monospace;
+        background-color: #f8f9fa;
+        padding: 6px 10px;
+        border-radius: 5px;
+        border: 1px dashed #ced4da;
+        font-size: 1.2rem;
+        letter-spacing: 3px;
+    }
+    
+    .info-section {
+        margin-bottom: 30px;
+    }
+    
+    .info-section h3 {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e9ecef;
+        color: #495057;
+    }
+    
+    .detail-row {
+        display: flex;
+        margin-bottom: 15px;
+    }
+    
+    .detail-label {
+        width: 150px;
+        font-weight: 600;
+    }
+    
+    .detail-value {
+        flex-grow: 1;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+    }
+    
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+    }
+    
+    .qr-code {
+        max-width: 200px;
+        margin: 20px auto;
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'user_reservations_list' %}">Mes Réservations</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Détails</li>
+                </ol>
+            </nav>
+            
+            <div class="reservation-detail-card mb-5">
+                <div class="restaurant-header">
+                    {% if restaurant.image %}
+                        <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                    {% else %}
+                        <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 100%;">
+                            <i class="fas fa-utensils fa-3x text-white"></i>
+                        </div>
+                    {% endif %}
+                    <div class="restaurant-header-overlay">
+                        <h2>{{ restaurant.name }}</h2>
+                        <p><i class="fas fa-map-marker-alt me-2"></i> {{ restaurant.address }}</p>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3>Détails de la Réservation</h3>
+                        <span class="status-badge status-{{ reservation.status }}">
+                            {{ reservation.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3><i class="fas fa-info-circle me-2"></i> Informations</h3>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">Numéro de réservation</div>
+                            <div class="detail-value">
+                                <span class="confirmation-code">{{ reservation.confirmation_code }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">Date</div>
+                            <div class="detail-value">{{ reservation.date|date:"l d F Y" }}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">Heure</div>
+                            <div class="detail-value">{{ reservation.time|time:"H:i" }}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">Nombre de convives</div>
+                            <div class="detail-value">{{ reservation.guests }}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">Réservé par</div>
+                            <div class="detail-value">{{ reservation.name }}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">{{ reservation.email }}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">Téléphone</div>
+                            <div class="detail-value">{{ reservation.phone }}</div>
+                        </div>
+                        
+                        {% if reservation.notes %}
+                        <div class="detail-row">
+                            <div class="detail-label">Notes</div>
+                            <div class="detail-value">{{ reservation.notes }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">Date de création</div>
+                            <div class="detail-value">{{ reservation.created_at|date:"d/m/Y à H:i" }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3><i class="fas fa-utensils me-2"></i> Informations Restaurant</h3>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">Nom</div>
+                            <div class="detail-value">{{ restaurant.name }}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">Adresse</div>
+                            <div class="detail-value">{{ restaurant.address }}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">Téléphone</div>
+                            <div class="detail-value">
+                                <a href="tel:{{ restaurant.phone }}">{{ restaurant.phone }}</a>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">
+                                <a href="mailto:{{ restaurant.email }}">{{ restaurant.email }}</a>
+                            </div>
+                        </div>
+                        
+                        {% if restaurant.website %}
+                        <div class="detail-row">
+                            <div class="detail-label">Site Web</div>
+                            <div class="detail-value">
+                                <a href="{{ restaurant.website }}" target="_blank">{{ restaurant.website }}</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="text-center mb-4">
+                        <!-- Simuler un code QR avec une image -->
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?data=RESERVATION:{{ reservation.confirmation_code }}&size=200x200" 
+                             alt="QR Code" class="qr-code img-fluid">
+                        <p class="text-muted">Présentez ce code à l'arrivée au restaurant</p>
+                    </div>
+                    
+                    <div class="action-buttons mt-4">
+                        <a href="{% url 'user_reservations_list' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+                        </a>
+                        
+                        {% if reservation.can_modify %}
+                        <a href="{% url 'reservation_modify' reservation.id %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-edit me-2"></i> Modifier la réservation
+                        </a>
+                        {% endif %}
+                        
+                        {% if reservation.can_cancel %}
+                        <a href="{% url 'reservation_cancel' reservation.id %}" class="btn btn-outline-danger">
+                            <i class="fas fa-times me-2"></i> Annuler la réservation
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

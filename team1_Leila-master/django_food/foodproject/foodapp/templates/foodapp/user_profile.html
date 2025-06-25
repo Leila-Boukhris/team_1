@@ -1,0 +1,458 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Profil Utilisateur | FoodFlex{% endblock %}
+{% block page_title %}Mon Profil{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        margin-bottom: 40px;
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .profile-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 30px;
+        border: 3px solid var(--primary-color);
+    }
+    
+    .profile-default-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 30px;
+        color: white;
+        font-size: 48px;
+    }
+    
+    .profile-info h1 {
+        margin-bottom: 10px;
+        color: var(--text-color);
+    }
+    
+    .profile-info p {
+        color: var(--text-light);
+        margin-bottom: 5px;
+    }
+    
+    .profile-tabs {
+        display: flex;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 25px;
+    }
+    
+    .profile-tab {
+        padding: 12px 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-bottom: 2px solid transparent;
+        color: var(--text-light);
+    }
+    
+    .profile-tab.active {
+        border-bottom: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .profile-tab:hover {
+        color: var(--text-color);
+    }
+    
+    .profile-section {
+        background-color: var(--card-bg);
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .profile-section h2 {
+        margin-bottom: 20px;
+        font-size: 20px;
+        color: var(--text-color);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 15px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--text-light);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.05);
+        color: var(--text-color);
+    }
+    
+    .form-check {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .form-check input {
+        margin-right: 10px;
+    }
+    
+    .reservation-card {
+        background-color: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-left: 3px solid var(--primary-color);
+    }
+    
+    .reservation-card h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    
+    .reservation-card p {
+        color: var(--text-light);
+        margin-bottom: 5px;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    
+    .status-pending {
+        background-color: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+    }
+    
+    .status-confirmed {
+        background-color: rgba(25, 135, 84, 0.2);
+        color: #198754;
+    }
+    
+    .status-canceled {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+    }
+    
+    .status-completed {
+        background-color: rgba(13, 110, 253, 0.2);
+        color: #0d6efd;
+    }
+    
+    .dish-recommendations {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .dish-card {
+        background-color: var(--card-bg);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+    }
+    
+    .dish-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .dish-card-img {
+        height: 150px;
+        overflow: hidden;
+    }
+    
+    .dish-card-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .dish-card-content {
+        padding: 15px;
+    }
+    
+    .dish-card-title {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+    
+    .dish-card-desc {
+        font-size: 14px;
+        color: var(--text-light);
+        margin-bottom: 10px;
+    }
+    
+    .tab-content {
+        display: none;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    .btn-action {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 5px;
+        background-color: var(--primary-color);
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        margin-right: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-action:hover {
+        background-color: var(--primary-color-hover);
+    }
+    
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .btn-outline:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+    <div class="breadcrumb">
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span>Mon Profil</span>
+    </div>
+    
+    <div class="profile-container">
+        <div class="profile-header">
+            {% if user_profile.profile_image %}
+                <img src="{{ user_profile.profile_image.url }}" alt="Photo de profil" class="profile-image">
+            {% else %}
+                <div class="profile-default-image">
+                    <i class="fas fa-user"></i>
+                </div>
+            {% endif %}
+            
+            <div class="profile-info">
+                <h1>{{ user_profile.full_name }}</h1>
+                <p><i class="fas fa-envelope"></i> {{ user.email }}</p>
+                {% if user_profile.phone %}
+                    <p><i class="fas fa-phone"></i> {{ user_profile.phone }}</p>
+                {% endif %}
+                <p>
+                    {% if user_profile.is_vegetarian %}
+                        <span class="badge bg-success">Végétarien</span>
+                    {% endif %}
+                    
+                    {% if user_profile.is_vegan %}
+                        <span class="badge bg-success">Vegan</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        
+        <div class="profile-tabs">
+            <div class="profile-tab active" data-target="tab-profile">Mon Profil</div>
+            <div class="profile-tab" data-target="tab-reservations">Mes Réservations</div>
+            <div class="profile-tab" data-target="tab-recommendations">Recommandations</div>
+        </div>
+        
+        <!-- Onglet Profil -->
+        <div id="tab-profile" class="tab-content active">
+            <div class="profile-section">
+                <h2>Informations Personnelles</h2>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="id_profile_image">Photo de profil</label>
+                        <input type="file" name="profile_image" id="id_profile_image" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_bio">Bio</label>
+                        <textarea name="bio" id="id_bio" class="form-control" rows="4">{{ user_profile.bio }}</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_phone">Téléphone</label>
+                        <input type="text" name="phone" id="id_phone" class="form-control" value="{{ user_profile.phone }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_favorite_cuisine">Cuisine préférée</label>
+                        <input type="text" name="favorite_cuisine" id="id_favorite_cuisine" class="form-control" value="{{ user_profile.favorite_cuisine }}">
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" name="is_vegetarian" id="id_is_vegetarian" {% if user_profile.is_vegetarian %}checked{% endif %}>
+                        <label for="id_is_vegetarian">Je suis végétarien</label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" name="is_vegan" id="id_is_vegan" {% if user_profile.is_vegan %}checked{% endif %}>
+                        <label for="id_is_vegan">Je suis vegan</label>
+                    </div>
+                    
+                    <button type="submit" class="btn-action">Mettre à jour mon profil</button>
+                    
+                    {% if user.is_superuser %}
+                    <a href="{% url 'admin:index' %}" class="btn-action" style="background-color: #417690; margin-left: 10px;">
+                        <i class="fas fa-cog"></i> Panel Admin Django
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+        
+        <!-- Onglet Réservations -->
+        <div id="tab-reservations" class="tab-content">
+            <div class="profile-section">
+                <h2>Mes Réservations</h2>
+                
+                {% if user_reservations %}
+                    {% for reservation in user_reservations %}
+                        <div class="reservation-card">
+                            <h3>
+                                {{ reservation.restaurant.name }}
+                                <span class="status-badge status-{{ reservation.status }}">
+                                    {{ reservation.get_status_display }}
+                                </span>
+                            </h3>
+                            <p><i class="far fa-calendar-alt"></i> {{ reservation.date|date:"d/m/Y" }} à {{ reservation.time|time:"H:i" }}</p>
+                            <p><i class="fas fa-users"></i> {{ reservation.guests }} personnes</p>
+                            {% if reservation.notes %}
+                                <p><i class="far fa-comment-alt"></i> {{ reservation.notes }}</p>
+                            {% endif %}
+                            <div class="reservation-actions mt-3">
+                                <a href="{% url 'reservation_detail' reservation.id %}" class="btn-action btn-outline">
+                                    <i class="far fa-eye"></i> Détails
+                                </a>
+                                
+                                {% if reservation.can_modify %}
+                                    <a href="{% url 'reservation_modify' reservation.id %}" class="btn-action btn-outline">
+                                        <i class="far fa-edit"></i> Modifier
+                                    </a>
+                                {% endif %}
+                                
+                                {% if reservation.can_cancel %}
+                                    <a href="{% url 'reservation_cancel' reservation.id %}" class="btn-action btn-outline">
+                                        <i class="fas fa-times"></i> Annuler
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Vous n'avez aucune réservation pour le moment.</p>
+                    <a href="{% url 'restaurants' %}" class="btn-action">Découvrir les restaurants</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Onglet Recommandations -->
+        <div id="tab-recommendations" class="tab-content">
+            <div class="profile-section">
+                <h2>Plats Recommandés pour Vous</h2>
+                
+                {% if recommended_dishes %}
+                    <div class="dish-recommendations">
+                        {% for dish in recommended_dishes %}
+                            <div class="dish-card">
+                                <div class="dish-card-img">
+                                    {% if dish.image %}
+                                        <img src="{{ dish.image.url }}" alt="{{ dish.name }}">
+                                    {% else %}
+                                        <img src="{% static 'foodapp/images/default-dish.jpg' %}" alt="{{ dish.name }}">
+                                    {% endif %}
+                                </div>
+                                <div class="dish-card-content">
+                                    <h3 class="dish-card-title">{{ dish.name }}</h3>
+                                    <p class="dish-card-desc">{{ dish.description|truncatechars:80 }}</p>
+                                    <a href="{% url 'dish_detail' dish.id %}" class="btn-action btn-sm">Voir plus</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>Aucune recommandation disponible pour le moment.</p>
+                    <a href="{% url 'dish_list' %}" class="btn-action">Explorer tous les plats</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Restaurant Dashboard Button for restaurant owners and admins -->
+        {% if request.user.is_authenticated %}
+            {% if request.user.is_superuser %}
+                <div class="profile-action">
+                    <a href="{% url 'restaurant_dashboard' %}" class="btn btn-action btn-profile">
+                        <i class="fas fa-utensils"></i> Dashboard Restaurants
+                    </a>
+                </div>
+            {% elif request.user.restaurant_account %}
+                <div class="profile-action">
+                    <a href="{% url 'restaurant_owner_dashboard' %}" class="btn btn-action btn-profile">
+                        <i class="fas fa-utensils"></i> Dashboard de mon Restaurant
+                    </a>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion des onglets
+        const tabs = document.querySelectorAll('.profile-tab');
+        const contents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Désactiver tous les onglets
+                tabs.forEach(t => t.classList.remove('active'));
+                
+                // Masquer tous les contenus
+                contents.forEach(c => c.classList.remove('active'));
+                
+                // Activer l'onglet cliqué
+                this.classList.add('active');
+                
+                // Afficher le contenu correspondant
+                const target = this.getAttribute('data-target');
+                document.getElementById(target).classList.add('active');
+            });
+        });
+    });
+</script>
+{% endblock %} 

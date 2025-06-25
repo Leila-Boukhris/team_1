@@ -1,0 +1,433 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Inscription Restaurant | FoodFlex{% endblock %}
+{% block page_title %}Inscription Restaurant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .signup-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .signup-form-wrapper {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin-top: 30px;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .form-header h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .form-header p {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 20px;
+    }
+    
+    .form-row .form-group {
+        flex: 1;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.25);
+    }
+    
+    .help-text {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 8px;
+    }
+    
+    .btn-signup {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        background-color: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-signup:hover {
+        background-color: var(--primary-color-hover);
+        transform: translateY(-2px);
+    }
+    
+    .form-footer {
+        text-align: center;
+        margin-top: 25px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .form-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .form-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    .error-message {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .success-message {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    /* Restaurant fields specific styling */
+    .restaurant-section {
+        background-color: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 15px;
+        border-left: 3px solid var(--primary-color);
+        margin-bottom: 25px;
+    }
+    
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+    }
+    
+    .restaurant-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .feature-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 15px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .info-alert {
+        background-color: rgba(52, 152, 219, 0.15);
+        border: 1px solid rgba(52, 152, 219, 0.3);
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .info-alert i {
+        font-size: 24px;
+        color: #3498db;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+    <div class="breadcrumb">
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <a href="{% url 'signup' %}">Inscription</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span>Restaurant</span>
+    </div>
+    
+    <div class="signup-container">
+        <div class="info-alert">
+            <i class="fas fa-bolt"></i>
+            <div>
+                <strong>Nouveau !</strong> Inscription restaurant optimisée - créez votre restaurant en quelques minutes !
+            </div>
+        </div>
+        
+        <div class="signup-form-wrapper">
+            <div class="form-header">
+                <h2>Inscrire votre restaurant</h2>
+                <p>Rejoignez la communauté FoodFlex pour promouvoir la cuisine marocaine</p>
+            </div>
+            
+            <form id="restaurant-signup-form" method="post">
+                {% csrf_token %}
+                
+                <!-- Informations du compte utilisateur -->
+                <div class="section-title">
+                    <i class="fas fa-user"></i> Informations du compte
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="username" class="form-label">Nom d'utilisateur</label>
+                        <input type="text" id="username" name="username" class="form-control" placeholder="Choisissez un nom d'utilisateur" required>
+                        <div class="help-text">Le nom d'utilisateur doit comporter entre 3 et 20 caractères</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Entrez votre adresse email" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Mot de passe</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Créez un mot de passe" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirmez votre mot de passe" required>
+                </div>
+                
+                <!-- Informations du restaurant -->
+                <div class="restaurant-section">
+                    <div class="section-title">
+                        <i class="fas fa-utensils"></i> Informations du restaurant
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="restaurant_name" class="form-label">Nom du restaurant</label>
+                        <input type="text" id="restaurant_name" name="restaurant_name" class="form-control" placeholder="Nom de votre restaurant" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="restaurant_city" class="form-label">Ville</label>
+                            <select id="restaurant_city" name="restaurant_city" class="form-control" required>
+                                <option value="">Sélectionnez une ville</option>
+                                {% for city in cities %}
+                                    <option value="{{ city.id }}">{{ city.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="restaurant_phone" class="form-label">Téléphone</label>
+                            <input type="tel" id="restaurant_phone" name="restaurant_phone" class="form-control" placeholder="Numéro de téléphone" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="restaurant_address" class="form-label">Adresse</label>
+                        <input type="text" id="restaurant_address" name="restaurant_address" class="form-control" placeholder="Adresse complète du restaurant" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="restaurant_website" class="form-label">Site web (optionnel)</label>
+                        <input type="url" id="restaurant_website" name="restaurant_website" class="form-control" placeholder="https://votre-site.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="restaurant_description" class="form-label">Description</label>
+                        <textarea id="restaurant_description" name="restaurant_description" class="form-control" rows="4" placeholder="Décrivez votre restaurant, sa cuisine, son ambiance..." required></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-check">
+                    <input type="checkbox" id="terms" name="terms" class="form-check-input" required>
+                    <label for="terms" class="form-check-label">
+                        J'accepte les <a href="#" target="_blank">conditions d'utilisation</a>
+                    </label>
+                </div>
+                
+                <input type="hidden" name="account_type" value="restaurant">
+                
+                <button type="submit" class="btn-signup">
+                    <i class="fas fa-utensils"></i> Créer mon compte restaurant
+                </button>
+                
+                <div class="form-footer">
+                    <p>Vous avez déjà un compte? <a href="{% url 'login' %}">Se connecter</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion du formulaire
+        const signupForm = document.getElementById('restaurant-signup-form');
+        
+        signupForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Validation de base côté client
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const terms = document.getElementById('terms').checked;
+            
+            if (!username || !email || !password || !confirmPassword) {
+                showError("Veuillez remplir tous les champs obligatoires");
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showError("Les mots de passe ne correspondent pas");
+                return;
+            }
+            
+            if (!terms) {
+                showError("Vous devez accepter les conditions");
+                return;
+            }
+            
+            // Validation des champs restaurant
+            const restaurantName = document.getElementById('restaurant_name').value;
+            const restaurantCity = document.getElementById('restaurant_city').value;
+            const restaurantPhone = document.getElementById('restaurant_phone').value;
+            const restaurantAddress = document.getElementById('restaurant_address').value;
+            const restaurantDescription = document.getElementById('restaurant_description').value;
+            
+            if (!restaurantName || !restaurantCity || !restaurantPhone || !restaurantAddress || !restaurantDescription) {
+                showError("Veuillez remplir toutes les informations du restaurant");
+                return;
+            }
+            
+            // Animation de chargement
+            const button = document.querySelector('.btn-signup');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Création en cours...';
+            button.disabled = true;
+            
+            // Préparation des données
+            const formData = new FormData(signupForm);
+            
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            // Envoi de la requête
+            fetch('{% url "restaurant_signup" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(JSON.stringify(data.errors));
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Animation de succès
+                    button.innerHTML = '<i class="fas fa-check"></i> Restaurant créé avec succès!';
+                    button.style.backgroundColor = '#2ecc71';
+                    
+                    // Redirection après un délai
+                    setTimeout(() => {
+                        window.location.href = '{% url "restaurant_dashboard" %}';
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                // Animation d'erreur
+                button.innerHTML = originalText;
+                button.disabled = false;
+                
+                // Afficher l'erreur
+                try {
+                    const errors = JSON.parse(error.message);
+                    if (errors.username) showError(errors.username);
+                    else if (errors.email) showError(errors.email);
+                    else if (errors.general) showError(errors.general);
+                    else showError("Une erreur est survenue");
+                } catch (e) {
+                    showError("Une erreur est survenue");
+                }
+            });
+        });
+        
+        // Fonction pour afficher un message d'erreur
+        function showError(message) {
+            // Supprimer les messages existants
+            const existingMessages = document.querySelectorAll('.error-message, .success-message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            // Créer un nouvel élément d'erreur
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            
+            // Insérer avant le formulaire
+            const formElement = document.getElementById('restaurant-signup-form');
+            formElement.parentNode.insertBefore(errorDiv, formElement);
+        }
+    });
+</script>
+{% endblock %} 

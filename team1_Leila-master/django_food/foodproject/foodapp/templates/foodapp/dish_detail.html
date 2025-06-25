@@ -1,0 +1,506 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+{% load dish_extras %}
+
+{% block title %}{{ dish.name }} | FoodFlex{% endblock %}
+{% block page_title %}{{ dish.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #FF6B6B;
+        --secondary-color: #4ECDC4;
+        --accent-color: #45B7AF;
+        --text-primary: #2D3436;
+        --text-secondary: #636E72;
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #F8F9FA;
+        --gradient: linear-gradient(45deg, #FF6B6B, #FF8E8E);
+        --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        --card-bg: #FFFFFF;
+    }
+
+    [data-theme="dark"] {
+        --primary-color: #FF6B6B;
+        --secondary-color: #4ECDC4;
+        --accent-color: #45B7AF;
+        --text-primary: #FFFFFF;
+        --text-secondary: #A0A0A0;
+        --bg-primary: #1A1A1A;
+        --bg-secondary: #2D2D2D;
+        --card-bg: #2D2D2D;
+        --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dish-detail-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .dish-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .dish-header {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .dish-image-wrapper {
+        position: relative;
+        height: 400px;
+        overflow: hidden;
+        border-radius: 20px;
+    }
+
+    .dish-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .dish-image:hover {
+        transform: scale(1.05);
+    }
+
+    .dish-info {
+        padding: 2rem;
+    }
+
+    .dish-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .dish-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .badge-type {
+        background: var(--gradient);
+    }
+
+    .badge-price {
+        background: linear-gradient(45deg, #4ECDC4, #45B7AF);
+    }
+
+    .badge-vegetarian {
+        background: linear-gradient(45deg, #4CAF50, #8BC34A);
+    }
+
+    .badge-vegan {
+        background: linear-gradient(45deg, #009688, #4CAF50);
+    }
+
+    .dish-description {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    .info-section {
+        background: var(--bg-secondary);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: var(--primary-color);
+    }
+
+    .dietary-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .dietary-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+    }
+
+    .dietary-item i {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .dietary-item i.fa-check {
+        background: #4CAF50;
+        color: white;
+    }
+
+    .dietary-item i.fa-times {
+        background: #FF5252;
+        color: white;
+    }
+
+    .ingredients-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .ingredient-tag {
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+
+    .ingredient-tag:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .related-dishes {
+        margin-top: 3rem;
+    }
+
+    .related-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+    }
+
+    .related-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .related-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease;
+    }
+
+    .related-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .related-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .related-info {
+        padding: 1rem;
+    }
+
+    .related-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .related-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .related-link:hover {
+        color: var(--accent-color);
+    }
+
+    @media (max-width: 640px) {
+        .container {
+            padding: 1rem;
+        }
+
+        .dish-title {
+            font-size: 2rem;
+        }
+
+        .dish-image-wrapper {
+            height: 300px;
+        }
+
+        .related-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .order-section {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--bg-secondary);
+    }
+
+    .order-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--gradient);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .order-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    }
+
+    .order-button:active {
+        transform: translateY(-1px);
+    }
+
+    .order-button i {
+        font-size: 1.2rem;
+    }
+
+    .price-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .price-tag i {
+        color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dish-detail-card">
+        <div class="dish-header">
+            <!-- Image Section -->
+            <div class="dish-image-wrapper">
+                {% if dish.image %}
+                    <img src="{{ dish.image.url }}" alt="{{ dish.name }}" class="dish-image">
+                {% else %}
+                    <div class="dish-image-placeholder">
+                        <i class="fas fa-utensils"></i>
+                        <span>Image non disponible</span>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Info Section -->
+            <div class="dish-info">
+                <h1 class="dish-title">{{ dish.name }}</h1>
+                
+                <div class="dish-badges">
+                    <span class="badge badge-type">
+                        <i class="fas {% if dish.type == 'sweet' %}fa-cookie{% elif dish.type == 'salty' %}fa-hamburger{% else %}fa-glass-martini-alt{% endif %}"></i>
+                        {% if dish.type == 'sweet' %}Sucré
+                        {% elif dish.type == 'salty' %}Salé
+                        {% else %}Boisson{% endif %}
+                    </span>
+                    <span class="badge badge-price">
+                        <i class="fas fa-tag"></i>
+                        {% if dish.price_range == 'L' %}€
+                        {% elif dish.price_range == 'M' %}€€
+                        {% else %}€€€{% endif %}
+                    </span>
+                    {% if dish.is_vegetarian %}
+                        <span class="badge badge-vegetarian">
+                            <i class="fas fa-leaf"></i>
+                            Végétarien
+                        </span>
+                    {% endif %}
+                    {% if dish.is_vegan %}
+                        <span class="badge badge-vegan">
+                            <i class="fas fa-seedling"></i>
+                            Vegan
+                        </span>
+                    {% endif %}
+                </div>
+
+                <p class="dish-description">{{ dish.description }}</p>
+
+                <!-- Dietary Information -->
+                <div class="info-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Restrictions alimentaires
+                    </h3>
+                    <div class="dietary-info">
+                        <div class="dietary-item">
+                            <i class="fas {% if not dish.has_gluten %}fa-check{% else %}fa-times{% endif %}"></i>
+                            <span>Gluten</span>
+                        </div>
+                        <div class="dietary-item">
+                            <i class="fas {% if not dish.has_lactose %}fa-check{% else %}fa-times{% endif %}"></i>
+                            <span>Lactose</span>
+                        </div>
+                        <div class="dietary-item">
+                            <i class="fas {% if not dish.has_nuts %}fa-check{% else %}fa-times{% endif %}"></i>
+                            <span>Noix</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if dish.ingredients %}
+                <div class="info-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-mortar-pestle"></i>
+                        Ingrédients
+                    </h3>
+                    <div class="ingredients-list">
+                        {% for ingredient in ingredients_list %}
+                            <span class="ingredient-tag">{{ ingredient }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Order Section -->
+                <div class="order-section">
+                    <div class="price-tag">
+                        <i class="fas fa-tag"></i>
+                        {% if dish.price_range == 'L' %}
+                            <span>€ 5-10</span>
+                        {% elif dish.price_range == 'M' %}
+                            <span>€ 10-20</span>
+                        {% else %}
+                            <span>€ 20+</span>
+                        {% endif %}
+                    </div>
+                    <button class="order-button" onclick="addToCart({{ dish.id }})">
+                        <i class="fas fa-shopping-cart"></i>
+                        Commander
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Dishes -->
+    {% if related_dishes %}
+    <div class="related-dishes">
+        <h2 class="related-title">Plats similaires</h2>
+        <div class="related-grid">
+            {% for related in related_dishes %}
+            <div class="related-card">
+                {% if related.image %}
+                    <img src="{{ related.image.url }}" alt="{{ related.name }}" class="related-image">
+                {% endif %}
+                <div class="related-info">
+                    <h3 class="related-name">{{ related.name }}</h3>
+                    <a href="{% url 'dish_detail' related.id %}" class="related-link">Voir plus</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Marquer le plat comme vu pour cet utilisateur
+        fetch('/api/mark-dish-viewed/{{ dish.id }}/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        }).catch(error => console.error('Erreur lors du marquage du plat comme vu:', error));
+    });
+
+    function addToCart(dishId) {
+        // Vérifier si l'utilisateur est connecté
+        {% if user.is_authenticated %}
+            fetch('/api/cart/add/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    dish_id: dishId,
+                    quantity: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Plat ajouté au panier !');
+                    // Optionnel : mettre à jour le compteur du panier si vous en avez un
+                } else {
+                    alert('Erreur lors de l\'ajout au panier : ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Erreur lors de l\'ajout au panier');
+                console.error('Error:', error);
+            });
+        {% else %}
+            // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+            window.location.href = "{% url 'login' %}?next=" + window.location.pathname;
+        {% endif %}
+    }
+</script>
+{% endblock %} 

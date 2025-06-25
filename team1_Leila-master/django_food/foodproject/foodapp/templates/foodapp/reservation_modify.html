@@ -1,0 +1,365 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Modifier ma Réservation | FoodFlex Maroc{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .restaurant-info {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .restaurant-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+    
+    .reservation-summary {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+    
+    .time-slots-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .time-slot {
+        padding: 8px 15px;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .time-slot.available {
+        border: 1px solid #28a745;
+    }
+    
+    .time-slot.unavailable {
+        border: 1px solid #dc3545;
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .time-slot.selected {
+        background-color: #28a745;
+        color: white;
+        border: 1px solid #28a745;
+    }
+    
+    .time-closed {
+        color: #6c757d;
+        font-style: italic;
+        margin-top: 10px;
+    }
+    
+    .error-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+    
+    .deadline-alert {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Variables pour les créneaux disponibles
+        const availableDates = {{ available_dates|safe }};
+        
+        // Initialiser les sélecteurs de date et d'heure
+        const dateInput = document.getElementById('id_date');
+        const timeInput = document.getElementById('id_time');
+        const guestsInput = document.getElementById('id_guests');
+        const timeSlotsContainer = document.getElementById('time_slots_container');
+        
+        // Limiter les dates sélectionnables à celles disponibles
+        dateInput.addEventListener('input', function() {
+            fetchAvailableTimeSlots(this.value);
+        });
+        
+        // Fonction pour récupérer les créneaux disponibles
+        function fetchAvailableTimeSlots(date) {
+            if (!date) return;
+            
+            // Afficher un message de chargement
+            timeSlotsContainer.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-pulse"></i> Chargement des créneaux disponibles...</div>';
+            
+            // Appeler l'API pour récupérer les créneaux disponibles
+            fetch(`/api/available-slots/{{ restaurant.id }}/?date=${date}`)
+                .then(response => response.json())
+                .then(data => {
+                    displayTimeSlots(data.slots);
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des créneaux:', error);
+                    timeSlotsContainer.innerHTML = '<div class="error-feedback">Erreur lors du chargement des créneaux. Veuillez réessayer.</div>';
+                });
+        }
+        
+        // Fonction pour afficher les créneaux disponibles
+        function displayTimeSlots(slots) {
+            if (!slots || slots.length === 0) {
+                timeSlotsContainer.innerHTML = '<p class="time-closed">Aucun créneau disponible à cette date.</p>';
+                return;
+            }
+            
+            // Grouper par service (déjeuner/dîner)
+            const lunchSlots = slots.filter(slot => {
+                const hour = parseInt(slot.time.split(':')[0]);
+                return hour >= 12 && hour < 15;
+            });
+            
+            const dinnerSlots = slots.filter(slot => {
+                const hour = parseInt(slot.time.split(':')[0]);
+                return hour >= 19 && hour < 23;
+            });
+            
+            let html = '';
+            
+            // Service du déjeuner
+            if (lunchSlots.length > 0) {
+                html += '<h6 class="mt-3">Service du déjeuner</h6>';
+                html += '<div class="time-slots-container">';
+                lunchSlots.forEach(slot => {
+                    const isSelected = timeInput.value === slot.time;
+                    const className = `time-slot ${slot.available ? 'available' : 'unavailable'} ${isSelected ? 'selected' : ''}`;
+                    html += `<div class="${className}" data-time="${slot.time}" ${!slot.available ? 'title="Créneau complet"' : ''}>${slot.time}</div>`;
+                });
+                html += '</div>';
+            }
+            
+            // Service du dîner
+            if (dinnerSlots.length > 0) {
+                html += '<h6 class="mt-3">Service du dîner</h6>';
+                html += '<div class="time-slots-container">';
+                dinnerSlots.forEach(slot => {
+                    const isSelected = timeInput.value === slot.time;
+                    const className = `time-slot ${slot.available ? 'available' : 'unavailable'} ${isSelected ? 'selected' : ''}`;
+                    html += `<div class="${className}" data-time="${slot.time}" ${!slot.available ? 'title="Créneau complet"' : ''}>${slot.time}</div>`;
+                });
+                html += '</div>';
+            }
+            
+            timeSlotsContainer.innerHTML = html;
+            
+            // Ajouter des écouteurs d'événements aux créneaux disponibles
+            document.querySelectorAll('.time-slot.available').forEach(slot => {
+                slot.addEventListener('click', function() {
+                    const time = this.dataset.time;
+                    timeInput.value = time;
+                    
+                    // Mettre à jour l'interface
+                    document.querySelectorAll('.time-slot.selected').forEach(s => s.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    updateReservationSummary();
+                });
+            });
+        }
+        
+        // Mettre à jour le résumé de la réservation
+        function updateReservationSummary() {
+            const date = dateInput.value;
+            const time = timeInput.value;
+            const guests = guestsInput.value;
+            
+            const summaryDate = document.getElementById('summary_date');
+            const summaryTime = document.getElementById('summary_time');
+            const summaryGuests = document.getElementById('summary_guests');
+            
+            if (date) {
+                const formattedDate = new Date(date).toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                summaryDate.textContent = formattedDate;
+            }
+            
+            if (time) {
+                summaryTime.textContent = time;
+            }
+            
+            if (guests) {
+                summaryGuests.textContent = guests > 1 ? `${guests} personnes` : '1 personne';
+            }
+        }
+        
+        // Initialiser l'interface
+        if (dateInput.value) {
+            fetchAvailableTimeSlots(dateInput.value);
+        }
+        
+        // Mettre à jour le résumé quand le nombre de convives change
+        guestsInput.addEventListener('input', updateReservationSummary);
+        
+        // Initialiser le résumé
+        updateReservationSummary();
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'user_reservations_list' %}">Mes Réservations</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'reservation_detail' reservation.id %}">Détails</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Modifier</li>
+                </ol>
+            </nav>
+            
+            <h1 class="mb-4"><i class="fas fa-edit me-2"></i> Modifier ma Réservation</h1>
+            
+            {% if not can_modify %}
+                <div class="deadline-alert">
+                    <h5><i class="fas fa-exclamation-triangle me-2"></i> Modification impossible</h5>
+                    <p>Vous ne pouvez plus modifier cette réservation car elle est passée, annulée, terminée 
+                    ou à moins de 24 heures de l'heure prévue.</p>
+                    <p>Date limite de modification : {{ modification_limit|date:"d/m/Y à H:i" }}</p>
+                    <a href="{% url 'reservation_detail' reservation.id %}" class="btn btn-outline-primary mt-2">
+                        <i class="fas fa-arrow-left me-2"></i> Retourner aux détails
+                    </a>
+                </div>
+            {% else %}
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-container">
+                            <div class="restaurant-info d-flex align-items-center mb-4">
+                                {% if restaurant.image %}
+                                    <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}" class="restaurant-image me-3">
+                                {% else %}
+                                    <div class="restaurant-image bg-secondary d-flex align-items-center justify-content-center me-3">
+                                        <i class="fas fa-utensils fa-2x text-white"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h5 class="mb-1">{{ restaurant.name }}</h5>
+                                    <p class="mb-0"><i class="fas fa-map-marker-alt me-1"></i> {{ restaurant.address }}</p>
+                                    <p class="mb-0"><i class="fas fa-phone me-1"></i> {{ restaurant.phone }}</p>
+                                </div>
+                            </div>
+                            
+                            <form method="post" action="{% url 'reservation_modify' reservation.id %}">
+                                {% csrf_token %}
+                                
+                                {% if form.non_field_errors %}
+                                    <div class="alert alert-danger">
+                                        <ul class="mb-0">
+                                            {% for error in form.non_field_errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="mb-3">
+                                    <label for="id_date" class="form-label">Date</label>
+                                    {{ form.date }}
+                                    {% if form.date.errors %}
+                                        <div class="error-feedback">
+                                            {% for error in form.date.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Heure</label>
+                                    {{ form.time }}
+                                    {% if form.time.errors %}
+                                        <div class="error-feedback">
+                                            {% for error in form.time.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div id="time_slots_container" class="mt-2">
+                                        <!-- Les créneaux seront chargés dynamiquement -->
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="id_guests" class="form-label">Nombre de convives</label>
+                                    {{ form.guests }}
+                                    {% if form.guests.errors %}
+                                        <div class="error-feedback">
+                                            {% for error in form.guests.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="id_notes" class="form-label">Notes spéciales</label>
+                                    {{ form.notes }}
+                                    <div class="form-text">Précisez toute demande particulière ou allergie.</div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mt-4">
+                                    <a href="{% url 'reservation_detail' reservation.id %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i> Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i> Enregistrer les modifications
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-container">
+                            <h4>Résumé de la réservation</h4>
+                            
+                            <div class="reservation-summary">
+                                <p><i class="fas fa-calendar-day me-2"></i> <strong>Date:</strong> <span id="summary_date">-</span></p>
+                                <p><i class="fas fa-clock me-2"></i> <strong>Heure:</strong> <span id="summary_time">-</span></p>
+                                <p><i class="fas fa-users me-2"></i> <strong>Convives:</strong> <span id="summary_guests">-</span></p>
+                            </div>
+                            
+                            <div class="alert alert-warning mt-4">
+                                <i class="fas fa-info-circle me-2"></i> Les modifications sont possibles jusqu'à 24 heures avant l'heure de réservation.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %} 

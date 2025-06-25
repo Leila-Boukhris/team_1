@@ -1,0 +1,390 @@
+{% extends "foodapp/base.html" %}
+    {% load static %}
+    {% load foodapp_extras %}
+
+{% block title %}FoodFlex | Liste des Plats{% endblock %}
+{% block page_title %}Découvrez nos Plats{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .hero-section {
+        position: relative;
+        height: 300px;
+        background: linear-gradient(135deg, rgba(18, 22, 32, 0.9), rgba(26, 31, 44, 0.8)), url('{% static "foodapp/img/dishes-hero.jpg" %}') center/cover;
+        border-radius: 24px;
+        margin: -1rem -2rem 2rem;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        padding: 4rem;
+    }
+
+    .hero-content {
+        max-width: 600px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+        background: var(--gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .hero-description {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+        animation: fadeInUp 0.8s ease-out 0.2s backwards;
+    }
+
+    /* Filters Section */
+    .filters-section {
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .filter-select {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.8rem;
+        border-radius: 12px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.9rem;
+        transition: all var(--transition-speed) ease;
+    }
+
+    .filter-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(255, 107, 43, 0.2);
+    }
+
+    /* Dishes Grid */
+    .dishes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
+    }
+
+    .dish-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all var(--transition-speed) ease;
+        border: 1px solid var(--border-color);
+    }
+
+    .dish-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow);
+    }
+
+    .dish-image {
+        height: 200px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dish-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .dish-card:hover .dish-image img {
+        transform: scale(1.1);
+    }
+
+    .dish-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--gradient);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .dish-content {
+        padding: 1.5rem;
+    }
+
+    .dish-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .dish-description {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .dish-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .dish-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        color: #FFA41B;
+    }
+
+    .dish-category {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .dish-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .dish-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--card-bg);
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+
+    .empty-state-description {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hero-section {
+            height: auto;
+            padding: 2rem;
+            margin: -1rem -1rem 2rem;
+        }
+
+        .hero-title {
+            font-size: 2rem;
+        }
+
+        .filters-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dishes-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Découvrez Nos Plats</h1>
+        <p class="hero-description">Une sélection de plats traditionnels marocains préparés avec passion par nos chefs.</p>
+    </div>
+</section>
+
+<!-- Filters Section -->
+<section class="filters-section">
+    <form method="get" class="filters-grid">
+    
+        <div class="filter-group">
+            <label class="filter-label" for="dish_type">Type de plat</label>
+            <select name="dish_type" id="dish_type" class="filter-select">
+                <option value="">Tous les types</option>
+                <option value="sweet" {% if selected_dish_type == 'sweet' %}selected{% endif %}>Sucré</option>
+                <option value="salty" {% if selected_dish_type == 'salty' %}selected{% endif %}>Salé</option>
+                <option value="drink" {% if selected_dish_type == 'drink' %}selected{% endif %}>Boisson</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label class="filter-label" for="price">Prix</label>
+            <select name="price" id="price" class="filter-select">
+                <option value="">Tous les prix</option>
+                <option value="low" {% if selected_price == 'low' %}selected{% endif %}>€ (Économique)</option>
+                <option value="medium" {% if selected_price == 'medium' %}selected{% endif %}>€€ (Modéré)</option>
+                <option value="high" {% if selected_price == 'high' %}selected{% endif %}>€€€ (Élevé)</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label class="filter-label" for="sort">Trier par</label>
+            <select name="sort" id="sort" class="filter-select">
+                <option value="popularity" {% if selected_sort == 'popularity' %}selected{% endif %}>Popularité</option>
+                <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>Prix croissant</option>
+                <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Prix décroissant</option>
+                <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Note</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label class="filter-label" for="dietary">Régime alimentaire</label>
+            <select name="dietary" id="dietary" class="filter-select">
+                <option value="">Tous</option>
+                <option value="vegetarian" {% if selected_dietary == 'vegetarian' %}selected{% endif %}>Végétarien</option>
+                <option value="vegan" {% if selected_dietary == 'vegan' %}selected{% endif %}>Vegan</option>
+                <option value="halal" {% if selected_dietary == 'halal' %}selected{% endif %}>Halal</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label class="filter-label" for="health_issues">Restrictions de santé</label>
+            <select name="health_issues" id="health_issues" class="filter-select">
+                <option value="">Toutes</option>
+                <option value="gluten_free" {% if selected_health_issues == 'gluten_free' %}selected{% endif %}>Sans gluten</option>
+                <option value="lactose_free" {% if selected_health_issues == 'lactose_free' %}selected{% endif %}>Sans lactose</option>
+                <option value="nut_free" {% if selected_health_issues == 'nut_free' %}selected{% endif %}>Sans noix</option>
+                <option value="diabetic_friendly" {% if selected_health_issues == 'diabetic_friendly' %}selected{% endif %}>Pour diabétiques</option>
+            </select>
+        </div>
+    </form>
+</section>
+
+<!-- Dishes Grid -->
+<section class="dishes-section">
+    {% if dishes %}
+    <div class="dishes-grid">
+        {% for dish in dishes %}
+        <div class="dish-card">
+            <div class="dish-image">
+                <img src="{{ dish|get_image_url }}" alt="{{ dish.name }}">
+                {% if dish.is_featured %}
+                <span class="dish-badge">Populaire</span>
+                {% endif %}
+            </div>
+            <div class="dish-content">
+                <h3 class="dish-title">{{ dish.name }}</h3>
+                <div class="dish-meta">
+                    <div class="dish-rating">
+                        <i class="fas fa-star"></i>
+                        <span>{{ dish.rating|default:"4.5" }}</span>
+                    </div>
+                    <div class="dish-category">
+                        <i class="fas fa-utensils"></i>
+                        <span>{{ dish.category.name }}</span>
+                    </div>
+                </div>
+                <p class="dish-description">{{ dish.description }}</p>
+                <div class="dish-footer">
+                    <span class="dish-price">{{ dish.price }} €</span>
+                    <a href="{% url 'dish_detail' dish.id %}" class="btn btn-primary">Commander</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-utensils empty-state-icon"></i>
+        <h3 class="empty-state-title">Aucun plat trouvé</h3>
+        <p class="empty-state-description">Essayez de modifier vos filtres pour voir plus de résultats.</p>
+        <a href="{% url 'dish_list' %}" class="btn btn-primary">Réinitialiser les filtres</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-submit form when filters change
+        const filterForm = document.querySelector('.filters-grid');
+        const filterSelects = filterForm.querySelectorAll('select');
+        
+        filterSelects.forEach(select => {
+            select.addEventListener('change', () => {
+                filterForm.submit();
+            });
+        });
+
+        // Animate dishes on scroll
+        const animateOnScroll = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(animateOnScroll, {
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.dish-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+    });
+</script>
+{% endblock %} 

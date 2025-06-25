@@ -1,0 +1,580 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" class="theme-dark">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}FoodFlex | Cuisine Marocaine{% endblock %}</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Scripts externes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
+    
+    <!-- Styles principaux -->
+    <link rel="stylesheet" href="{% static 'foodapp/css/accueil.css' %}">
+    <link rel="stylesheet" href="{% static 'foodapp/css/sidebar.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+
+    <style>
+        /* Variables de thème */
+        :root {
+            --primary-color: #FF6B2B;
+            --primary-color-rgb: 255, 107, 43;
+            --accent-color: #FFA41B;
+            --danger-color: #FF4757;
+            --success-color: #2ED573;
+            --card-bg: #1E2130;
+            --card-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            --bg-primary: #121620;
+            --bg-secondary: #1A1F2C;
+            --text-primary: #ffffff;
+            --text-secondary: #B0B7C3;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            --gradient: linear-gradient(135deg, #FF6B2B, #FFA41B);
+            --card-hover-transform: translateY(-5px);
+            --transition-speed: 0.3s;
+        }
+        
+        /* Thèmes */
+        html.theme-light {
+            --card-bg: #ffffff;
+            --bg-primary: #F8F9FC;
+            --bg-secondary: #ffffff;
+            --text-primary: #2A2C35;
+            --text-secondary: #6B7280;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --card-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Styles de base */
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+            transition: all var(--transition-speed) ease;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        /* Layout */
+        .app-content {
+            padding: 2rem 3rem;
+            max-width: 1280px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        /* Titres et texte */
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            position: relative;
+            display: inline-block;
+            letter-spacing: -0.5px;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--gradient);
+            border-radius: 4px;
+            transition: width var(--transition-speed) ease;
+        }
+        
+        .section-title:hover::after {
+            width: 100%;
+        }
+        
+        /* Fil d'Ariane */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .breadcrumb a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all var(--transition-speed) ease;
+            position: relative;
+        }
+        
+        .breadcrumb a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient);
+            transition: width var(--transition-speed) ease;
+        }
+        
+        .breadcrumb a:hover::after {
+            width: 100%;
+        }
+        
+        /* Alertes */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            animation: slideIn 0.5s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .alert-success {
+            background: rgba(46, 213, 115, 0.1);
+            color: #2ed573;
+            border-left: 4px solid #2ed573;
+        }
+        
+        .alert-warning {
+            background: rgba(255, 164, 27, 0.1);
+            color: #FFA41B;
+            border-left: 4px solid #FFA41B;
+        }
+        
+        .alert-danger {
+            background: rgba(255, 71, 87, 0.1);
+            color: #FF4757;
+            border-left: 4px solid #FF4757;
+        }
+        
+        /* Boutons */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all var(--transition-speed) ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 8px 20px rgba(255, 107, 43, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: var(--card-hover-transform);
+            box-shadow: 0 12px 25px rgba(255, 107, 43, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: var(--card-hover-transform);
+        }
+        
+        /* Formulaires */
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            transition: all var(--transition-speed) ease;
+            width: 100%;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+            outline: none;
+            font-size: 0.95rem;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 107, 43, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .help-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 2rem 0;
+        }
+        
+        .pagination-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all var(--transition-speed) ease;
+            box-shadow: var(--shadow);
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+        }
+        
+        .pagination-item:hover {
+            transform: translateY(-2px);
+            background: var(--bg-secondary);
+            color: var(--primary-color);
+        }
+        
+        .pagination-item.active {
+            background: var(--gradient);
+            color: white;
+            border: none;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .card:hover {
+            transform: var(--card-hover-transform);
+            box-shadow: var(--shadow);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .app-content {
+                padding: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Titlebar -->
+    <div class="titlebar">
+        <div class="titlebar-drag">FoodFlex | {% block page_title %}Réservations{% endblock %}</div>
+        <div class="window-controls">
+            <button class="window-control minimize">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button class="window-control maximize">
+                <i class="fas fa-square"></i>
+            </button>
+            <button class="window-control close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="app-sidebar">
+        <div class="logo">
+            <img src="{% static 'foodapp/img/logo.png' %}" alt="FoodFlex" onerror="this.outerHTML='<div style=\'font-weight:bold;font-size:22px;color:#FF6B6B;\'>FoodFlex</div>'">
+        </div>
+        <div class="sidebar-links">
+            <a href="{% url 'accueil' %}" class="sidebar-link {% if request.resolver_match.url_name == 'accueil' %}active{% endif %}">
+                <div class="sidebar-icon"><i class="fas fa-home"></i></div>
+                <div class="sidebar-label">Accueil</div>
+            </a>
+            <a href="{% url 'dish_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dish_list' %}active{% endif %}">
+                <div class="sidebar-icon"><i class="fas fa-utensils"></i></div>
+                <div class="sidebar-label">Plats</div>
+            </a>
+            <a href="{% url 'restaurants' %}" class="sidebar-link {% if request.resolver_match.url_name == 'restaurants' %}active{% endif %}">
+                <div class="sidebar-icon"><i class="fas fa-store"></i></div>
+                <div class="sidebar-label">Restaurants</div>
+            </a>
+            <a href="{% url 'user_reservations_list' %}" class="sidebar-link {% if 'reservation' in request.resolver_match.url_name %}active{% endif %}">
+                <div class="sidebar-icon"><i class="fas fa-calendar-alt"></i></div>
+                <div class="sidebar-label">Réservations</div>
+            </a>
+            <a href="{% url 'moroccan_cuisine' %}" class="sidebar-link {% if request.resolver_match.url_name == 'moroccan_cuisine' %}active{% endif %}">
+                <div class="sidebar-icon"><i class="fas fa-globe-africa"></i></div>
+                <div class="sidebar-label">Cuisine Marocaine</div>
+                <div class="badge">Nouveau</div>
+            </a>
+            <a href="#" class="sidebar-link">
+                <div class="sidebar-icon"><i class="fas fa-heart"></i></div>
+                <div class="sidebar-label">Favoris</div>
+            </a>
+            <a href="{% url 'user_profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'user_profile' %}active{% endif %}">
+                <div class="sidebar-icon"><i class="fas fa-user"></i></div>
+                <div class="sidebar-label">Profil</div>
+            </a>
+            {% if user.is_authenticated and user.restaurant_account %}
+            <a href="{% url 'restaurant_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'restaurant_dashboard' %}active{% endif %}">
+                <div class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></div>
+                <div class="sidebar-label">Dashboard Restaurant</div>
+            </a>
+            {% endif %}
+            <a href="{% url 'user_settings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'user_settings' %}active{% endif %}">
+                <div class="sidebar-icon"><i class="fas fa-cog"></i></div>
+                <div class="sidebar-label">Paramètres</div>
+            </a>
+        </div>
+        <div class="sidebar-bottom">
+            <div class="theme-switch">
+                <label class="theme-switch-toggle">
+                    <input type="checkbox" checked>
+                    <span class="theme-switch-slider"></span>
+                </label>
+                <div class="theme-mode-label">Mode Sombre</div>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {% if user.is_authenticated %}
+                        {{ user.username|make_list|first|upper }}
+                    {% else %}
+                        <i class="fas fa-user"></i>
+                    {% endif %}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">
+                        {% if user.is_authenticated %}
+                            {{ user.username }}
+                        {% else %}
+                            Invité
+                        {% endif %}
+                    </div>
+                    <div class="user-status">
+                        {% if user.is_authenticated %}
+                            En ligne
+                        {% else %}
+                            Non connecté
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu utilisateur -->
+    <div class="user-menu">
+        {% if user.is_authenticated %}
+            {% if user.restaurant_account %}
+            <a href="{% url 'restaurant_dashboard' %}" class="user-btn"><i class="fas fa-tachometer-alt"></i> Dashboard Restaurant</a>
+            {% endif %}
+            <a href="{% url 'user_profile' %}" class="user-btn"><i class="fas fa-user"></i> Mon Profil</a>
+            <a href="{% url 'logout' %}" class="user-btn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="user-btn"><i class="fas fa-sign-in-alt"></i> Connexion</a>
+            <a href="{% url 'signup' %}" class="user-btn"><i class="fas fa-user-plus"></i> Inscription</a>
+        {% endif %}
+    </div>
+    
+    <!-- Contenu principal -->
+    <div class="app-container">
+        <main class="app-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-triangle{% elif message.tags == 'danger' or message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </main>
+        
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="footer-legal">
+                    <a href="{% url 'privacy_policy' %}">Privacy Policy</a>
+                    <span class="footer-divider">|</span>
+                    <a href="{% url 'terms_of_service' %}">Terms of Service</a>
+                    <span class="footer-divider">|</span>
+                    <a href="#" class="contact-link">Contact Us</a>
+                </div>
+                <div class="footer-copyright">
+                    &copy; {% now "Y" %} FoodFlex. All rights reserved.
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Bouton retour en haut -->
+    <div class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+    
+    <!-- Scripts communs -->
+    <script src="{% static 'foodapp/js/main.js' %}"></script>
+    
+    <script>
+        // Initialiser le thème
+        function initTheme() {
+            const savedTheme = localStorage.getItem('foodflexTheme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else if ('{{ request.user.is_authenticated }}' === 'True' && '{{ user.userprofile.preferences.theme }}') {
+                // Si l'utilisateur est connecté, utiliser ses préférences
+                applyTheme('{{ user.userprofile.preferences.theme }}');
+            }
+            
+            // Mise à jour du toggle de thème dans la sidebar
+            const themeToggle = document.querySelector('.theme-switch-toggle input');
+            if (themeToggle) {
+                themeToggle.checked = document.documentElement.classList.contains('theme-dark');
+                
+                // Écouteur d'événements pour le toggle de thème
+                themeToggle.addEventListener('change', function() {
+                    const newTheme = this.checked ? 'dark' : 'light';
+                    applyTheme(newTheme);
+                    localStorage.setItem('foodflexTheme', newTheme);
+                });
+            }
+        }
+        
+        // Fonction pour appliquer le thème
+        function applyTheme(theme) {
+            const rootElement = document.documentElement;
+            
+            // Retirer toutes les classes de thème existantes
+            rootElement.classList.remove('theme-dark', 'theme-light', 'theme-system');
+            
+            // Appliquer le thème sélectionné
+            switch(theme) {
+                case 'dark':
+                    rootElement.classList.add('theme-dark');
+                    break;
+                case 'light':
+                    rootElement.classList.add('theme-light');
+                    break;
+                case 'system':
+                    // Détecter le thème du système
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        rootElement.classList.add('theme-dark');
+                    } else {
+                        rootElement.classList.add('theme-light');
+                    }
+                    break;
+            }
+            
+            // Mettre à jour l'étiquette du mode
+            const themeModeLabel = document.querySelector('.theme-mode-label');
+            if (themeModeLabel) {
+                themeModeLabel.textContent = rootElement.classList.contains('theme-dark') ? 'Mode Sombre' : 'Mode Clair';
+            }
+        }
+        
+        // Gestion du bouton retour en haut
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser le thème
+            initTheme();
+        
+            const backToTopBtn = document.querySelector('.back-to-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Gestion des alertes
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 500);
+                }, 5000);
+            });
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html> 

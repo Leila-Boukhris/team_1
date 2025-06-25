@@ -1,0 +1,869 @@
+{% extends "foodapp/base.html" %}
+{% load static %}
+
+{% block title %}Inscription | FoodFlex{% endblock %}
+{% block page_title %}Inscription{% endblock %}
+
+{% block extra_css %}
+<style>
+    .signup-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .signup-form-wrapper {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin-top: 30px;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .form-header h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .form-header p {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 20px;
+    }
+    
+    .form-row .form-group {
+        flex: 1;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.25);
+    }
+    
+    .help-text {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 8px;
+    }
+    
+    .text-danger {
+        color: #e74c3c;
+    }
+    
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 25px;
+    }
+    
+    .form-check input {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .form-check label {
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+    }
+    
+    .btn-signup {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        background-color: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-signup:hover {
+        background-color: var(--primary-color-hover);
+        transform: translateY(-2px);
+    }
+    
+    .form-footer {
+        text-align: center;
+        margin-top: 25px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .form-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .form-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    .error-message {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .error-message i {
+        font-size: 18px;
+    }
+    
+    .success-message {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .success-message i {
+        font-size: 18px;
+    }
+    
+    .form-animation {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .password-strength {
+        height: 5px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        margin-top: 10px;
+        overflow: hidden;
+    }
+    
+    .password-strength-meter {
+        height: 100%;
+        width: 0;
+        transition: width 0.3s ease, background-color 0.3s ease;
+    }
+    
+    .password-strength-text {
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    
+    /* 3D Effect Elements */
+    .signup-scene {
+        position: relative;
+        height: 150px;
+        margin-bottom: 30px;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+    
+    /* Restaurant Type Option */
+    .account-type-selector {
+        margin-bottom: 25px;
+    }
+    
+    .account-type-header {
+        margin-bottom: 10px;
+        font-weight: 500;
+    }
+    
+    .account-type-options {
+        display: flex;
+        gap: 15px;
+    }
+    
+    .account-type-option {
+        flex: 1;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .account-type-option:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .account-type-option.selected {
+        background-color: rgba(255, 107, 107, 0.2);
+        border-color: var(--primary-color);
+    }
+    
+    .account-type-option i {
+        display: block;
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    
+    /* Restaurant fields that appear conditionally */
+    .restaurant-fields {
+        background-color: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 15px;
+        border-left: 3px solid var(--primary-color);
+        display: none;
+    }
+    
+    .restaurant-fields.show {
+        display: block;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+    <div class="breadcrumb">
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span>Inscription</span>
+    </div>
+    
+    <div class="signup-container">
+        <div class="signup-scene" id="signup-scene">
+            <!-- Three.js scene will be rendered here -->
+        </div>
+        
+        <div class="signup-form-wrapper form-animation">
+            <div class="form-header">
+                <h2>Rejoignez FoodFlex</h2>
+                <p>Créez votre compte pour découvrir la cuisine marocaine</p>
+            </div>
+            
+            <form id="signup-form" method="post">
+                {% csrf_token %}
+                
+                <div class="account-type-selector">
+                    <div class="account-type-header">Type de compte</div>
+                    <div class="account-type-options">
+                        <div class="account-type-option selected" data-type="user">
+                            <i class="fas fa-user"></i>
+                            Utilisateur
+                        </div>
+                        <div class="account-type-option" data-type="restaurant">
+                            <i class="fas fa-utensils"></i>
+                            Restaurant
+                        </div>
+                    </div>
+                    <input type="hidden" id="account_type" name="account_type" value="user">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="username" class="form-label">Nom d'utilisateur</label>
+                        <input type="text" id="username" name="username" class="form-control" placeholder="Choisissez un nom d'utilisateur" required>
+                        <div class="help-text">Le nom d'utilisateur doit comporter entre 3 et 20 caractères</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Entrez votre adresse email" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Mot de passe</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Créez un mot de passe" required>
+                    <div class="password-strength">
+                        <div id="password-strength-meter" class="password-strength-meter"></div>
+                    </div>
+                    <div id="password-strength-text" class="password-strength-text"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirmez votre mot de passe" required>
+                </div>
+                
+                <!-- Champs pour le restaurant (conditionnellement affichés) -->
+                <div id="restaurant-fields" class="restaurant-fields">
+                    <div class="form-group">
+                        <label for="restaurant_name" class="form-label">Nom du restaurant *</label>
+                        <input type="text" id="restaurant_name" name="restaurant_name" class="form-control" placeholder="Nom de votre restaurant" data-restaurant-required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="restaurant_city" class="form-label">Ville *</label>
+                            <select id="restaurant_city" name="restaurant_city" class="form-control" data-restaurant-required>
+                                <option value="">Sélectionnez une ville</option>
+                                {% for city in cities %}
+                                    <option value="{{ city.id }}">{{ city.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="restaurant_phone" class="form-label">Téléphone *</label>
+                            <input type="tel" id="restaurant_phone" name="restaurant_phone" class="form-control" placeholder="Numéro de téléphone" data-restaurant-required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="restaurant_address" class="form-label">Adresse *</label>
+                        <input type="text" id="restaurant_address" name="restaurant_address" class="form-control" placeholder="Adresse du restaurant" data-restaurant-required>
+                    </div>
+                </div>
+                
+                <div class="form-check">
+                    <input type="checkbox" id="terms" name="terms" class="form-check-input" required>
+                    <label for="terms" class="form-check-label">
+                        J'accepte les <a href="{% url 'terms_of_service' %}" target="_blank">conditions d'utilisation</a> et la <a href="{% url 'privacy_policy' %}" target="_blank">politique de confidentialité</a>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn-signup">
+                    <i class="fas fa-user-plus"></i> Créer mon compte
+                </button>
+                
+                <div class="form-footer">
+                    Vous avez déjà un compte? <a href="{% url 'login' %}">Se connecter</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animation 3D avec Three.js
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 150, 0.1, 1000);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(document.getElementById('signup-scene').offsetWidth, 150);
+        renderer.setClearColor(0x000000, 0);
+        document.getElementById('signup-scene').appendChild(renderer.domElement);
+        
+        // Système de particules 3D
+        const particlesCount = 120; // Plus de particules que sur la page de login
+        const particles = new THREE.Group();
+        scene.add(particles);
+        
+        // Création des particules avec des formes évoquant la cuisine marocaine
+        for (let i = 0; i < particlesCount; i++) {
+            // Plusieurs types de formes pour représenter différents ingrédients
+            let geometry;
+            const shapeType = Math.floor(Math.random() * 6);
+            
+            if (shapeType === 0) {
+                // Grains (sphères)
+                geometry = new THREE.SphereGeometry(0.05 + Math.random() * 0.08, 8, 8);
+            } else if (shapeType === 1) {
+                // Épices (petits cubes)
+                geometry = new THREE.BoxGeometry(0.08 + Math.random() * 0.08, 0.08 + Math.random() * 0.08, 0.08 + Math.random() * 0.08);
+            } else if (shapeType === 2) {
+                // Dattes (forme ovale)
+                geometry = new THREE.SphereGeometry(0.1 + Math.random() * 0.05, 8, 8);
+                // Étirer pour faire une forme de datte
+                const scale = new THREE.Vector3(1, 0.6 + Math.random() * 0.2, 0.6 + Math.random() * 0.2);
+                geometry.scale(scale.x, scale.y, scale.z);
+            } else if (shapeType === 3) {
+                // Feuilles de menthe (formes aplaties)
+                geometry = new THREE.PlaneGeometry(0.15 + Math.random() * 0.1, 0.25 + Math.random() * 0.15);
+            } else if (shapeType === 4) {
+                // Amandes (formes d'amandes)
+                geometry = new THREE.SphereGeometry(0.1 + Math.random() * 0.05, 8, 8);
+                // Étirer et aplatir pour faire une forme d'amande
+                const scale = new THREE.Vector3(0.7 + Math.random() * 0.2, 1, 0.5 + Math.random() * 0.1);
+                geometry.scale(scale.x, scale.y, scale.z);
+            } else {
+                // Olives (formes ovales)
+                geometry = new THREE.SphereGeometry(0.1 + Math.random() * 0.05, 8, 8);
+                // Étirer légèrement
+                const scale = new THREE.Vector3(0.8 + Math.random() * 0.2, 1, 0.8 + Math.random() * 0.2);
+                geometry.scale(scale.x, scale.y, scale.z);
+            }
+            
+            // Couleurs inspirées des ingrédients et plats marocains
+            const colors = [
+                0xff6b6b, // Rouge (poivrons, tomates)
+                0x4ecdc4, // Turquoise (céramique marocaine)
+                0xffab4c, // Orange (épices)
+                0x995533, // Marron (dattes, cannelle)
+                0x336633, // Vert foncé (olives)
+                0x88aa33, // Vert clair (menthe)
+                0xf1c40f, // Jaune (citron, couscous)
+                0xd35400, // Orange foncé (épices)
+                0x2a9d8f  // Vert céramique
+            ];
+            
+            const material = new THREE.MeshBasicMaterial({ 
+                color: colors[Math.floor(Math.random() * colors.length)],
+                transparent: true,
+                opacity: 0.4 + Math.random() * 0.6
+            });
+            
+            const particle = new THREE.Mesh(geometry, material);
+            
+            // Position aléatoire avec plus de concentration au centre
+            particle.position.x = (Math.random() * 12 - 6) * (0.7 + Math.random() * 0.3);
+            particle.position.y = (Math.random() * 6 - 3) * (0.7 + Math.random() * 0.3);
+            particle.position.z = (Math.random() * 4 - 8) * (0.7 + Math.random() * 0.3);
+            
+            // Propriétés pour l'animation
+            particle.userData = {
+                speedX: Math.random() * 0.01 - 0.005,
+                speedY: Math.random() * 0.01 - 0.005,
+                speedZ: Math.random() * 0.006 - 0.003,
+                rotationX: Math.random() * 0.02 - 0.01,
+                rotationY: Math.random() * 0.02 - 0.01,
+                rotationZ: Math.random() * 0.02 - 0.01,
+                pulseSpeed: 1 + Math.random() * 2, // Vitesse de pulsation unique
+                pulseMagnitude: 0.03 + Math.random() * 0.04, // Magnitude de pulsation unique
+                initialScale: 0.8 + Math.random() * 0.4 // Échelle initiale variée
+            };
+            
+            // Échelle initiale aléatoire pour plus de variété
+            particle.scale.set(
+                particle.userData.initialScale,
+                particle.userData.initialScale,
+                particle.userData.initialScale
+            );
+            
+            // Rotation initiale aléatoire
+            particle.rotation.x = Math.random() * Math.PI * 2;
+            particle.rotation.y = Math.random() * Math.PI * 2;
+            particle.rotation.z = Math.random() * Math.PI * 2;
+            
+            particles.add(particle);
+        }
+        
+        // Création d'objets 3D représentant la cuisine marocaine (tajine, théière, etc.)
+        // Tajine (représenté par un cône et une sphère)
+        const baseGeometry = new THREE.ConeGeometry(1.2, 0.5, 32);
+        const baseMaterial = new THREE.MeshBasicMaterial({ color: 0xff6b6b });
+        const base = new THREE.Mesh(baseGeometry, baseMaterial);
+        base.position.set(-3, -0.25, 0);
+        scene.add(base);
+        
+        const lidGeometry = new THREE.ConeGeometry(0.8, 1.5, 32);
+        const lidMaterial = new THREE.MeshBasicMaterial({ color: 0xff6b6b });
+        const lid = new THREE.Mesh(lidGeometry, lidMaterial);
+        lid.position.set(-3, 0.5, 0);
+        scene.add(lid);
+        
+        // Théière (représentée par une sphère et un cylindre)
+        const teapotGeometry = new THREE.SphereGeometry(0.8, 32, 32);
+        const teapotMaterial = new THREE.MeshBasicMaterial({ color: 0x4ecdc4 });
+        const teapot = new THREE.Mesh(teapotGeometry, teapotMaterial);
+        teapot.position.set(0, 0, 0);
+        scene.add(teapot);
+        
+        const spoutGeometry = new THREE.CylinderGeometry(0.1, 0.2, 1.5, 32);
+        const spoutMaterial = new THREE.MeshBasicMaterial({ color: 0x4ecdc4 });
+        const spout = new THREE.Mesh(spoutGeometry, spoutMaterial);
+        spout.rotation.z = Math.PI / 4;
+        spout.position.set(0.6, 0.2, 0);
+        scene.add(spout);
+        
+        // Assiette (représentée par un disque)
+        const plateGeometry = new THREE.CylinderGeometry(1, 1, 0.1, 32);
+        const plateMaterial = new THREE.MeshBasicMaterial({ color: 0xf7fff7 });
+        const plate = new THREE.Mesh(plateGeometry, plateMaterial);
+        plate.position.set(3, -0.3, 0);
+        scene.add(plate);
+        
+        const foodGeometry = new THREE.SphereGeometry(0.6, 32, 32);
+        const foodMaterial = new THREE.MeshBasicMaterial({ color: 0xffab4c });
+        const food = new THREE.Mesh(foodGeometry, foodMaterial);
+        food.position.set(3, 0.1, 0);
+        food.scale.set(1, 0.5, 1);
+        scene.add(food);
+        
+        camera.position.z = 7;
+        
+        // Animation des éléments
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Animation des particules
+            const time = Date.now() * 0.001;
+            
+            particles.children.forEach((particle, index) => {
+                // Déplacement des particules avec mouvement plus organique
+                particle.position.x += particle.userData.speedX * Math.sin(time * 0.3 + index * 0.1);
+                particle.position.y += particle.userData.speedY * Math.cos(time * 0.2 + index * 0.05);
+                particle.position.z += particle.userData.speedZ;
+                
+                // Rotation des particules
+                particle.rotation.x += particle.userData.rotationX;
+                particle.rotation.y += particle.userData.rotationY;
+                particle.rotation.z += particle.userData.rotationZ;
+                
+                // Effet de respiration (échelle qui pulse) avec timing unique par particule
+                const pulseFactor = particle.userData.pulseMagnitude * 
+                    Math.sin(time * particle.userData.pulseSpeed + index * 0.2);
+                
+                particle.scale.set(
+                    particle.userData.initialScale + pulseFactor,
+                    particle.userData.initialScale + pulseFactor,
+                    particle.userData.initialScale + pulseFactor
+                );
+                
+                // Rebonds sur les bords avec changement léger de direction
+                if (particle.position.x < -7 || particle.position.x > 7) {
+                    particle.userData.speedX *= -1;
+                    // Légère variation pour éviter les motifs répétitifs
+                    particle.userData.speedX += (Math.random() * 0.002 - 0.001);
+                }
+                if (particle.position.y < -4 || particle.position.y > 4) {
+                    particle.userData.speedY *= -1;
+                    particle.userData.speedY += (Math.random() * 0.002 - 0.001);
+                }
+                if (particle.position.z < -12 || particle.position.z > 2) {
+                    particle.userData.speedZ *= -1;
+                    particle.userData.speedZ += (Math.random() * 0.002 - 0.001);
+                }
+                
+                // Maintien des vitesses dans des limites raisonnables
+                particle.userData.speedX = Math.max(-0.02, Math.min(0.02, particle.userData.speedX));
+                particle.userData.speedY = Math.max(-0.02, Math.min(0.02, particle.userData.speedY));
+                particle.userData.speedZ = Math.max(-0.02, Math.min(0.02, particle.userData.speedZ));
+            });
+            
+            // Faire flotter les objets
+            base.position.y = -0.25 + Math.sin(time) * 0.05;
+            lid.position.y = 0.5 + Math.sin(time) * 0.05;
+            teapot.position.y = Math.sin(time + 1) * 0.1;
+            spout.position.y = 0.2 + Math.sin(time + 1) * 0.1;
+            plate.position.y = -0.3 + Math.sin(time + 2) * 0.05;
+            food.position.y = 0.1 + Math.sin(time + 2) * 0.05;
+            
+            // Rotation légère
+            lid.rotation.y += 0.01;
+            teapot.rotation.y += 0.005;
+            food.rotation.y += 0.008;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        // Ajustement de la taille du renderer lors du redimensionnement de la fenêtre
+        window.addEventListener('resize', function() {
+            renderer.setSize(document.getElementById('signup-scene').offsetWidth, 150);
+            camera.aspect = document.getElementById('signup-scene').offsetWidth / 150;
+            camera.updateProjectionMatrix();
+        });
+        
+        // Gestion du sélecteur de type de compte
+        const accountOptions = document.querySelectorAll('.account-type-option');
+        const accountTypeInput = document.getElementById('account_type');
+        const restaurantFields = document.getElementById('restaurant-fields');
+        const restaurantRequiredFields = document.querySelectorAll('[data-restaurant-required]');
+        
+        function toggleRestaurantFields(isRestaurant) {
+            restaurantFields.classList.toggle('show', isRestaurant);
+            restaurantRequiredFields.forEach(field => {
+                field.required = isRestaurant;
+            });
+        }
+        
+        accountOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                accountOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                const type = this.getAttribute('data-type');
+                accountTypeInput.value = type;
+                
+                // Redirect to restaurant registration page if restaurant option is selected
+                if (type === 'restaurant') {
+                    window.location.href = '{% url "restaurant_register" %}';
+                    return;
+                }
+                
+                toggleRestaurantFields(type === 'restaurant');
+            });
+        });
+        
+        // Mesure de la force du mot de passe
+        const passwordInput = document.getElementById('password');
+        const strengthMeter = document.getElementById('password-strength-meter');
+        const strengthText = document.getElementById('password-strength-text');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strength = measurePasswordStrength(password);
+            
+            // Mettre à jour la barre de progression
+            strengthMeter.style.width = strength.score * 25 + '%';
+            
+            // Couleur en fonction de la force
+            if (strength.score === 0) {
+                strengthMeter.style.backgroundColor = '#e74c3c';
+                strengthText.textContent = "Trop faible";
+                strengthText.style.color = '#e74c3c';
+            } else if (strength.score === 1) {
+                strengthMeter.style.backgroundColor = '#e67e22';
+                strengthText.textContent = "Faible";
+                strengthText.style.color = '#e67e22';
+            } else if (strength.score === 2) {
+                strengthMeter.style.backgroundColor = '#f1c40f';
+                strengthText.textContent = "Moyen";
+                strengthText.style.color = '#f1c40f';
+            } else if (strength.score === 3) {
+                strengthMeter.style.backgroundColor = '#2ecc71';
+                strengthText.textContent = "Fort";
+                strengthText.style.color = '#2ecc71';
+            } else {
+                strengthMeter.style.backgroundColor = '#27ae60';
+                strengthText.textContent = "Très fort";
+                strengthText.style.color = '#27ae60';
+            }
+        });
+        
+        // Fonction pour mesurer la force du mot de passe
+        function measurePasswordStrength(password) {
+            let score = 0;
+            
+            if (password.length < 6) {
+                return { score: 0, feedback: "Mot de passe trop court" };
+            }
+            
+            // Longueur
+            if (password.length >= 8) score++;
+            if (password.length >= 10) score++;
+            
+            // Complexité
+            if (/[0-9]/.test(password)) score++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+            if (/[^a-zA-Z0-9]/.test(password)) score++;
+            
+            if (score > 4) score = 4;
+            
+            return { score: score };
+        }
+        
+        // Vérification de la correspondance des mots de passe
+        const confirmInput = document.getElementById('confirm_password');
+        
+        confirmInput.addEventListener('input', function() {
+            if (this.value === passwordInput.value) {
+                this.style.borderColor = '#2ecc71';
+                this.style.boxShadow = '0 0 0 2px rgba(46, 204, 113, 0.25)';
+            } else {
+                this.style.borderColor = '#e74c3c';
+                this.style.boxShadow = '0 0 0 2px rgba(231, 76, 60, 0.25)';
+            }
+        });
+        
+        // Gestion du formulaire
+        const signupForm = document.getElementById('signup-form');
+        
+        signupForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Validation
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = passwordInput.value;
+            const confirmPassword = confirmInput.value;
+            const terms = document.getElementById('terms').checked;
+            const accountType = accountTypeInput.value;
+            
+            // Validation de base côté client
+            if (!username || !email || !password || !confirmPassword) {
+                showError("Veuillez remplir tous les champs obligatoires");
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showError("Les mots de passe ne correspondent pas");
+                return;
+            }
+            
+            if (!terms) {
+                showError("Vous devez accepter les conditions d'utilisation");
+                return;
+            }
+            
+            // Validation supplémentaire pour les comptes restaurant
+            if (accountType === 'restaurant') {
+                const restaurantName = document.getElementById('restaurant_name').value;
+                const restaurantCity = document.getElementById('restaurant_city').value;
+                const restaurantPhone = document.getElementById('restaurant_phone').value;
+                const restaurantAddress = document.getElementById('restaurant_address').value;
+                
+                if (!restaurantName || !restaurantCity || !restaurantPhone || !restaurantAddress) {
+                    showError("Veuillez remplir tous les champs du restaurant");
+                    return;
+                }
+            }
+            
+            // Animation de chargement
+            const button = document.querySelector('.btn-signup');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Création en cours...';
+            button.disabled = true;
+            
+            // Préparation des données
+            const formData = new FormData(signupForm);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            // Envoi de la requête
+            fetch('{% url "signup" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                console.log('Status:', response.status);
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(JSON.stringify(data.errors));
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success response:', data);
+                if (data.success) {
+                    // Animation de succès
+                    showSuccess("Compte créé avec succès!");
+                    button.innerHTML = '<i class="fas fa-check"></i> Compte créé avec succès!';
+                    button.style.backgroundColor = '#2ecc71';
+                    
+                    // Redirection après un délai
+                    setTimeout(() => {
+                        if (data.account_type === 'restaurant') {
+                            window.location.href = '{% url "restaurant_dashboard" %}';
+                        } else {
+                            window.location.href = '{% url "accueil" %}';
+                        }
+                    }, 1500);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Animation d'erreur
+                button.innerHTML = originalText;
+                button.disabled = false;
+                
+                // Afficher l'erreur
+                try {
+                    const errors = JSON.parse(error.message);
+                    if (errors.username) showError(errors.username);
+                    else if (errors.email) showError(errors.email);
+                    else if (errors.password) showError(errors.password);
+                    else if (errors.general) showError(errors.general);
+                    else showError("Une erreur est survenue lors de la création du compte: " + error.message);
+                } catch (e) {
+                    showError("Une erreur est survenue lors de la création du compte: " + error.message);
+                }
+            });
+        });
+        
+        // Fonction pour afficher un message d'erreur
+        function showError(message) {
+            // Supprimer les messages existants
+            const existingMessages = document.querySelectorAll('.error-message, .success-message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            // Créer un nouvel élément d'erreur
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            
+            // Insérer avant le formulaire
+            const formElement = document.getElementById('signup-form');
+            formElement.parentNode.insertBefore(errorDiv, formElement);
+            
+            // Animation avec GSAP
+            gsap.from(errorDiv, {
+                y: -20,
+                opacity: 0,
+                duration: 0.3
+            });
+        }
+        
+        // Fonction pour afficher un message de succès
+        function showSuccess(message) {
+            // Supprimer les messages existants
+            const existingMessages = document.querySelectorAll('.error-message, .success-message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            // Créer un nouvel élément de succès
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            
+            // Insérer avant le formulaire
+            const formElement = document.getElementById('signup-form');
+            formElement.parentNode.insertBefore(successDiv, formElement);
+            
+            // Animation avec GSAP
+            gsap.from(successDiv, {
+                y: -20,
+                opacity: 0,
+                duration: 0.3
+            });
+        }
+    });
+</script>
+{% endblock %} 
