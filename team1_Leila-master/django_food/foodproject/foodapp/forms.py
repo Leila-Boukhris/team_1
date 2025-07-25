@@ -1,5 +1,6 @@
 from django import forms
-from .models import City, Dish, Reservation, RestaurantDraft
+from django.contrib.auth.models import User
+from .models import City, Dish, Reservation, RestaurantDraft, Category, Restaurant
 from django.utils import timezone
 import datetime
 
@@ -183,6 +184,52 @@ class ReservationModifyForm(forms.ModelForm):
         
         return time
 
+class RestaurantAuthInfoForm(forms.Form):
+    """Étape d'authentification : Nom d'utilisateur et mot de passe"""
+    username = forms.CharField(
+        label="Nom d'utilisateur",
+        max_length=150,
+        help_text="Requis. 150 caractères maximum. Lettres, chiffres et @/./+/-/_ uniquement.",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Choisissez un nom d\'utilisateur'})
+    )
+    password1 = forms.CharField(
+        label="Mot de passe",
+        strip=False,
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Créez un mot de passe'}),
+        help_text="Votre mot de passe doit contenir au moins 8 caractères et ne peut pas être entièrement numérique.",
+    )
+    password2 = forms.CharField(
+        label="Confirmation du mot de passe",
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirmez votre mot de passe'}),
+        strip=False,
+        help_text="Entrez le même mot de passe que précédemment, pour vérification.",
+    )
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("Ce nom d'utilisateur est déjà pris.")
+        return username
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Les deux mots de passe ne correspondent pas.")
+        return password2
+
+    def _post_clean(self):
+        super()._post_clean()
+        # Valider la force du mot de passe
+        password = self.cleaned_data.get('password2')
+        if password:
+            try:
+                from django.contrib.auth.password_validation import validate_password
+                # Ne pas passer self.instance, car ce n'est pas un ModelForm
+                validate_password(password)
+            except forms.ValidationError as error:
+                self.add_error('password2', error)
+
 class RestaurantBasicInfoForm(forms.ModelForm):
     """Première étape : Informations de base du restaurant"""
     class Meta:
@@ -211,6 +258,68 @@ class RestaurantLegalDocsForm(forms.ModelForm):
             'food_safety_certificate': forms.FileInput(attrs={'accept': '.pdf'}),
             'tax_document': forms.FileInput(attrs={'accept': '.pdf'})
         }
+
+class DishForm(forms.ModelForm):
+    """Form for adding/editing dishes in the restaurant menu"""
+    class Meta:
+        model = Dish
+        fields = [
+            'name', 'description', 'price_range', 'type', 'category',
+            'is_vegetarian', 'is_vegan', 'ingredients', 'preparation_steps',
+            'image', 'calories', 'is_tourist_recommended'
+        ]
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'ingredients': forms.Textarea(attrs={'rows': 3}),
+            'preparation_steps': forms.Textarea(attrs={'rows': 3}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        restaurant = kwargs.pop('restaurant', None)
+        super().__init__(*args, **kwargs)
+        
+        # Filter categories to only show those belonging to the restaurant
+        if restaurant:
+            self.fields['category'].queryset = Category.objects.filter(restaurant=restaurant)
+        else:
+            self.fields['category'].queryset = Category.objects.none()
+        
+        # Add Bootstrap classes to form fields
+        for field_name, field in self.fields.items():
+            if field_name != 'is_vegetarian' and field_name != 'is_vegan' and field_name != 'is_tourist_recommended':
+                field.widget.attrs['class'] = 'form-control'
+            
+            # Add placeholder text
+            if field_name == 'name':
+                field.widget.attrs['placeholder'] = 'Nom du plat'
+            elif field_name == 'description':
+                field.widget.attrs['placeholder'] = 'Description détaillée du plat'
+            elif field_name == 'ingredients':
+                field.widget.attrs['placeholder'] = 'Liste des ingrédients, séparés par des virgules'
+            elif field_name == 'preparation_steps':
+                field.widget.attrs['placeholder'] = 'Étapes de préparation (une par ligne)'
+            
+            # Add help text
+            if field_name == 'price_range':
+                field.help_text = 'Niveau de prix du plat'
+            elif field_name == 'calories':
+                field.help_text = 'Nombre approximatif de calories par portion (optionnel)'
+
+
+class CategoryForm(forms.ModelForm):
+    """Form for adding/editing menu categories"""
+    class Meta:
+        model = Category
+        fields = ['name', 'description']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nom de la catégorie'})
+        self.fields['description'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Description de la catégorie (optionnel)'})
+
 
 class RestaurantPhotosForm(forms.ModelForm):
     """Quatrième étape : Photos et menu"""

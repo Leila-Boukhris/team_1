@@ -358,13 +358,18 @@
             button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Création en cours...';
             button.disabled = true;
             
-            // Préparation des données
-            const formData = new FormData(signupForm);
-            
-            const data = {};
-            for (let [key, value] of formData.entries()) {
-                data[key] = value;
-            }
+            // Préparation des données - uniquement les champs nécessaires
+            const data = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                restaurant_name: document.getElementById('restaurant_name').value,
+                restaurant_city: document.getElementById('restaurant_city').value,
+                restaurant_phone: document.getElementById('restaurant_phone').value,
+                restaurant_address: document.getElementById('restaurant_address').value,
+                restaurant_website: document.getElementById('restaurant_website').value || '',
+                restaurant_description: document.getElementById('restaurant_description').value
+            };
             
             // Envoi de la requête
             fetch('{% url "restaurant_signup" %}', {
@@ -391,7 +396,7 @@
                     
                     // Redirection après un délai
                     setTimeout(() => {
-                        window.location.href = '{% url "restaurant_dashboard" %}';
+                        window.location.href = '{% url "restaurant_owner_dashboard" %}';
                     }, 1000);
                 }
             })

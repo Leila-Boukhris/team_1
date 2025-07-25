@@ -1,0 +1,256 @@
+{% extends 'foodapp/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">
+                        <i class="fas fa-edit"></i> {{ title }}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Informations de base -->
+                        <div class="mb-4">
+                            <h4 class="border-bottom pb-2 mb-3">Informations générales</h4>
+                            
+                            <div class="mb-3">
+                                <label for="id_name" class="form-label">Nom du restaurant</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger">{{ form.name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_description" class="form-label">Description</label>
+                                {{ form.description }}
+                                <small class="form-text text-muted">Décrivez votre restaurant en quelques mots</small>
+                                {% if form.description.errors %}
+                                    <div class="text-danger">{{ form.description.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="id_cuisine_type" class="form-label">Type de cuisine</label>
+                                        {{ form.cuisine_type }}
+                                        {% if form.cuisine_type.errors %}
+                                            <div class="text-danger">{{ form.cuisine_type.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="id_average_price" class="form-label">Prix moyen (€)</label>
+                                        {{ form.average_price }}
+                                        {% if form.average_price.errors %}
+                                            <div class="text-danger">{{ form.average_price.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Adresse -->
+                        <div class="mb-4">
+                            <h4 class="border-bottom pb-2 mb-3">Adresse</h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="id_address" class="form-label">Adresse</label>
+                                        {{ form.address }}
+                                        {% if form.address.errors %}
+                                            <div class="text-danger">{{ form.address.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="id_city" class="form-label">Ville</label>
+                                        {{ form.city }}
+                                        {% if form.city.errors %}
+                                            <div class="text-danger">{{ form.city.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="id_postal_code" class="form-label">Code postal</label>
+                                        {{ form.postal_code }}
+                                        {% if form.postal_code.errors %}
+                                            <div class="text-danger">{{ form.postal_code.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="id_latitude" class="form-label">Latitude</label>
+                                        {{ form.latitude }}
+                                        {% if form.latitude.errors %}
+                                            <div class="text-danger">{{ form.latitude.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="id_longitude" class="form-label">Longitude</label>
+                                        {{ form.longitude }}
+                                        {% if form.longitude.errors %}
+                                            <div class="text-danger">{{ form.longitude.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contact -->
+                        <div class="mb-4">
+                            <h4 class="border-bottom pb-2 mb-3">Coordonnées</h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="id_phone" class="form-label">Téléphone</label>
+                                        {{ form.phone }}
+                                        {% if form.phone.errors %}
+                                            <div class="text-danger">{{ form.phone.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="id_website" class="form-label">Site web</label>
+                                        {{ form.website }}
+                                        <small class="form-text text-muted">Ex: https://votrerestaurant.com</small>
+                                        {% if form.website.errors %}
+                                            <div class="text-danger">{{ form.website.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_email" class="form-label">Email de contact</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Horaires -->
+                        <div class="mb-4">
+                            <h4 class="border-bottom pb-2 mb-3">Horaires d'ouverture</h4>
+                            
+                            <div class="mb-3">
+                                <label for="id_opening_hours" class="form-label">Horaires</label>
+                                {{ form.opening_hours }}
+                                <small class="form-text text-muted">Ex: Lun-Ven: 12h-14h30, 19h-22h30 | Sam-Dim: 12h-23h</small>
+                                {% if form.opening_hours.errors %}
+                                    <div class="text-danger">{{ form.opening_hours.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Image -->
+                        <div class="mb-4">
+                            <h4 class="border-bottom pb-2 mb-3">Image du restaurant</h4>
+                            
+                            <div class="mb-3">
+                                <label for="id_main_image" class="form-label">Image principale</label>
+                                
+                                {% if restaurant.main_image %}
+                                    <div class="mb-2">
+                                        <img src="{{ restaurant.main_image.url }}" alt="{{ restaurant.name }}" class="img-thumbnail" style="max-width: 200px;">
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" name="main_image-clear" id="main_image-clear_id">
+                                            <label class="form-check-label" for="main_image-clear_id">
+                                                Supprimer l'image actuelle
+                                            </label>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <input type="file" name="main_image" accept="image/*" class="form-control" id="id_main_image">
+                                <small class="form-text text-muted">Taille recommandée : 1200x800px</small>
+                                {% if form.main_image.errors %}
+                                    <div class="text-danger">{{ form.main_image.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'restaurant_owner_dashboard' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Script pour prévisualiser l'image avant upload
+    document.getElementById('id_main_image').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.createElement('div');
+                preview.className = 'mt-2';
+                preview.innerHTML = `
+                    <p class="mb-1">Nouvelle image :</p>
+                    <img src="${e.target.result}" class="img-thumbnail" style="max-width: 200px;">
+                `;
+                
+                // Supprimer l'ancienne prévisualisation s'il y en a une
+                const oldPreview = document.querySelector('.image-preview');
+                if (oldPreview) {
+                    oldPreview.remove();
+                }
+                
+                preview.classList.add('image-preview');
+                event.target.parentNode.appendChild(preview);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Désactiver la case à cocher de suppression d'image si une nouvelle image est sélectionnée
+    document.getElementById('id_main_image').addEventListener('change', function() {
+        const clearCheckbox = document.getElementById('main_image-clear_id');
+        if (clearCheckbox) {
+            clearCheckbox.checked = false;
+        }
+    });
+</script>
+{% endblock %}

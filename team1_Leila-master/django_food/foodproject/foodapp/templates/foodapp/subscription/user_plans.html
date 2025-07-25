@@ -8,46 +8,54 @@
 <style>
     .pricing-header {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 50px;
+        animation: fadeIn 0.8s ease-out;
     }
     
     .pricing-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: var(--text-color);
+        font-size: 2.8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 15px;
     }
     
     .pricing-header p {
-        font-size: 1.1rem;
-        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.8);
         max-width: 800px;
         margin: 20px auto;
+        line-height: 1.6;
     }
     
     .pricing-tabs {
         display: flex;
         justify-content: center;
-        margin-bottom: 40px;
+        margin-bottom: 50px;
+        animation: fadeIn 0.8s ease-out 0.2s backwards;
     }
     
     .pricing-toggle {
-        background-color: rgba(255, 255, 255, 0.05);
+        background-color: rgba(255, 255, 255, 0.08);
         border-radius: 30px;
         padding: 5px;
         display: inline-flex;
         position: relative;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
     
     .pricing-toggle-button {
-        padding: 10px 20px;
+        padding: 12px 25px;
         border-radius: 25px;
         border: none;
         background: transparent;
         color: rgba(255, 255, 255, 0.7);
         cursor: pointer;
-        font-weight: 500;
+        font-weight: 600;
         z-index: 1;
         position: relative;
+        transition: all 0.3s ease;
     }
     
     .pricing-toggle-button.active {
@@ -60,9 +68,10 @@
         left: 5px;
         height: calc(100% - 10px);
         width: calc(50% - 10px);
-        background-color: var(--primary-color);
+        background: linear-gradient(135deg, #FF6B6B, #FF8E53);
         border-radius: 25px;
         transition: transform 0.3s ease;
+        box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
     }
     
     .pricing-toggle-slider.yearly {
@@ -77,229 +86,195 @@
         border-radius: 20px;
         font-size: 14px;
         margin-left: 10px;
-        font-weight: 500;
+        font-weight: 600;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
     }
     
     .pricing-plans-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
         gap: 30px;
-        max-width: 900px;
+        max-width: 1200px;
         margin: 0 auto;
+        padding: 20px;
+        animation: fadeIn 0.8s ease-out 0.4s backwards;
     }
     
     .pricing-plan-card {
         background-color: var(--card-bg);
-        border-radius: 15px;
+        border-radius: 20px;
         overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: all 0.4s ease;
         position: relative;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        width: 100%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        max-width: 350px;
+        display: flex;
+        flex-direction: column;
     }
     
     .pricing-plan-card.featured {
-        transform: translateY(-10px) scale(1.03);
-        border: 1px solid var(--primary-color);
-        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.2);
+        transform: translateY(-15px) scale(1.05);
+        border: 2px solid transparent;
+        background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                    linear-gradient(135deg, #FF6B6B, #FF8E53) border-box;
         z-index: 1;
     }
     
     .pricing-plan-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     }
     
     .pricing-plan-card.featured:hover {
-        transform: translateY(-15px) scale(1.03);
+        transform: translateY(-20px) scale(1.05);
     }
     
     .pricing-plan-header {
-        padding: 25px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 30px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         position: relative;
+        text-align: center;
     }
     
     .plan-badge {
         position: absolute;
         top: 15px;
         right: 15px;
-        background-color: var(--primary-color);
-        color: #fff;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
+        background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+        animation: pulse 2s infinite;
     }
     
     .plan-name {
         font-size: 1.8rem;
         font-weight: 700;
         margin-bottom: 10px;
-    }
-    
-    .plan-description {
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.7);
-        margin-bottom: 20px;
+        background: linear-gradient(135deg, #fff, #ddd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
     
     .plan-price {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 10px;
+        font-size: 3rem;
+        font-weight: 800;
+        margin: 20px 0;
         color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
-    .plan-price .currency {
-        font-size: 1.2rem;
-        position: relative;
-        top: -10px;
-        margin-right: 2px;
+    .currency {
+        font-size: 1.5rem;
+        margin-right: 5px;
+        align-self: flex-start;
+        margin-top: 8px;
     }
     
-    .plan-price .period {
+    .period {
         font-size: 1rem;
-        color: rgba(255, 255, 255, 0.7);
-        font-weight: 400;
-    }
-    
-    .plan-features {
-        padding: 25px;
-        margin: 0;
-        list-style: none;
-    }
-    
-    .plan-features li {
-        margin-bottom: 15px;
-        padding-left: 30px;
-        position: relative;
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.95rem;
-    }
-    
-    .plan-features li:before {
-        content: "✓";
-        position: absolute;
-        left: 0;
-        color: var(--primary-color);
-        font-weight: 700;
-    }
-    
-    .plan-features li.unavailable {
-        color: rgba(255, 255, 255, 0.5);
-        text-decoration: line-through;
-    }
-    
-    .plan-features li.unavailable:before {
-        content: "✗";
-        color: rgba(255, 255, 255, 0.3);
-    }
-    
-    .plan-footer {
-        padding: 25px;
-        text-align: center;
+        color: rgba(255, 255, 255, 0.6);
+        margin-left: 5px;
+        align-self: flex-end;
     }
     
     .plan-button {
         display: block;
-        width: 100%;
-        padding: 12px;
-        border-radius: 8px;
-        background-color: rgba(255, 255, 255, 0.1);
-        color: #fff;
-        font-weight: 600;
-        text-align: center;
-        text-decoration: none;
+        width: 90%;
+        margin: 0 auto 25px;
+        padding: 16px 25px;
+        background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+        color: white;
         border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 700;
         cursor: pointer;
         transition: all 0.3s ease;
+        text-align: center;
+        text-decoration: none;
+        box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .plan-button:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    
+    .plan-button:hover:before {
+        left: 100%;
     }
     
     .plan-button:hover {
-        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(255, 107, 107, 0.4);
     }
     
-    .plan-button.primary {
-        background-color: var(--primary-color);
+    .plan-button:active {
+        transform: translateY(1px);
     }
     
-    .plan-button.primary:hover {
-        background-color: var(--primary-color-hover);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 10px rgba(255, 107, 107, 0.3);
-    }
-    
-    .current-plan-tag {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        background-color: #2ecc71;
-        color: #fff;
-        text-align: center;
-        padding: 8px 0;
-        font-weight: 600;
-        font-size: 14px;
-    }
-    
-    .popular-badge {
-        position: absolute;
-        top: -12px;
-        right: 20px;
-        background-color: #f39c12;
-        color: #fff;
-        padding: 5px 15px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 12px;
-        z-index: 2;
-    }
-    
-    .benefits-section {
-        margin-top: 60px;
-        text-align: center;
-    }
-    
-    .benefits-header {
-        margin-bottom: 30px;
-    }
-    
-    .benefits-header h2 {
-        font-size: 2rem;
-        font-weight: 700;
-    }
-    
-    .benefits-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 30px;
-        max-width: 1000px;
-        margin: 0 auto;
-    }
-    
-    .benefit-card {
-        background-color: var(--card-bg);
-        border-radius: 15px;
-        padding: 30px;
-        text-align: center;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    
-    .benefit-icon {
-        font-size: 2.5rem;
-        color: var(--primary-color);
+    .plan-description {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.5;
         margin-bottom: 20px;
     }
     
-    .benefit-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 10px;
+    .plan-features {
+        list-style: none;
+        padding: 20px 30px;
+        margin: 0;
     }
     
-    .benefit-description {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.9rem;
+    .plan-features li {
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+    }
+    
+    .plan-features li:before {
+        content: '✓';
+        color: #2ecc71;
+        margin-right: 10px;
+        font-weight: bold;
+    }
+    
+    .plan-features li.unavailable {
+        color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .plan-features li.unavailable:before {
+        content: '✕';
+        color: #e74c3c;
     }
 </style>
 {% endblock %}
@@ -311,6 +286,19 @@
         <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
         <span>Plans d'abonnement utilisateur</span>
     </div>
+
+    <!-- Instruction Section -->
+    <div class="instruction-section" style="background:rgba(255,255,255,0.07);border-radius:12px;padding:24px 20px;margin:30px 0 40px 0;text-align:center;">
+        <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:10px;">Choisissez votre plan d'abonnement</h2>
+        <p style="font-size:1.1rem;margin-bottom:10px;">
+            <strong>Free</strong> : Accès de base gratuit pour découvrir la plateforme.<br>
+            <strong>Premium</strong> : Plus d'avantages, fonctionnalités avancées, et accès prioritaire.<br>
+            <strong>Ultra</strong> : Expérience complète avec tous les avantages, contenus exclusifs et support prioritaire.<br>
+        </p>
+        <p style="margin-bottom:0.5em;">Sélectionnez le plan qui vous convient. Pour les plans Premium et Ultra, le paiement sécurisé sera demandé à l'étape suivante.</p>
+        <p style="font-size:0.95rem;color:#aaa;">Vous pouvez changer de plan à tout moment depuis votre profil utilisateur.</p>
+    </div>
+    <!-- End Instruction Section -->
     
     <div class="pricing-header">
         <h1>Améliorez Votre Expérience Culinaire</h1>
@@ -327,77 +315,56 @@
     
     <div class="pricing-plans-container">
         {% for plan in plans %}
-            <div class="pricing-plan-card {% if plan.is_featured %}featured{% endif %}">
-                {% if plan.is_featured %}
-                    <div class="popular-badge">Recommandé</div>
-                {% endif %}
-                
-                {% if current_plan and current_plan.id == plan.id %}
-                    <div class="current-plan-tag">Votre plan actuel</div>
-                {% endif %}
-                
-                <div class="pricing-plan-header">
-                    {% if plan.badge_text %}
-                        <div class="plan-badge">{{ plan.badge_text }}</div>
-                    {% endif %}
-                    
-                    <h2 class="plan-name">{{ plan.name }}</h2>
-                    <p class="plan-description">{{ plan.description }}</p>
-                    
-                    <div class="plan-price monthly-price">
-                        <span class="currency">€</span>{{ plan.price_monthly }}
-                        <span class="period">/mois</span>
-                    </div>
-                    
-                    <div class="plan-price yearly-price" style="display: none;">
-                        <span class="currency">€</span>{{ plan.price_yearly }}
-                        <span class="period">/an</span>
-                    </div>
+        <div class="pricing-plan-card {% if plan.is_featured %}featured{% endif %}">
+            {% if plan.is_featured %}
+                <div class="plan-badge">Recommandé</div>
+            {% endif %}
+            
+            <div class="pricing-plan-header">
+                <h3 class="plan-name">{{ plan.name }}</h3>
+                <p class="plan-description">{{ plan.description }}</p>
+                <div class="plan-price">
+                    <span class="currency">MAD</span>{{ plan.price }}<span class="period">/mois</span>
                 </div>
                 
-                <ul class="plan-features">
-                    {% for feature_name, feature_value in plan.features.items %}
-                        {% if feature_value == True or feature_value >= 0 %}
-                            <li>
-                                {% if feature_name == 'reservations' %}
-                                    Réservation de restaurants
-                                {% elif feature_name == 'reviews' %}
-                                    Publication d'avis
-                                {% elif feature_name == 'favorites' %}
-                                    {% if feature_value == -1 %}
-                                        Favoris illimités
-                                    {% else %}
-                                        {{ feature_value }} favoris maximum
-                                    {% endif %}
-                                {% elif feature_name == 'notifications' %}
-                                    Notifications personnalisées
-                                {% elif feature_name == 'priority_booking' %}
-                                    Réservation prioritaire
-                                {% elif feature_name == 'discount_access' %}
-                                    Accès aux promotions exclusives
-                                {% elif feature_name == 'premium_content' %}
-                                    Contenu premium
-                                {% else %}
-                                    {{ feature_name }}: {{ feature_value }}
-                                {% endif %}
-                            </li>
-                        {% else %}
-                            <li class="unavailable">
-                                {% if feature_name == 'notifications' %}
-                                    Notifications personnalisées
-                                {% elif feature_name == 'priority_booking' %}
-                                    Réservation prioritaire
-                                {% elif feature_name == 'discount_access' %}
-                                    Accès aux promotions exclusives
-                                {% elif feature_name == 'premium_content' %}
-                                    Contenu premium
-                                {% else %}
-                                    {{ feature_name }}
-                                {% endif %}
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
+                {% if current_plan and current_plan.id == plan.id %}
+                    <div class="current-plan-badge">Votre plan actuel</div>
+                {% endif %}
+            </div>
+            
+            <ul class="plan-features">
+                {% for feature_name, feature_value in plan.features.items %}
+                    {% if feature_value %}
+                        <li>
+                            {% if feature_name == 'notifications' %}
+                                Notifications personnalisées
+                            {% elif feature_name == 'priority_booking' %}
+                                Réservation prioritaire
+                            {% elif feature_name == 'discount_access' %}
+                                Accès aux promotions exclusives
+                            {% elif feature_name == 'premium_content' %}
+                                Contenu premium
+                            {% else %}
+                                {{ feature_name }}: {{ feature_value }}
+                            {% endif %}
+                        </li>
+                    {% else %}
+                        <li class="unavailable">
+                            {% if feature_name == 'notifications' %}
+                                Notifications personnalisées
+                            {% elif feature_name == 'priority_booking' %}
+                                Réservation prioritaire
+                            {% elif feature_name == 'discount_access' %}
+                                Accès aux promotions exclusives
+                            {% elif feature_name == 'premium_content' %}
+                                Contenu premium
+                            {% else %}
+                                {{ feature_name }}
+                            {% endif %}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
                 
                 <div class="plan-footer">
                     {% if current_plan and current_plan.id == plan.id %}
@@ -502,4 +469,4 @@
         }
     });
 </script>
-{% endblock %} 
+{% endblock %}

@@ -48,11 +48,54 @@
         display: inline-flex;
         gap: 1rem;
         animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        flex-wrap: wrap;
+    }
+    
+    .btn-pricing {
+        background: linear-gradient(135deg, #4A90E2, #5E72E4);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(94, 114, 228, 0.3);
+    }
+    
+    .btn-pricing:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(94, 114, 228, 0.4);
+        color: white;
+    }
+    
+    .btn-accent {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+    
+    .btn-accent:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        color: white;
     }
 
     /* Featured Restaurants Section */
     .featured-section {
-        margin: 4rem 0;
+        margin: 4rem 0; 
     }
 
     .section-header {
@@ -347,6 +390,10 @@
                 <i class="fas fa-search"></i>
                 Voir les Plats
             </a>
+            <a href="{% url 'chat' %}" class="btn btn-accent">
+                <i class="fas fa-comment-dots"></i>
+                Discuter avec notre Assistant
+            </a>
         </div>
     </div>
 </section>
@@ -461,4 +508,4 @@
         });
     });
 </script>
-{% endblock %} 
+{% endblock %}

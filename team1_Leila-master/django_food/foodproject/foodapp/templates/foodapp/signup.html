@@ -792,7 +792,7 @@
                     // Redirection après un délai
                     setTimeout(() => {
                         if (data.account_type === 'restaurant') {
-                            window.location.href = '{% url "restaurant_dashboard" %}';
+                            window.location.href = '{% url "restaurant_owner_dashboard" %}';
                         } else {
                             window.location.href = '{% url "accueil" %}';
                         }

@@ -1,8 +1,11 @@
 {% load static %}
+{% load i18n %}
+{% load i18n_switcher %}
 <!DOCTYPE html>
 <html lang="fr" class="theme-dark">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}FoodFlex | Cuisine Marocaine{% endblock %}</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,10 +18,58 @@
     <!-- Styles principaux -->
     <link rel="stylesheet" href="{% static 'foodapp/css/accueil.css' %}">
     <link rel="stylesheet" href="{% static 'foodapp/css/sidebar.css' %}">
+    <link rel="stylesheet" href="{% static 'foodapp/css/mobile.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     {% block extra_css %}{% endblock %}
 
     <style>
+        /* Sélecteur de langue */
+        .language-selector {
+            margin-right: 15px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .language-dropdown {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 8px 35px 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .language-dropdown:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 107, 43, 0.2);
+        }
+        
+        .language-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 107, 43, 0.3);
+        }
+        
+        /* Thème clair */
+        .theme-light .language-dropdown {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+        }
+        
+        .theme-light .language-dropdown:hover {
+            border-color: #cbd5e0;
+        }
+        
         /* Variables de thème */
         :root {
             --primary-color: #FF6B2B;
@@ -63,10 +114,60 @@
         
         /* Layout */
         .app-content {
-            padding: 2rem 3rem;
+            padding: 1.5rem;
             max-width: 1280px;
             margin: 0 auto;
             animation: fadeIn 0.6s ease-out;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .app-content {
+                padding: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .app-sidebar {
+                width: 250px;
+                transform: translateX(-250px);
+            }
+            
+            .app-sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .titlebar {
+                padding-left: 60px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .app-content {
+                padding: 0.75rem;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+            
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
         }
         
         /* Titres et texte */
@@ -330,6 +431,12 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
+    <!-- Mobile menu toggle button -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+    </button>
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
     <!-- Titlebar -->
     <div class="titlebar">
         <div class="titlebar-drag">FoodFlex | {% block page_title %}Réservations{% endblock %}</div>
@@ -382,7 +489,7 @@
                 <div class="sidebar-label">Profil</div>
             </a>
             {% if user.is_authenticated and user.restaurant_account %}
-            <a href="{% url 'restaurant_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'restaurant_dashboard' %}active{% endif %}">
+            <a href="{% url 'restaurant_owner_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'restaurant_owner_dashboard' %}active{% endif %}">
                 <div class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></div>
                 <div class="sidebar-label">Dashboard Restaurant</div>
             </a>
@@ -430,11 +537,30 @@
 
     <!-- Menu utilisateur -->
     <div class="user-menu">
+        <!-- Sélecteur de langue -->
+        <div class="language-selector">
+            <form action="{% url 'set_language' %}" method="post" id="language-form">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.path }}" />
+                <select name="language" onchange="this.form.submit()" class="language-dropdown">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% get_language_info_list for LANGUAGES as languages %}
+                    {% for language in languages %}
+                        <option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                            {{ language.name_local|title }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+        
         {% if user.is_authenticated %}
             {% if user.restaurant_account %}
-            <a href="{% url 'restaurant_dashboard' %}" class="user-btn"><i class="fas fa-tachometer-alt"></i> Dashboard Restaurant</a>
+            <a href="{% url 'restaurant_owner_dashboard' %}" class="user-btn"><i class="fas fa-tachometer-alt"></i> Dashboard Restaurant</a>
             {% endif %}
             <a href="{% url 'user_profile' %}" class="user-btn"><i class="fas fa-user"></i> Mon Profil</a>
+            <a href="{% url 'user_subscription' %}" class="user-btn"><i class="fas fa-crown"></i> Mon Abonnement</a>
             <a href="{% url 'logout' %}" class="user-btn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
         {% else %}
             <a href="{% url 'login' %}" class="user-btn"><i class="fas fa-sign-in-alt"></i> Connexion</a>
@@ -442,36 +568,38 @@
         {% endif %}
     </div>
     
-    <!-- Contenu principal -->
-    <div class="app-container">
-        <main class="app-content">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-triangle{% elif message.tags == 'danger' or message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="app-container">
+            <main class="app-content">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-triangle{% elif message.tags == 'danger' or message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                {% block content %}{% endblock %}
+            </main>
             
-            {% block content %}{% endblock %}
-        </main>
-        
-        <!-- Footer -->
-        <footer class="app-footer">
-            <div class="footer-content">
-                <div class="footer-legal">
-                    <a href="{% url 'privacy_policy' %}">Privacy Policy</a>
-                    <span class="footer-divider">|</span>
-                    <a href="{% url 'terms_of_service' %}">Terms of Service</a>
-                    <span class="footer-divider">|</span>
-                    <a href="#" class="contact-link">Contact Us</a>
+            <!-- Footer -->
+            <footer class="app-footer">
+                <div class="footer-content">
+                    <div class="footer-legal">
+                        <a href="{% url 'privacy_policy' %}">Politique de confidentialité</a>
+                        <span class="footer-divider">|</span>
+                        <a href="{% url 'terms_of_service' %}">Conditions d'utilisation</a>
+                        <span class="footer-divider">|</span>
+                        <a href="#" class="contact-link">Contactez-nous</a>
+                    </div>
+                    <div class="footer-copyright">
+                        &copy; {% now "Y" %} FoodFlex. Tous droits réservés.
+                    </div>
                 </div>
-                <div class="footer-copyright">
-                    &copy; {% now "Y" %} FoodFlex. All rights reserved.
-                </div>
-            </div>
-        </footer>
+            </footer>
+        </div>
     </div>
     
     <!-- Bouton retour en haut -->
@@ -479,10 +607,37 @@
         <i class="fas fa-arrow-up"></i>
     </div>
     
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Chargement...</span>
+        </div>
+    </div>
+    
     <!-- Scripts communs -->
     <script src="{% static 'foodapp/js/main.js' %}"></script>
     
     <script>
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.app-sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            
+            // Toggle body scroll when sidebar is open
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        }
+        
+        // Close sidebar when clicking on a nav link (for mobile)
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
+            });
+        });
+        
         // Initialiser le thème
         function initTheme() {
             const savedTheme = localStorage.getItem('foodflexTheme');
@@ -539,10 +694,64 @@
             }
         }
         
-        // Gestion du bouton retour en haut
+        // Show loading spinner during page transitions
         document.addEventListener('DOMContentLoaded', function() {
+            // Hide loading spinner when page is fully loaded
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            if (loadingSpinner) {
+                loadingSpinner.classList.remove('active');
+            }
+            
+            // Add loading state to all links
+            document.querySelectorAll('a').forEach(link => {
+                if (!link.href.includes('javascript:') && link.href !== '#' && !link.classList.contains('no-loader')) {
+                    link.addEventListener('click', function() {
+                        loadingSpinner.classList.add('active');
+                    });
+                }
+            });
+            
+            // Handle form submissions
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    loadingSpinner.classList.add('active');
+                });
+            });
+            
+            // Gestion du bouton retour en haut
             // Initialiser le thème
             initTheme();
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                const sidebar = document.querySelector('.app-sidebar');
+                const toggleBtn = document.querySelector('.sidebar-toggle');
+                const overlay = document.getElementById('sidebarOverlay');
+                
+                if (window.innerWidth <= 768 && 
+                    !sidebar.contains(event.target) && 
+                    !toggleBtn.contains(event.target) &&
+                    !event.target.classList.contains('sidebar-overlay')) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            // Handle window resize
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    if (window.innerWidth > 768) {
+                        const sidebar = document.querySelector('.app-sidebar');
+                        const overlay = document.getElementById('sidebarOverlay');
+                        sidebar.classList.remove('active');
+                        overlay.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                }, 250);
+            });
         
             const backToTopBtn = document.querySelector('.back-to-top');
             
@@ -575,6 +784,47 @@
         });
     </script>
     
+    <!-- Floating Chatbot Button -->
+    <a href="{% url 'chat' %}" class="floating-chat-btn" title="Discuter avec notre Assistant">
+        <i class="fas fa-comment-dots"></i>
+    </a>
+    
+    <style>
+        .floating-chat-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-chat-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .floating-chat-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+    </style>
+    
     {% block scripts %}{% endblock %}
 </body>
-</html> 
+</html>

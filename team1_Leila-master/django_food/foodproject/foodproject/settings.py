@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -50,17 +55,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
     'foodapp',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # Middleware de localisation
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'foodapp.middleware.UserLanguageMiddleware',  # Middleware personnalisé pour la langue utilisateur
 ]
 
 ROOT_URLCONF = 'foodproject.urls'
@@ -68,13 +77,14 @@ ROOT_URLCONF = 'foodproject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'foodapp', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',  # Pour le support des traductions
             ],
         },
     },
@@ -116,11 +126,25 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# Langues supportées
+LANGUAGES = [
+    ('en', 'English'),
+    ('fr', 'Français'),
+]
 
-TIME_ZONE = 'UTC'
+# Langue par défaut
+LANGUAGE_CODE = 'fr'
+
+# Répertoires où Django va chercher les fichiers de traduction
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
+
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
+
+USE_L10N = True
 
 USE_TZ = True
 
@@ -139,3 +163,31 @@ LOGOUT_REDIRECT_URL = 'accueil'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Stripe Configuration
+STRIPE_PUBLIC_KEY = 'pk_test_your_stripe_public_key_here'  # Replace with your test public key
+STRIPE_SECRET_KEY = 'sk_test_your_stripe_secret_key_here'  # Replace with your test secret key
+STRIPE_WEBHOOK_SECRET = 'whsec_your_webhook_secret_here'  # For webhook verification
+
+# Subscription settings
+SUBSCRIPTION_PLAN_TYPES = [
+    ('user', 'User Subscription'),
+    ('restaurant', 'Restaurant Subscription'),
+]
+
+SUBSCRIPTION_STATUS_CHOICES = [
+    ('active', 'Active'),
+    ('canceled', 'Canceled'),
+    ('expired', 'Expired'),
+    ('trial', 'Trial'),
+]
+
+# Email settings for subscription notifications
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
+DEFAULT_FROM_EMAIL = 'noreply@foodapp.com'
+
+# Frontend URLs for subscription flows
+FRONTEND_BASE_URL = 'http://localhost:8000'  # Change in production
+
+# OpenAI API Key
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')

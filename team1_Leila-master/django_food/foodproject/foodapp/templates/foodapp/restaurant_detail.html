@@ -451,7 +451,52 @@
         line-height: 1.6;
         }
         
-        @media (max-width: 768px) {
+        /* Styles pour la barre de navigation fixe */
+    .section-nav {
+        position: sticky;
+        top: 0;
+        background-color: var(--bg-color);
+        z-index: 1000;
+        padding: 15px 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+    
+    .section-nav-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    
+    .section-nav-link {
+        padding: 10px 20px;
+        background-color: var(--card-bg);
+        border-radius: 30px;
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .section-nav-link i {
+        color: var(--primary-color);
+    }
+    
+    .section-nav-link:hover, .section-nav-link.active {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .section-nav-link:hover i, .section-nav-link.active i {
+        color: white;
+    }
+    
+    @media (max-width: 768px) {
         .restaurant-content {
             grid-template-columns: 1fr;
         }
@@ -515,6 +560,23 @@
     </div>
             </div>
             
+<!-- Barre de navigation fixe pour les sections -->
+<nav class="section-nav">
+    <div class="container">
+        <div class="section-nav-container">
+            <a href="#menu-section" class="section-nav-link active" data-section="menu">
+                <i class="fas fa-utensils"></i> Menu
+            </a>
+            <a href="#reservation-section" class="section-nav-link" data-section="reservation">
+                <i class="fas fa-calendar-alt"></i> Réserver
+            </a>
+            <a href="#reviews-section" class="section-nav-link" data-section="reviews">
+                <i class="fas fa-star"></i> Avis
+            </a>
+        </div>
+    </div>
+</nav>
+
 <div class="restaurant-content">
             <div class="restaurant-info">
         <div class="info-section">
@@ -535,7 +597,7 @@
             </div>
         </div>
         
-        <div class="menu-section">
+        <div id="menu-section" class="menu-section">
             <h2 class="section-title">
                 <i class="fas fa-utensils"></i> Menu
             </h2>
@@ -569,7 +631,7 @@
             {% endfor %}
         </div>
         
-        <div class="reviews-section">
+        <div id="reviews-section" class="reviews-section">
             <h2 class="section-title">
                 <i class="fas fa-star"></i> Avis ({{ reviews|length }})
             </h2>
@@ -611,7 +673,7 @@
                 </div>
                 
     <div class="restaurant-sidebar">
-        <div class="reservation-form">
+        <div id="reservation-section" class="reservation-form">
             <div class="form-decoration form-decoration-1"></div>
             <div class="form-decoration form-decoration-2"></div>
             <div class="form-content">
@@ -741,6 +803,54 @@
     
 {% block scripts %}
     <script>
+    // Gestion de la navigation entre les sections
+    document.addEventListener('DOMContentLoaded', function() {
+        const navLinks = document.querySelectorAll('.section-nav-link');
+        const sections = document.querySelectorAll('.menu-section, .reviews-section, .reservation-form');
+        
+        // Fonction pour mettre à jour le lien actif
+        function setActiveLink() {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (window.pageYOffset >= (sectionTop - 150)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === current.replace('-section', '')) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        // Écouteur de défilement
+        window.addEventListener('scroll', setActiveLink);
+        
+        // Gestion du clic sur les liens de navigation
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    window.scrollTo({
+                        top: targetSection.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                // Mise à jour du lien actif
+                navLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    });
     // Script pour vérifier la disponibilité des créneaux
         document.addEventListener('DOMContentLoaded', function() {
         const dateInput = document.getElementById('date');

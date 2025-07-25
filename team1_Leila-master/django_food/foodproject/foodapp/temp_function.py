@@ -11,7 +11,7 @@ def get_dishes(request):
         start_time = time.time()
         dishes = Dish.objects.select_related('city').all()
         
-        # Préparer les données pour la sérialisation JSON
+        # Préparer les données pour la sérialisation J  SON
         dishes_data = []
         for dish in dishes:
             dishes_data.append({
@@ -34,7 +34,7 @@ def get_dishes(request):
                 },
                 'timestamp': timezone.now().timestamp()  # Ajouter un horodatage pour le suivi
             })
-        
+                    
         # Mettre en cache pour 10 minutes
         cache.set(cache_key, dishes_data, 60 * 10)
         

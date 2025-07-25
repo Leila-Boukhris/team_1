@@ -50,30 +50,56 @@
     .nav-link {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 14px 16px;
+        padding: 12px 15px;
         margin-bottom: 8px;
-        border-radius: 10px;
-        color: rgba(255, 255, 255, 0.7);
-        transition: all 0.3s ease;
+        border-radius: 8px;
+        color: var(--text-color);
         text-decoration: none;
+        transition: all 0.3s ease;
     }
     
-    .nav-link:hover {
-        background-color: rgba(255, 107, 107, 0.1);
-        color: var(--primary-color);
+    .nav-link:hover, .nav-link.active {
+        background-color: var(--primary-color);
+        color: white;
     }
     
-    .nav-link.active {
-        background-color: rgba(255, 107, 107, 0.2);
-        color: var(--primary-color);
-        font-weight: 600;
+    /* Styles pour les boutons Caisse et Cuisine */
+    .pos-kitchen-buttons {
+        margin: 15px 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
     }
     
-    .nav-link i {
-        font-size: 18px;
-        width: 24px;
+    .pos-button {
+        background-color: #28a745 !important;
+        color: white !important;
+        justify-content: center;
         text-align: center;
+        padding: 10px 5px !important;
+    }
+    
+    .kitchen-button {
+        background-color: #17a2b8 !important;
+        color: white !important;
+        justify-content: center;
+        text-align: center;
+        padding: 10px 5px !important;
+    }
+    
+    .pos-button:hover, .pos-button.active {
+        background-color: #218838 !important;
+    }
+    
+    .kitchen-button:hover, .kitchen-button.active {
+        background-color: #138496 !important;
+    }
+    
+    .divider {
+        height: 1px;
+        background-color: rgba(255, 255, 255, 0.1);
+        margin: 15px 0;
+        grid-column: 1 / -1;
     }
     
     .main-content {
@@ -429,34 +455,38 @@
                 </div>
             </div>
             
-            <nav class="sidebar-nav">
+            <nav class="nav-menu">
                 <a href="{% url 'restaurant_owner_dashboard' %}" class="nav-link active">
-                    <i class="fas fa-tachometer-alt"></i>
-                    Vue d'ensemble
+                    <i class="fas fa-tachometer-alt"></i> Tableau de bord
                 </a>
-                <a href="{% url 'restaurant_orders' %}" class="nav-link">
-                    <i class="fas fa-utensils"></i>
-                    Commandes
+                <!-- Boutons Caisse et Cuisine -->
+                <div class="pos-kitchen-buttons">
+                    <a href="{% url 'restaurant_pos' restaurant.id %}" class="nav-link pos-button">
+                        <i class="fas fa-cash-register"></i> Caisse
+                    </a>
+                    <a href="{% url 'kitchen_dashboard' restaurant.id %}" class="nav-link kitchen-button">
+                        <i class="fas fa-utensils"></i> Cuisine
+                    </a>
+                </div>
+                <div class="divider"></div>
+                <!-- Fin des boutons Caisse et Cuisine -->
+                <a href="{% url 'restaurant_edit' restaurant.id %}" class="nav-link">
+                    <i class="fas fa-edit"></i> Modifier le profil
                 </a>
-                <a href="{% url 'restaurant_menu' %}" class="nav-link">
-                    <i class="fas fa-clipboard-list"></i>
-                    Menu
+                <a href="{% url 'restaurant_menu_manage' restaurant.id %}" class="nav-link">
+                    <i class="fas fa-list-alt"></i> Gérer le menu
                 </a>
-                <a href="{% url 'restaurant_reservations' %}" class="nav-link">
-                    <i class="fas fa-calendar-alt"></i>
-                    Réservations
+                <a href="{% url 'restaurant_reservations' restaurant.id %}" class="nav-link">
+                    <i class="far fa-calendar-alt"></i> Réservations
                 </a>
-                <a href="{% url 'restaurant_reviews' %}" class="nav-link">
-                    <i class="fas fa-star"></i>
-                    Avis clients
+                <a href="{% url 'restaurant_reviews' restaurant.id %}" class="nav-link">
+                    <i class="far fa-star"></i> Avis clients
                 </a>
-                <a href="{% url 'restaurant_stats' %}" class="nav-link">
-                    <i class="fas fa-chart-bar"></i>
-                    Statistiques
+                <a href="{% url 'restaurant_analytics' restaurant.id %}" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Statistiques
                 </a>
-                <a href="{% url 'restaurant_settings' %}" class="nav-link">
-                    <i class="fas fa-cog"></i>
-                    Paramètres
+                <a href="{% url 'restaurant_settings' restaurant.id %}" class="nav-link">
+                    <i class="fas fa-cog"></i> Paramètres
                 </a>
             </nav>
         </div>

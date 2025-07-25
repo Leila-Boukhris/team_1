@@ -1,5 +1,6 @@
 {% extends "foodapp/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Profil Utilisateur | FoodFlex{% endblock %}
 {% block page_title %}Mon Profil{% endblock %}
@@ -57,9 +58,18 @@
     .profile-tab {
         padding: 12px 20px;
         cursor: pointer;
-        transition: all 0.3s ease;
-        border-bottom: 2px solid transparent;
         color: var(--text-light);
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .profile-tab i {
+        font-size: 16px;
+        width: 20px;
+        text-align: center;
     }
     
     .profile-tab.active {
@@ -113,8 +123,92 @@
         margin-bottom: 10px;
     }
     
-    .form-check input {
+    .form-check input[type="checkbox"] {
         margin-right: 10px;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    .form-check input[type="checkbox"]:checked {
+        accent-color: var(--primary-color);
+    }
+    
+    .form-check label {
+        cursor: pointer;
+        user-select: none;
+        color: var(--text-light);
+    }
+    
+    .checkbox-group {
+        background-color: rgba(255, 255, 255, 0.03);
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .checkbox-group .form-check {
+        padding: 8px 10px;
+        margin: 5px 0;
+        border-radius: 5px;
+        transition: all 0.2s ease;
+    }
+    
+    .checkbox-group .form-check:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: var(--text-color) !important;
+        padding: 12px 15px !important;
+        line-height: 1.5;
+    }
+    
+    textarea.form-control:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.15) !important;
+        outline: none;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+    }
+    
+    .form-section h4 {
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .form-section h4 i {
+        font-size: 18px;
+    }
+    
+    select.form-control {
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: var(--text-color) !important;
+        padding: 10px 15px !important;
+        height: auto !important;
+        cursor: pointer;
+    }
+    
+    select.form-control:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
     }
     
     .reservation-card {
@@ -217,15 +311,22 @@
     }
     
     .btn-action {
-        display: inline-block;
-        padding: 8px 15px;
-        border-radius: 5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
         background-color: var(--primary-color);
         color: white;
-        text-decoration: none;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
         font-size: 14px;
-        margin-right: 10px;
         transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-action i {
+        font-size: 14px;
     }
     
     .btn-action:hover {
@@ -282,9 +383,18 @@
         </div>
         
         <div class="profile-tabs">
-            <div class="profile-tab active" data-target="tab-profile">Mon Profil</div>
-            <div class="profile-tab" data-target="tab-reservations">Mes Réservations</div>
-            <div class="profile-tab" data-target="tab-recommendations">Recommandations</div>
+            <div class="profile-tab active" data-tab="profile">
+                <i class="fas fa-user"></i> Profil
+            </div>
+            <div class="profile-tab" data-tab="preferences">
+                <i class="fas fa-utensils"></i> Préférences
+            </div>
+            <div class="profile-tab" data-tab="reservations">
+                <i class="fas fa-calendar-alt"></i> Réservations
+            </div>
+            <div class="profile-tab" data-tab="recommendations">
+                <i class="fas fa-star"></i> Recommandations
+            </div>
         </div>
         
         <!-- Onglet Profil -->
@@ -332,6 +442,169 @@
                         <i class="fas fa-cog"></i> Panel Admin Django
                     </a>
                     {% endif %}
+                </form>
+            </div>
+        </div>
+        
+        <!-- Section des préférences alimentaires -->
+        <div id="tab-preferences" class="tab-content">
+            <div class="profile-section">
+                <h2>Préférences linguistiques</h2>
+                <form action="{% url 'set_language_custom' %}" method="post" id="language-form">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.path }}">
+                    <div class="form-group">
+                        <label for="language">Langue préférée</label>
+                        <select name="language" id="language" class="form-control" onchange="document.getElementById('language-form').submit();">
+                            {% get_available_languages as LANGUAGES %}
+                            {% get_current_language as CURRENT_LANGUAGE %}
+                            {% for code, name in LANGUAGES %}
+                                <option value="{{ code }}" {% if code == CURRENT_LANGUAGE %}selected{% endif %}>
+                                    {{ name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+                
+                <h2>Préférences alimentaires</h2>
+                <form method="post" enctype="multipart/form-data" id="preferences-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="update_preferences" value="1">
+                    
+                    <div class="form-group">
+                        <label>Régime alimentaire</label>
+                        <select name="dietary_preference" class="form-control">
+                            {% for value, label in user_profile.DIET_CHOICES %}
+                                <option value="{{ value }}" {% if user_profile.dietary_preference == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Allergies alimentaires</label>
+                        <div class="checkbox-group">
+                            {% for value, label in user_profile.ALLERGY_CHOICES %}
+                                <div class="form-check">
+                                    <input type="checkbox" name="allergies" value="{{ value }}" 
+                                           id="allergy_{{ value }}" 
+                                           {% if value in user_profile.allergies %}checked{% endif %}>
+                                    <label for="allergy_{{ value }}">{{ label }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Objectifs de santé</label>
+                        <div class="checkbox-group">
+                            {% for value, label in user_profile.HEALTH_GOAL_CHOICES %}
+                                <div class="form-check">
+                                    <input type="checkbox" name="health_goals" value="{{ value }}" 
+                                           id="goal_{{ value }}"
+                                           {% if value in user_profile.health_goals %}checked{% endif %}>
+                                    <label for="goal_{{ value }}">{{ label }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Conditions de santé</label>
+                        <div class="checkbox-group">
+                            <div class="form-check">
+                                <input type="checkbox" name="has_diabetes" id="has_diabetes" 
+                                       {% if user_profile.has_diabetes %}checked{% endif %}>
+                                <label for="has_diabetes">Diabète</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" name="has_high_blood_pressure" id="has_high_blood_pressure"
+                                       {% if user_profile.has_high_blood_pressure %}checked{% endif %}>
+                                <label for="has_high_blood_pressure">Hypertension artérielle</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" name="has_high_cholesterol" id="has_high_cholesterol"
+                                       {% if user_profile.has_high_cholesterol %}checked{% endif %}>
+                                <label for="has_high_cholesterol">Cholestérol élevé</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" name="has_celiac_disease" id="has_celiac_disease"
+                                       {% if user_profile.has_celiac_disease %}checked{% endif %}>
+                                <label for="has_celiac_disease">Maladie cœliaque</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" name="has_lactose_intolerance" id="has_lactose_intolerance"
+                                       {% if user_profile.has_lactose_intolerance %}checked{% endif %}>
+                                <label for="has_lactose_intolerance">Intolérance au lactose</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Préférences culinaires</label>
+                        <div class="checkbox-group">
+                            <div class="form-check">
+                                <input type="checkbox" name="prefers_organic" id="prefers_organic"
+                                       {% if user_profile.prefers_organic %}checked{% endif %}>
+                                <label for="prefers_organic">Préfère les produits bio</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" name="prefers_halal" id="prefers_halal"
+                                       {% if user_profile.prefers_halal %}checked{% endif %}>
+                                <label for="prefers_halal">Nourriture halal</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" name="prefers_kosher" id="prefers_kosher"
+                                       {% if user_profile.prefers_kosher %}checked{% endif %}>
+                                <label for="prefers_kosher">Nourriture casher</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" name="avoids_gmo" id="avoids_gmo"
+                                       {% if user_profile.avoids_gmo %}checked{% endif %}>
+                                <label for="avoids_gmo">Évite les OGM</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Niveau d'activité physique</label>
+                        <select name="activity_level" class="form-control">
+                            <option value="sedentary" {% if user_profile.activity_level == 'sedentary' %}selected{% endif %}>Sédentaire (peu ou pas d'exercice)</option>
+                            <option value="light" {% if user_profile.activity_level == 'light' %}selected{% endif %}>Légèrement actif (exercice léger 1-3 jours/semaine)</option>
+                            <option value="moderate" {% if user_profile.activity_level == 'moderate' or not user_profile.activity_level %}selected{% endif %}>Modérément actif (exercice modéré 3-5 jours/semaine)</option>
+                            <option value="active" {% if user_profile.activity_level == 'active' %}selected{% endif %}>Très actif (exercice intense 6-7 jours/semaine)</option>
+                            <option value="extreme" {% if user_profile.activity_level == 'extreme' %}selected{% endif %}>Extrêmement actif (travail physique intense ou entraînement 2x/jour)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Objectif de poids</label>
+                        <select name="weight_goal" class="form-control">
+                            <option value="lose" {% if user_profile.weight_goal == 'lose' %}selected{% endif %}>Perdre du poids</option>
+                            <option value="maintain" {% if user_profile.weight_goal == 'maintain' or not user_profile.weight_goal %}selected{% endif %}>Maintenir mon poids</option>
+                            <option value="gain" {% if user_profile.weight_goal == 'gain' %}selected{% endif %}>Prendre du poids</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Allergies ou intolérances supplémentaires</label>
+                        <textarea name="additional_allergies" class="form-control" rows="3" 
+                                  placeholder="Décrivez toute autre allergie ou intolérance non listée ci-dessus">
+                            {{ user_profile.additional_allergies }}
+                        </textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Préférences alimentaires supplémentaires</label>
+                        <textarea name="additional_preferences" class="form-control" rows="3" 
+                                  placeholder="Avez-vous d'autres préférences ou restrictions alimentaires ?">
+                            {{ user_profile.additional_preferences }}
+                        </textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-action">
+    <i class="fas fa-save"></i> Enregistrer les préférences
+</button>
                 </form>
             </div>
         </div>
@@ -449,10 +722,10 @@
                 this.classList.add('active');
                 
                 // Afficher le contenu correspondant
-                const target = this.getAttribute('data-target');
-                document.getElementById(target).classList.add('active');
+                const target = this.getAttribute('data-tab');
+                document.getElementById(`tab-${target}`).classList.add('active');
             });
         });
     });
 </script>
-{% endblock %} 
+{% endblock %}

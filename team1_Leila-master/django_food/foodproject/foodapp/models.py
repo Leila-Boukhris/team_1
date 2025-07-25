@@ -5,6 +5,20 @@ from django.utils import timezone
 import datetime
 import uuid
 
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    restaurant = models.ForeignKey('Restaurant', on_delete=models.CASCADE, related_name='categories')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.name} - {self.restaurant.name}"
+    
+    class Meta:
+        verbose_name_plural = "Categories"
+        ordering = ['name']
+
 class City(models.Model):
     name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='cities/', blank=True, null=True)
@@ -78,6 +92,8 @@ class Dish(models.Model):
     preparation_steps = models.TextField(null=True, blank=True)
     history = models.TextField(null=True, blank=True)
     city = models.ForeignKey('City', related_name='dishes', on_delete=models.SET_NULL, null=True, blank=True)
+    restaurant = models.ForeignKey('Restaurant', related_name='dishes', on_delete=models.CASCADE, null=True, blank=True)
+    category = models.ForeignKey('Category', related_name='dishes', on_delete=models.SET_NULL, null=True, blank=True)
     
     # Nouveaux champs pour l'origine culinaire et recommandations touristiques
     origin = models.CharField(max_length=20, choices=ORIGIN_CHOICES, default=MOROCCAN)
@@ -159,6 +175,14 @@ class RestaurantAccount(models.Model):
         ('premium', 'Premium'),
         ('gold', 'Gold'),
     ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'En attente'),
+        ('approved', 'Approuvé'),
+        ('sanctioned', 'Sanctionné'),
+        ('banned', 'Banni'),
+        ('rejected', 'Rejeté'),
+    ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='restaurant_account')
     restaurant = models.OneToOneField(Restaurant, on_delete=models.CASCADE, related_name='account')
@@ -174,6 +198,15 @@ class RestaurantAccount(models.Model):
     last_login = models.DateTimeField(null=True, blank=True)
     theme_preference = models.CharField(max_length=20, default='standard')
     notification_settings = models.JSONField(default=dict, blank=True)
+    
+    # Nouveaux champs pour la modération
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status_changed_at = models.DateTimeField(null=True, blank=True)
+    status_changed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='restaurant_status_changes')
+    rejection_reason = models.TextField(blank=True, null=True)
+    sanction_reason = models.TextField(blank=True, null=True)
+    ban_reason = models.TextField(blank=True, null=True)
+    ban_until = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"Compte restaurant pour {self.restaurant.name}"
@@ -191,6 +224,69 @@ class RestaurantAccount(models.Model):
     @property
     def days_since_creation(self):
         return (timezone.now().date() - self.created_at.date()).days
+        
+    def update_status(self, status, user=None, reason=None):
+        """Met à jour le statut du restaurant avec traçabilité"""
+        self.status = status
+        self.status_changed_at = timezone.now()
+        self.status_changed_by = user
+        
+        # Mettre à jour les champs spécifiques au statut
+        if status == 'approved':
+            self.is_active = True
+            self.pending_approval = False
+            self.restaurant.is_open = True
+            self.restaurant.save()
+        elif status == 'sanctioned':
+            self.is_active = True
+            self.pending_approval = False
+            self.restaurant.is_open = False
+            self.sanction_reason = reason
+            self.restaurant.save()
+        elif status == 'banned':
+            self.is_active = False
+            self.pending_approval = False
+            self.restaurant.is_open = False
+            self.ban_reason = reason
+            self.restaurant.save()
+        elif status == 'rejected':
+            self.is_active = False
+            self.pending_approval = False
+            self.rejection_reason = reason
+        
+        self.save()
+
+class RestaurantAdminNote(models.Model):
+    """Modèle pour les notes administratives sur les restaurants"""
+    restaurant_account = models.ForeignKey(RestaurantAccount, on_delete=models.CASCADE, related_name='admin_notes')
+    admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='restaurant_notes')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Note sur {self.restaurant_account.restaurant.name} par {self.admin.username}"
+
+
+class RestaurantStatusHistory(models.Model):
+    """Modèle pour l'historique des changements de statut des restaurants"""
+    restaurant_account = models.ForeignKey(RestaurantAccount, on_delete=models.CASCADE, related_name='status_history')
+    changed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='restaurant_status_history')
+    old_status = models.CharField(max_length=20, choices=RestaurantAccount.STATUS_CHOICES)
+    new_status = models.CharField(max_length=20, choices=RestaurantAccount.STATUS_CHOICES)
+    reason = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = "Restaurant status histories"
+    
+    def __str__(self):
+        return f"{self.restaurant_account.restaurant.name}: {self.old_status} → {self.new_status}"
+
 
 class Reservation(models.Model):
     # Statut de réservation
@@ -264,35 +360,6 @@ class Reservation(models.Model):
         )
         return (reservation_datetime - now).total_seconds() > 24 * 3600
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    bio = models.TextField(blank=True)
-    phone = models.CharField(max_length=20, blank=True)
-    profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
-    favorite_cuisine = models.CharField(max_length=100, blank=True)
-    date_of_birth = models.DateField(null=True, blank=True)
-    is_vegetarian = models.BooleanField(default=False)
-    is_vegan = models.BooleanField(default=False)
-    preferences = models.JSONField(default=dict, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return f"Profil de {self.user.username}"
-    
-    def get_image_preview(self):
-        if self.profile_image:
-            return mark_safe(f'<img src="{self.profile_image.url}" width="50" height="50" style="object-fit: cover; border-radius: 50%;" />')
-        return "—"
-    
-    get_image_preview.short_description = "Image"
-    
-    @property
-    def full_name(self):
-        if self.user.first_name and self.user.last_name:
-            return f"{self.user.first_name} {self.user.last_name}"
-        return self.user.username
-
 class Review(models.Model):
     RATING_CHOICES = [
         (1, '1 étoile'),
@@ -317,6 +384,215 @@ class Review(models.Model):
     class Meta:
         unique_together = ('user', 'restaurant')
         ordering = ['-created_at']
+
+class UserProfile(models.Model):
+    # Informations de base
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    bio = models.TextField('À propos de moi', blank=True)
+    phone = models.CharField('Téléphone', max_length=20, blank=True)
+    profile_image = models.ImageField('Photo de profil', upload_to='profiles/', blank=True, null=True)
+    date_of_birth = models.DateField('Date de naissance', null=True, blank=True)
+    created_at = models.DateTimeField('Date de création', auto_now_add=True)
+    updated_at = models.DateTimeField('Dernière mise à jour', auto_now=True)
+    
+    # Préférences utilisateur
+    preferences = models.JSONField(
+        'Préférences',
+        default=dict,
+        blank=True,
+        help_text='Préférences utilisateur (thème, notifications, etc.)'
+    )
+    
+    # Préférences linguistiques
+    LANGUAGE_CHOICES = [
+        ('fr', 'Français'),
+        ('en', 'English'),
+    ]
+    language = models.CharField(
+        'Langue préférée',
+        max_length=10,
+        choices=LANGUAGE_CHOICES,
+        default='fr',
+        help_text='Sélectionnez votre langue préférée',
+    )
+    
+    # Préférences alimentaires
+    DIET_CHOICES = [
+        ('none', 'Aucun régime spécifique'),
+        ('vegetarian', 'Végétarien'),
+        ('vegan', 'Végétalien/Végan'),
+        ('pescatarian', 'Pescétarien'),
+        ('gluten_free', 'Sans gluten'),
+        ('lactose_free', 'Sans lactose'),
+        ('keto', 'Cétogène (Keto)'),
+        ('paleo', 'Paléo'),
+        ('mediterranean', 'Méditerranéen'),
+        ('other', 'Autre')
+    ]
+    
+    # Allergies et intolérances
+    ALLERGY_CHOICES = [
+        ('peanuts', 'Arachides'),
+        ('tree_nuts', 'Fruits à coque'),
+        ('milk', 'Lait'),
+        ('eggs', 'Œufs'),
+        ('fish', 'Poisson'),
+        ('shellfish', 'Fruits de mer'),
+        ('soy', 'Soja'),
+        ('wheat', 'Blé'),
+        ('sesame', 'Sésame'),
+        ('mustard', 'Moutarde'),
+        ('celery', 'Céleri'),
+        ('lupin', 'Lupin'),
+        ('molluscs', 'Mollusques'),
+        ('none', 'Aucune allergie connue')
+    ]
+    
+    # Préférences de santé
+    HEALTH_GOAL_CHOICES = [
+        ('weight_loss', 'Perte de poids'),
+        ('weight_gain', 'Prise de poids'),
+        ('muscle_gain', 'Prise de masse musculaire'),
+        ('maintenance', 'Maintien du poids'),
+        ('heart_health', 'Santé cardiaque'),
+        ('diabetes', 'Gestion du diabète'),
+        ('digestive_health', 'Santé digestive'),
+        ('energy', 'Plus d\'énergie'),
+        ('other', 'Autre')
+    ]
+    
+    # Champs du profil
+    dietary_preference = models.CharField(
+        'Régime alimentaire',
+        max_length=20,
+        choices=DIET_CHOICES,
+        default='none',
+        blank=True
+    )
+    
+    allergies = models.JSONField(
+        'Allergies alimentaires',
+        default=list,
+        blank=True,
+        help_text='Liste des allergies de l\'utilisateur'
+    )
+    
+    health_goals = models.JSONField(
+        'Objectifs de santé',
+        default=list,
+        blank=True,
+        help_text='Objectifs de santé de l\'utilisateur'
+    )
+    
+    has_diabetes = models.BooleanField('Diabète', default=False)
+    has_high_blood_pressure = models.BooleanField('Hypertension artérielle', default=False)
+    has_high_cholesterol = models.BooleanField('Cholestérol élevé', default=False)
+    has_celiac_disease = models.BooleanField('Maladie cœliaque', default=False)
+    has_lactose_intolerance = models.BooleanField('Intolérance au lactose', default=False)
+    
+    prefers_organic = models.BooleanField('Préfère les produits bio', default=False)
+    prefers_halal = models.BooleanField('Préfère la nourriture halal', default=False)
+    prefers_kosher = models.BooleanField('Préfère la nourriture casher', default=False)
+    avoids_gmo = models.BooleanField('Évite les OGM', default=False)
+    
+    ACTIVITY_LEVEL_CHOICES = [
+        ('sedentary', 'Sédentaire'),
+        ('light', 'Légèrement actif'),
+        ('moderate', 'Modérément actif'),
+        ('active', 'Très actif'),
+        ('extreme', 'Extrêmement actif'),
+    ]
+    
+    activity_level = models.CharField(
+        'Niveau d\'activité physique',
+        max_length=20,
+        choices=ACTIVITY_LEVEL_CHOICES,
+        default='moderate',
+        blank=True
+    )
+    
+    WEIGHT_GOAL_CHOICES = [
+        ('lose', 'Perdre du poids'),
+        ('maintain', 'Maintenir mon poids'),
+        ('gain', 'Prendre du poids'),
+    ]
+    
+    weight_goal = models.CharField(
+        'Objectif de poids',
+        max_length=20,
+        choices=WEIGHT_GOAL_CHOICES,
+        default='maintain',
+        blank=True
+    )
+    
+    additional_allergies = models.TextField(
+        'Allergies supplémentaires',
+        blank=True,
+        help_text='Décrivez toute autre allergie ou intolérance non listée ci-dessus'
+    )
+    
+    additional_preferences = models.TextField(
+        'Préférences supplémentaires',
+        blank=True,
+        help_text='Avez-vous d\'autres préférences ou restrictions alimentaires ?'
+    )
+    
+    is_vegetarian = models.BooleanField('Végétarien', default=False)
+    is_vegan = models.BooleanField('Végan', default=False)
+    
+    def __str__(self):
+        return f"Profil de {self.user.username}"
+    
+    def get_image_preview(self):
+        if self.profile_image:
+            return mark_safe(f'<img src="{self.profile_image.url}" width="50" height="50" style="object-fit: cover; border-radius: 50%;" />')
+        return "—"
+    
+    @property
+    def full_name(self):
+        if self.user.first_name and self.user.last_name:
+            return f"{self.user.first_name} {self.user.last_name}"
+        return self.user.username
+    
+    @property
+    def age(self):
+        if self.date_of_birth:
+            today = datetime.date.today()
+            return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+        return None
+    
+    @property
+    def dietary_restrictions_summary(self):
+        """Retourne un résumé des restrictions alimentaires pour l'affichage"""
+        restrictions = []
+        
+        # Régime principal
+        if self.dietary_preference != 'none':
+            restrictions.append(dict(self.DIET_CHOICES).get(self.dietary_preference, self.dietary_preference))
+        
+        # Anciens champs pour la rétrocompatibilité
+        if self.is_vegetarian:
+            restrictions.append("Végétarien")
+        if self.is_vegan:
+            restrictions.append("Végan")
+        
+        # Allergies
+        if self.allergies and 'none' not in self.allergies:
+            restrictions.extend([dict(self.ALLERGY_CHOICES).get(a, a) for a in self.allergies])
+        
+        # Conditions de santé
+        if self.has_diabetes:
+            restrictions.append("Diabète")
+        if self.has_high_blood_pressure:
+            restrictions.append("Hypertension")
+        if self.has_high_cholesterol:
+            restrictions.append("Cholestérol élevé")
+        
+        return ", ".join(restrictions) if restrictions else "Aucune restriction spécifique"
+    
+    class Meta:
+        verbose_name = "Profil utilisateur"
+        verbose_name_plural = "Profils utilisateurs"
 
 class ForumTopic(models.Model):
     """Modèle pour les sujets de discussion du forum"""
@@ -607,6 +883,36 @@ class ChatSession(models.Model):
     
     def __str__(self):
         return f"Chat {self.session_id} - {'Anonymous' if not self.user else self.user.username}"
+
+class KitchenOrderStatus(models.Model):
+    """Suivi de l'état des commandes en cuisine"""
+    STATUS_QUEUED = 'queued'
+    STATUS_PREPARING = 'preparing'
+    STATUS_READY = 'ready'
+    STATUS_SERVED = 'served'
+    
+    STATUS_CHOICES = [
+        (STATUS_QUEUED, 'En attente'),
+        (STATUS_PREPARING, 'En préparation'),
+        (STATUS_READY, 'Prêt à servir'),
+        (STATUS_SERVED, 'Servi')
+    ]
+    
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='kitchen_status')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_QUEUED)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_orders')
+    estimated_prep_time = models.PositiveIntegerField(help_text="Temps estimé de préparation en minutes", null=True, blank=True)
+    notes = models.TextField(blank=True)
+    
+    def __str__(self):
+        return f"Commande #{self.order.id} - {self.get_status_display()}"
+    
+    class Meta:
+        verbose_name = "Statut cuisine"
+        verbose_name_plural = "Statuts cuisine"
+        ordering = ['-updated_at']
 
 class ChatMessage(models.Model):
     """Model for storing chat messages"""

@@ -482,7 +482,10 @@
             {% else %}
                 {% for field in wizard.form %}
                     <div class="form-group">
-                        {{ field.label_tag }}
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                            {% if field.field.required %}<span class="required">*</span>{% endif %}
+                        </label>
                         {% if field.field.widget.input_type == 'file' %}
                             <div class="file-upload">
                                 <i class="fas fa-cloud-upload-alt"></i>
@@ -492,33 +495,16 @@
                             </div>
                         {% else %}
                             {{ field }}
-                        {% endif %}
-                        {% if field.help_text %}
-                            <div class="help-text">{{ field.help_text }}</div>
-                        {% endif %}
-                        {% if field.errors %}
-                            {% for error in field.errors %}
-                                <div class="error-message">
-                                    <i class="fas fa-exclamation-circle"></i> {{ error }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                        {% if field.name in allowed_extensions %}
-                            <div class="file-info">
-                                <strong>Types de fichiers autorisés :</strong>
-                                <ul>
-                                    {% for ext in allowed_extensions|get_item:field.name %}
-                                        <li>{{ ext }}</li>
+                            {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="alert alert-danger">
+                                    {% for error in field.errors %}
+                                        <p class="mb-0">{{ error }}</p>
                                     {% endfor %}
-                                </ul>
-                                <div>Taille maximale : {{ max_file_size|filesizeformat }}</div>
-                                <div class="upload-progress">
-                                    <div class="upload-progress-bar"></div>
                                 </div>
-                                {% if field.name in 'main_image,interior_image1,interior_image2'|split:',' %}
-                                    <img class="file-preview" alt="Aperçu de l'image">
-                                {% endif %}
-                            </div>
+                            {% endif %}
                         {% endif %}
                     </div>
                 {% endfor %}

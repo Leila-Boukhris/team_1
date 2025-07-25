@@ -1,0 +1,202 @@
+{% load humanize %}
+
+<div class="order-card {{ status_class }}" data-order-id="{{ order.id }}">
+    <div class="order-header">
+        <div>
+            <h5 class="mb-0">Commande #{{ order.id }}</h5>
+            <small class="text-muted">
+                <i class="far fa-clock"></i> 
+                <span class="order-timer" data-start-time="{{ order.created_at|date:'c' }}">
+                    {{ order.created_at|timesince }}
+                </span>
+            </small>
+        </div>
+        <span class="order-status status-{{ order.status }}">
+            {% if order.status == 'new' %}Nouvelle
+            {% elif order.status == 'preparing' %}En préparation
+            {% elif order.status == 'ready' %}Prête à servir
+            {% else %}{{ order.status|title }}
+            {% endif %}
+        </span>
+    </div>
+    
+    {% if order.table_number %}
+    <div class="order-table-number" title="Table #{{ order.table_number }}">
+        {{ order.table_number }}
+    </div>
+    {% endif %}
+    
+    <div class="order-items mt-3">
+        {% for item in order.items.all %}
+        <div class="order-item {% if item.status == 'preparing' %}item-preparing{% elif item.status == 'ready' %}item-ready{% else %}item-pending{% endif %}" 
+             data-item-id="{{ item.id }}">
+            <div>
+                <span class="item-quantity">{{ item.quantity }}x</span>
+                {{ item.dish.name }}
+                {% if item.notes %}
+                <div class="item-notes">
+                    <i class="far fa-sticky-note"></i> {{ item.notes }}
+                </div>
+                {% endif %}
+            </div>
+            <div>
+                <span class="badge badge-{{ item.status }}">
+                    {% if item.status == 'new' %}En attente
+                    {% elif item.status == 'preparing' %}En cours
+                    {% else %}Prêt{% endif %}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if order.notes %}
+    <div class="alert alert-warning mt-2 p-2" style="font-size: 0.9em;">
+        <strong><i class="fas fa-exclamation-circle"></i> Note:</strong> {{ order.notes }}
+    </div>
+    {% endif %}
+    
+    <div class="order-actions">
+        <div class="prep-time">
+            <i class="far fa-clock"></i> 
+            <span class="timer" id="timer-{{ order.id }}">00:00</span>
+        </div>
+        
+        <div>
+            {% if order.status == 'new' %}
+            <button class="btn btn-sm btn-start-preparing" 
+                    onclick="startPreparing({{ order.id }})">
+                <i class="fas fa-utensils"></i> Préparer
+            </button>
+            {% elif order.status == 'preparing' %}
+            <button class="btn btn-sm btn-mark-ready" 
+                    onclick="markAsReady({{ order.id }})">
+                <i class="fas fa-check"></i> Prête
+            </button>
+            {% else %}
+            <button class="btn btn-sm btn-complete-order" 
+                    onclick="completeOrder({{ order.id }})"
+                    {% if not all_items_ready %}disabled{% endif %}>
+                <i class="fas fa-check-double"></i> Terminée
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Mettre à jour les timers des commandes
+function updateTimers() {
+    document.querySelectorAll('.order-timer').forEach(timerEl => {
+        const startTime = new Date(timerEl.dataset.startTime).getTime();
+        const now = new Date().getTime();
+        const diffMs = now - startTime;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffSecs = Math.floor((diffMs % 60000) / 1000);
+        
+        timerEl.textContent = `${diffMins} min ${diffSecs} sec`;
+        
+        // Mettre en évidence si la commande prend trop de temps
+        if (diffMins > 30) {
+            timerEl.classList.add('time-danger');
+        } else if (diffMins > 15) {
+            timerEl.classList.add('time-warning');
+        }
+    });
+}
+
+// Mettre à jour les timers toutes les secondes
+setInterval(updateTimers, 1000);
+updateTimers();
+
+// Fonctions pour gérer les actions sur les commandes
+function startPreparing(orderId) {
+    if (confirm('Commencer la préparation de cette commande ?')) {
+        updateOrderStatus(orderId, 'preparing');
+    }
+}
+
+function markAsReady(orderId) {
+    if (confirm('Marquer cette commande comme prête à être servie ?')) {
+        updateOrderStatus(orderId, 'ready');
+    }
+}
+
+function completeOrder(orderId) {
+    if (confirm('Marquer cette commande comme terminée ?')) {
+        updateOrderStatus(orderId, 'completed');
+    }
+}
+
+function updateOrderStatus(orderId, status) {
+    fetch(`/api/orders/${orderId}/update-status/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFTTOKEN': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            status: status
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Erreur: ' + (data.message || 'Impossible de mettre à jour le statut de la commande.'));
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue lors de la mise à jour du statut de la commande.');
+    });
+}
+
+// Mettre à jour le statut d'un élément de commande
+function updateOrderItemStatus(itemId, status) {
+    fetch(`/api/order-items/${itemId}/update-status/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFTTOKEN': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            status: status
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Erreur: ' + (data.message || 'Impossible de mettre à jour l\'élément de commande.'));
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue lors de la mise à jour de l\'élément de commande.');
+    });
+}
+
+// Gérer les clics sur les éléments de commande
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.order-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            if (!itemId) return;
+            
+            // Basculer entre les statuts au clic
+            if (this.classList.contains('item-pending')) {
+                updateOrderItemStatus(itemId, 'preparing');
+            } else if (this.classList.contains('item-preparing')) {
+                updateOrderItemStatus(itemId, 'ready');
+            } else {
+                updateOrderItemStatus(itemId, 'pending');
+            }
+        });
+    });
+});
+</script>

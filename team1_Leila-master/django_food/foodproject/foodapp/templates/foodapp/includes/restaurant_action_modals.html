@@ -1,0 +1,175 @@
+<!-- Modals pour les actions des restaurants dans la liste filtrée -->
+
+<!-- Modal d'approbation -->
+<div class="modal fade" id="approveModal{{ restaurant_account.id }}" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel{{ restaurant_account.id }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approveModalLabel{{ restaurant_account.id }}">Approuver le restaurant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'update_restaurant_status' restaurant_account.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="approved">
+                <div class="modal-body">
+                    <p>Vous êtes sur le point d'approuver le restaurant <strong>{{ restaurant_account.restaurant.name }}</strong>.</p>
+                    <div class="form-group">
+                        <label for="approveReason{{ restaurant_account.id }}">Commentaire (optionnel)</label>
+                        <textarea class="form-control" id="approveReason{{ restaurant_account.id }}" name="reason" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">Approuver</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de rejet -->
+<div class="modal fade" id="rejectModal{{ restaurant_account.id }}" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel{{ restaurant_account.id }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectModalLabel{{ restaurant_account.id }}">Rejeter le restaurant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'update_restaurant_status' restaurant_account.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="rejected">
+                <div class="modal-body">
+                    <p>Vous êtes sur le point de rejeter le restaurant <strong>{{ restaurant_account.restaurant.name }}</strong>.</p>
+                    <div class="form-group">
+                        <label for="rejectReason{{ restaurant_account.id }}">Raison du rejet <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="rejectReason{{ restaurant_account.id }}" name="reason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">Rejeter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de sanction -->
+<div class="modal fade" id="sanctionModal{{ restaurant_account.id }}" tabindex="-1" role="dialog" aria-labelledby="sanctionModalLabel{{ restaurant_account.id }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sanctionModalLabel{{ restaurant_account.id }}">Sanctionner le restaurant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'update_restaurant_status' restaurant_account.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="sanctioned">
+                <div class="modal-body">
+                    <p>Vous êtes sur le point de sanctionner le restaurant <strong>{{ restaurant_account.restaurant.name }}</strong>. Le restaurant restera actif mais ne pourra pas accepter de nouvelles commandes.</p>
+                    <div class="form-group">
+                        <label for="sanctionReason{{ restaurant_account.id }}">Raison de la sanction <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="sanctionReason{{ restaurant_account.id }}" name="reason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-warning">Sanctionner</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de levée de sanction -->
+<div class="modal fade" id="unsanctionModal{{ restaurant_account.id }}" tabindex="-1" role="dialog" aria-labelledby="unsanctionModalLabel{{ restaurant_account.id }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="unsanctionModalLabel{{ restaurant_account.id }}">Lever la sanction</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'update_restaurant_status' restaurant_account.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="approved">
+                <div class="modal-body">
+                    <p>Vous êtes sur le point de lever la sanction du restaurant <strong>{{ restaurant_account.restaurant.name }}</strong>. Le restaurant pourra à nouveau accepter des commandes.</p>
+                    <div class="form-group">
+                        <label for="unsanctionReason{{ restaurant_account.id }}">Commentaire (optionnel)</label>
+                        <textarea class="form-control" id="unsanctionReason{{ restaurant_account.id }}" name="reason" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">Lever la sanction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de bannissement -->
+<div class="modal fade" id="banModal{{ restaurant_account.id }}" tabindex="-1" role="dialog" aria-labelledby="banModalLabel{{ restaurant_account.id }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="banModalLabel{{ restaurant_account.id }}">Bannir le restaurant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'update_restaurant_status' restaurant_account.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="banned">
+                <div class="modal-body">
+                    <p>Vous êtes sur le point de bannir le restaurant <strong>{{ restaurant_account.restaurant.name }}</strong>. Le restaurant sera désactivé et ne pourra plus se connecter.</p>
+                    <div class="form-group">
+                        <label for="banReason{{ restaurant_account.id }}">Raison du bannissement <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="banReason{{ restaurant_account.id }}" name="reason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">Bannir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de réactivation -->
+<div class="modal fade" id="reactivateModal{{ restaurant_account.id }}" tabindex="-1" role="dialog" aria-labelledby="reactivateModalLabel{{ restaurant_account.id }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reactivateModalLabel{{ restaurant_account.id }}">Réactiver le restaurant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'update_restaurant_status' restaurant_account.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="approved">
+                <div class="modal-body">
+                    <p>Vous êtes sur le point de réactiver le restaurant <strong>{{ restaurant_account.restaurant.name }}</strong>.</p>
+                    <div class="form-group">
+                        <label for="reactivateReason{{ restaurant_account.id }}">Commentaire (optionnel)</label>
+                        <textarea class="form-control" id="reactivateReason{{ restaurant_account.id }}" name="reason" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">Réactiver</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

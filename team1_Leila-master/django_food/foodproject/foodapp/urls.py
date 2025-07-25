@@ -1,10 +1,12 @@
 from django.urls import path
 from . import views
+from . import views_admin
 from django.shortcuts import redirect
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import RestaurantRegistrationWizard
-from .forms import RestaurantBasicInfoForm, RestaurantOwnerInfoForm, RestaurantLegalDocsForm, RestaurantPhotosForm
+from .views import RestaurantRegistrationWizard, user_pricing_plans, subscription_checkout, user_subscription, cancel_subscription, update_auto_renew
+from .forms import RestaurantAuthInfoForm, RestaurantBasicInfoForm, RestaurantOwnerInfoForm, RestaurantLegalDocsForm, RestaurantPhotosForm
+from .views_i18n import set_language_custom
 
 # Fonction pour rediriger vers login
 def redirect_to_login(request):
@@ -30,18 +32,30 @@ urlpatterns = [
     path('restaurant/orders/live/', views.restaurant_orders_live, name='restaurant_orders_live'),  # Nouvelle route pour les commandes en temps réel
     path('restaurant/stats/', views.restaurant_stats, name='restaurant_stats'),
     path('restaurant/reviews/', views.restaurant_reviews, name='restaurant_reviews'),
-    path('restaurant/menu/', views.restaurant_dashboard, name='restaurant_menu'),  # Temporairement mappé vers dashboard
+    path('restaurant/menu/', views.restaurant_dashboard, name='restaurant_menu'),  # Temporairement mappé    # Menu management
+    path('restaurant/menu/manage/<int:restaurant_id>/', views.manage_restaurant_menu, name='restaurant_menu_manage'),
+    path('restaurant/dish/add/', views.add_dish, name='add_dish'),
+    path('restaurant/dish/<int:dish_id>/edit/', views.edit_dish, name='edit_dish'),
+    path('restaurant/dish/<int:dish_id>/delete/', views.delete_dish, name='delete_dish'),
+    path('restaurant/category/add/', views.add_category, name='add_category'),
+    path('restaurant/category/<int:category_id>/edit/', views.edit_category, name='edit_category'),
+    path('restaurant/category/<int:category_id>/delete/', views.delete_category, name='delete_category'),  # Gestion du menu
     path('restaurant/menu/create/', views.restaurant_menu_create, name='restaurant_menu_create'),  # Nouvelle route pour créer un plat
     path('restaurant/reservations/', views.restaurant_dashboard, name='restaurant_reservations'),  # Temporairement mappé vers dashboard
     path('restaurant/settings/', views.restaurant_dashboard, name='restaurant_settings'),  # Temporairement mappé vers dashboard
     
     # API Restaurant
     path('restaurant/create-order/', views.create_order, name='create_order'),  # Vue pour créer une commande
+    path('restaurant/pos/<int:restaurant_id>/', views.restaurant_pos, name='restaurant_pos'),  # Vue pour l'interface caisse
+    path('restaurant/kitchen/<int:restaurant_id>/', views.kitchen_dashboard, name='kitchen_dashboard'),  # Vue pour l'interface cuisine
     
     # User routes
     path('user/profile/', views.user_profile, name='user_profile'),
     path('user/reservations/', views.user_reservations_list, name='user_reservations_list'),
     path('user/settings/', views.user_settings, name='user_settings'),
+    
+    # Internationalization
+    path('i18n/setlang/', set_language_custom, name='set_language_custom'),
     
     # Cuisine et spécialités
     path('cuisine/moroccan/', views.moroccan_cuisine, name='moroccan_cuisine'),
@@ -69,10 +83,11 @@ urlpatterns = [
 
     path('restaurant/register/', 
          RestaurantRegistrationWizard.as_view([
-             RestaurantBasicInfoForm,
-             RestaurantOwnerInfoForm,
-             RestaurantLegalDocsForm,
-             RestaurantPhotosForm
+             ('auth_info', RestaurantAuthInfoForm),
+             ('basic_info', RestaurantBasicInfoForm),
+             ('owner_info', RestaurantOwnerInfoForm),
+             ('legal_docs', RestaurantLegalDocsForm),
+             ('photos', RestaurantPhotosForm)
          ]), 
          name='restaurant_register'),
 
@@ -88,9 +103,22 @@ urlpatterns = [
     path('dashboard/restaurant/', views.restaurant_owner_dashboard, name='restaurant_owner_dashboard'),
     
     # Dashboard admin pour gérer les restaurants
-    path('dashboard/admin/restaurants/', views.restaurant_dashboard, name='restaurant_dashboard'),
+    path('dashboard/admin/restaurants/', views_admin.restaurant_lists_filtered, name='restaurant_lists_filtered'),
+    path('dashboard/admin/restaurants/<int:restaurant_id>/', views_admin.admin_restaurant_detail, name='admin_restaurant_detail'),
+    
+    # Édition du profil restaurant
+    path('restaurant/edit/<int:restaurant_id>/', views.restaurant_edit, name='restaurant_edit'),
+    path('dashboard/admin/restaurants/<int:restaurant_id>/update-status/', views_admin.update_restaurant_status, name='update_restaurant_status'),
+    path('dashboard/admin/restaurants/<int:restaurant_id>/add-note/', views_admin.add_restaurant_note, name='add_restaurant_note'),
     path('dashboard/admin/restaurants/<int:restaurant_id>/<str:action>/', views.restaurant_approval, name='restaurant_approval'),
+    
+    # Subscription URLs
+    path('subscription/plans/', user_pricing_plans, name='user_pricing_plans'),
+    path('subscription/checkout/<str:plan_type>/<int:plan_id>/', subscription_checkout, name='subscription_checkout'),
+    path('subscription/my-plan/', user_subscription, name='user_subscription'),
+    path('subscription/cancel/', cancel_subscription, name='cancel_subscription'),
+    path('subscription/update-auto-renew/', update_auto_renew, name='update_auto_renew'),
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
