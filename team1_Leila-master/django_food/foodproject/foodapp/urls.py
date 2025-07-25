@@ -4,7 +4,6 @@ from . import views_admin
 from django.shortcuts import redirect
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import RestaurantRegistrationWizard, user_pricing_plans, subscription_checkout, user_subscription, cancel_subscription, update_auto_renew
 from .forms import RestaurantAuthInfoForm, RestaurantBasicInfoForm, RestaurantOwnerInfoForm, RestaurantLegalDocsForm, RestaurantPhotosForm
 from .views_i18n import set_language_custom
 
@@ -82,13 +81,13 @@ urlpatterns = [
     path('restaurants/register/', views.register_restaurant, name='register_restaurant'),
 
     path('restaurant/register/', 
-         RestaurantRegistrationWizard.as_view([
-             ('auth_info', RestaurantAuthInfoForm),
-             ('basic_info', RestaurantBasicInfoForm),
-             ('owner_info', RestaurantOwnerInfoForm),
-             ('legal_docs', RestaurantLegalDocsForm),
-             ('photos', RestaurantPhotosForm)
-         ]), 
+         'foodapp.views.RestaurantRegistrationWizard.as_view(['
+         '("auth_info", RestaurantAuthInfoForm),'
+         '("basic_info", RestaurantBasicInfoForm),'
+         '("owner_info", RestaurantOwnerInfoForm),'
+         '("legal_docs", RestaurantLegalDocsForm),'
+         '("photos", RestaurantPhotosForm)'
+         '])', 
          name='restaurant_register'),
 
     # API Endpoints
@@ -113,11 +112,11 @@ urlpatterns = [
     path('dashboard/admin/restaurants/<int:restaurant_id>/<str:action>/', views.restaurant_approval, name='restaurant_approval'),
     
     # Subscription URLs
-    path('subscription/plans/', user_pricing_plans, name='user_pricing_plans'),
-    path('subscription/checkout/<str:plan_type>/<int:plan_id>/', subscription_checkout, name='subscription_checkout'),
-    path('subscription/my-plan/', user_subscription, name='user_subscription'),
-    path('subscription/cancel/', cancel_subscription, name='cancel_subscription'),
-    path('subscription/update-auto-renew/', update_auto_renew, name='update_auto_renew'),
+    path('subscription/plans/', views.user_pricing_plans, name='user_pricing_plans'),
+    path('subscription/checkout/<str:plan_type>/<int:plan_id>/', views.subscription_checkout, name='subscription_checkout'),
+    path('subscription/my-plan/', views.user_subscription, name='user_subscription'),
+    path('subscription/cancel/', views.cancel_subscription, name='cancel_subscription'),
+    path('subscription/update-auto-renew/', views.update_auto_renew, name='update_auto_renew'),
 ]
 
 if settings.DEBUG:
