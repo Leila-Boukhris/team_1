@@ -4,8 +4,12 @@ from . import views_admin
 from django.shortcuts import redirect
 from django.conf import settings
 from django.conf.urls.static import static
-from .forms import RestaurantAuthInfoForm, RestaurantBasicInfoForm, RestaurantOwnerInfoForm, RestaurantLegalDocsForm, RestaurantPhotosForm
 from .views_i18n import set_language_custom
+from .views import RestaurantRegistrationWizard
+from .forms import (
+    RestaurantAuthInfoForm, RestaurantBasicInfoForm,
+    RestaurantOwnerInfoForm, RestaurantLegalDocsForm, RestaurantPhotosForm
+)
 
 # Fonction pour rediriger vers login
 def redirect_to_login(request):
@@ -14,6 +18,27 @@ def redirect_to_login(request):
 # Fonction pour rediriger vers l'inscription restaurant par étapes
 def redirect_to_restaurant_wizard(request):
     return redirect('restaurant_register')
+
+# Define the form list for the wizard
+RESTAURANT_WIZARD_FORMS = [
+    ("auth_info", RestaurantAuthInfoForm),
+    ("basic_info", RestaurantBasicInfoForm),
+    ("owner_info", RestaurantOwnerInfoForm),
+    ("legal_docs", RestaurantLegalDocsForm),
+    ("photos", RestaurantPhotosForm),
+]
+
+# Define the form list for the wizard
+RESTAURANT_WIZARD_FORMS = [
+    ("auth_info", RestaurantAuthInfoForm),
+    ("basic_info", RestaurantBasicInfoForm),
+    ("owner_info", RestaurantOwnerInfoForm),
+    ("legal_docs", RestaurantLegalDocsForm),
+    ("photos", RestaurantPhotosForm),
+]
+
+# Create the wizard view with the form list
+restaurant_registration_wizard = RestaurantRegistrationWizard.as_view(form_list=RESTAURANT_WIZARD_FORMS)
 
 urlpatterns = [
     # Pages principales
@@ -79,16 +104,7 @@ urlpatterns = [
     path('terms-of-service/', views.terms_of_service, name='terms_of_service'),
 
     path('restaurants/register/', views.register_restaurant, name='register_restaurant'),
-
-    path('restaurant/register/', 
-         'foodapp.views.RestaurantRegistrationWizard.as_view(['
-         '("auth_info", RestaurantAuthInfoForm),'
-         '("basic_info", RestaurantBasicInfoForm),'
-         '("owner_info", RestaurantOwnerInfoForm),'
-         '("legal_docs", RestaurantLegalDocsForm),'
-         '("photos", RestaurantPhotosForm)'
-         '])', 
-         name='restaurant_register'),
+    path('restaurant/register/', restaurant_registration_wizard, name='restaurant_register'),
 
     # API Endpoints
     path('api/cart/add/', views.add_to_cart, name='api_add_to_cart'),

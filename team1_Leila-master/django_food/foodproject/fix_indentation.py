@@ -1,7 +1,6 @@
 """
 Script pour corriger les problèmes d'indentation dans le fichier views.py
 """
-
 import re
 
 def fix_indentation_issues(file_path):
@@ -13,7 +12,7 @@ def fix_indentation_issues(file_path):
     in_get_dishes = False
     in_reservation = False
     in_signup = False
-
+    in_dashboard = False
     for line in content:
         # Problème 1: Indentation dans get_dishes
         if 'def get_dishes(request):' in line:
