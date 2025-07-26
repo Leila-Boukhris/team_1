@@ -75,48 +75,49 @@ def dish_detail(request, dish_id):
 
 def dish_list(request):
     """Vue pour afficher la liste des plats avec tri et filtrage"""
-    dishes = Dish.objects.all()
+    from .models import Dish, City
+    from django.db.models import Q
+    
+    # Initialize the query
+    dishes = Dish.objects.select_related('city', 'restaurant').all()
+    
+    # Get filter parameters
     sort_by = request.GET.get('sort', 'name')
     city_id = request.GET.get('city')
-
-    if city_id:
-        dishes = dishes.filter(city_id=city_id)
-
-    if USE_CPP_OPTIMIZATION:
-        # Convertir les plats en format compatible avec le module C++
-        dishes_data = [
-            {
-                'id': dish.id,
-                'name': dish.name,
-                'price_range': dish.price_range,
-                'type': dish.type,
-                'city_id': dish.city.id if dish.city else 0
-            }
-            for dish in dishes
-        ]
+    dish_type = request.GET.get('type')
+    search_query = request.GET.get('q', '')
+    
+    # Apply filters
+    if city_id and city_id.isdigit():
+        dishes = dishes.filter(city_id=int(city_id))
+    
+    if dish_type:
+        dishes = dishes.filter(type=dish_type)
         
-        # Utiliser le tri rapide C++
-        sorted_dishes = fast_sort_dishes(dishes_data, sort_by)
-        
-        # Reconvertir en QuerySet Django
-        dish_ids = [dish['id'] for dish in sorted_dishes]
-        dishes = Dish.objects.filter(id__in=dish_ids)
-        # Préserver l'ordre du tri C++
-        dishes = sorted(dishes, key=lambda x: dish_ids.index(x.id))
-    else:
-        # Tri Python standard
-        if sort_by == 'price_asc':
-            dishes = dishes.order_by('price_range')
-        elif sort_by == 'price_desc':
-            dishes = dishes.order_by('-price_range')
-        elif sort_by == 'name':
-            dishes = dishes.order_by('name')
-
+    if search_query:
+        dishes = dishes.filter(
+            Q(name__icontains=search_query) | 
+            Q(description__icontains=search_query)
+        )
+    
+    # Apply sorting
+    if sort_by == 'price_asc':
+        dishes = dishes.order_by('price')
+    elif sort_by == 'price_desc':
+        dishes = dishes.order_by('-price')
+    elif sort_by == 'rating':
+        dishes = dishes.order_by('-average_rating')
+    else:  # Default sort by name
+        dishes = dishes.order_by('name')
+    
+    # Prepare context
     context = {
         'dishes': dishes,
-        'current_sort': sort_by,
-        'cities': City.objects.all(),
-        'selected_city': city_id
+        'cities': City.objects.all().order_by('name'),
+        'selected_city': int(city_id) if city_id and city_id.isdigit() else None,
+        'selected_type': dish_type,
+        'search_query': search_query,
+        'sort_by': sort_by,
     }
     
     return render(request, 'foodapp/dish_list.html', context)
@@ -2124,15 +2125,19 @@ def moroccan_cuisine(request):
     View to display Moroccan cuisine restaurants and dishes.
     Shows both restaurants serving Moroccan cuisine and individual Moroccan dishes.
     """
-    # Get Moroccan restaurants (assuming there's a cuisine field in the Restaurant model)
+    from django.db.models import Count
+    
+    # Get restaurants that have Moroccan dishes
     moroccan_restaurants = Restaurant.objects.filter(
-        Q(cuisine__icontains='moroccan') | 
-        Q(description__icontains='moroccan')
-    ).distinct()
+        dishes__origin='moroccan'
+    ).annotate(
+        num_moroccan_dishes=Count('dishes', filter=Q(dishes__origin='moroccan'))
+    ).filter(num_moroccan_dishes__gt=0).distinct()
     
     # Get Moroccan dishes
     moroccan_dishes = Dish.objects.filter(
-        Q(description__icontains='moroccan') |
+        Q(origin='moroccan') |
+        Q(description__icontains='maroc') |
         Q(name__icontains='tajine') |
         Q(name__icontains='couscous') |
         Q(name__icontains='pastilla')
@@ -2141,11 +2146,10 @@ def moroccan_cuisine(request):
     # Get featured Moroccan dishes (for carousel or highlights)
     featured_dishes = moroccan_dishes.order_by('?')[:5]  # Random 5 dishes
     
-    # Get categories specific to Moroccan cuisine
+    # Get categories that contain Moroccan dishes
     moroccan_categories = Category.objects.filter(
-        Q(name__icontains='moroccan') |
-        Q(description__icontains='moroccan')
-    )
+        dishes__in=moroccan_dishes
+    ).distinct()
     
     context = {
         'restaurants': moroccan_restaurants,
@@ -2155,7 +2159,7 @@ def moroccan_cuisine(request):
         'cuisine_name': 'Moroccan',
     }
     
-    return render(request, 'foodapp/cuisine/moroccan.html', context)
+    return render(request, 'foodapp/moroccan_cuisine.html', context)
 
 def get_dishes(request):
     """
@@ -2463,7 +2467,7 @@ def login_view(request):
         'title': 'Connexion',
     }
     
-    return render(request, 'registration/login.html', context)
+    return render(request, 'foodapp/login.html', context)
 
 def logout_view(request):
     """
